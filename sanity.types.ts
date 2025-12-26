@@ -639,6 +639,287 @@ export type Geopoint = {
 
 export type AllSanitySchemaTypes = Navigation | SiteSettings | SanityImageCrop | SanityImageHotspot | Contact | Service | Slug | Blog | Achievement | Certification | Testimonial | Education | Experience | Skill | Profile | Project | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset | Geopoint;
 export declare const internalGroqTypeReferenceTo: unique symbol;
+// Source: ./src/components/chat/ChatWrapper.tsx
+// Variable: CHAT_PROFILE_QUERY
+// Query: *[_id == "singleton-profile"][0]{    _id,    _type,    _createdAt,    _updatedAt,    _rev,    firstName,    lastName,    headline,    shortBio,    email,    phone,    location,    availability,    socialLinks,    yearsOfExperience,    profileImage  }
+export type CHAT_PROFILE_QUERYResult = {
+  _id: string;
+  _type: "achievement";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  firstName: null;
+  lastName: null;
+  headline: null;
+  shortBio: null;
+  email: null;
+  phone: null;
+  location: null;
+  availability: null;
+  socialLinks: null;
+  yearsOfExperience: null;
+  profileImage: null;
+} | {
+  _id: string;
+  _type: "blog";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  firstName: null;
+  lastName: null;
+  headline: null;
+  shortBio: null;
+  email: null;
+  phone: null;
+  location: null;
+  availability: null;
+  socialLinks: null;
+  yearsOfExperience: null;
+  profileImage: null;
+} | {
+  _id: string;
+  _type: "certification";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  firstName: null;
+  lastName: null;
+  headline: null;
+  shortBio: null;
+  email: null;
+  phone: null;
+  location: null;
+  availability: null;
+  socialLinks: null;
+  yearsOfExperience: null;
+  profileImage: null;
+} | {
+  _id: string;
+  _type: "contact";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  firstName: null;
+  lastName: null;
+  headline: null;
+  shortBio: null;
+  email: string | null;
+  phone: null;
+  location: null;
+  availability: null;
+  socialLinks: null;
+  yearsOfExperience: null;
+  profileImage: null;
+} | {
+  _id: string;
+  _type: "education";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  firstName: null;
+  lastName: null;
+  headline: null;
+  shortBio: null;
+  email: null;
+  phone: null;
+  location: null;
+  availability: null;
+  socialLinks: null;
+  yearsOfExperience: null;
+  profileImage: null;
+} | {
+  _id: string;
+  _type: "experience";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  firstName: null;
+  lastName: null;
+  headline: null;
+  shortBio: null;
+  email: null;
+  phone: null;
+  location: string | null;
+  availability: null;
+  socialLinks: null;
+  yearsOfExperience: null;
+  profileImage: null;
+} | {
+  _id: string;
+  _type: "navigation";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  firstName: null;
+  lastName: null;
+  headline: null;
+  shortBio: null;
+  email: null;
+  phone: null;
+  location: null;
+  availability: null;
+  socialLinks: null;
+  yearsOfExperience: null;
+  profileImage: null;
+} | {
+  _id: string;
+  _type: "profile";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  firstName: string | null;
+  lastName: string | null;
+  headline: string | null;
+  shortBio: string | null;
+  email: string | null;
+  phone: string | null;
+  location: string | null;
+  availability: "available" | "open" | "unavailable" | null;
+  socialLinks: {
+    github?: string;
+    linkedin?: string;
+    twitter?: string;
+    website?: string;
+    medium?: string;
+    devto?: string;
+    youtube?: string;
+    stackoverflow?: string;
+  } | null;
+  yearsOfExperience: number | null;
+  profileImage: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  } | null;
+} | {
+  _id: string;
+  _type: "project";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  firstName: null;
+  lastName: null;
+  headline: null;
+  shortBio: null;
+  email: null;
+  phone: null;
+  location: null;
+  availability: null;
+  socialLinks: null;
+  yearsOfExperience: null;
+  profileImage: null;
+} | {
+  _id: string;
+  _type: "sanity.fileAsset";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  firstName: null;
+  lastName: null;
+  headline: null;
+  shortBio: null;
+  email: null;
+  phone: null;
+  location: null;
+  availability: null;
+  socialLinks: null;
+  yearsOfExperience: null;
+  profileImage: null;
+} | {
+  _id: string;
+  _type: "sanity.imageAsset";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  firstName: null;
+  lastName: null;
+  headline: null;
+  shortBio: null;
+  email: null;
+  phone: null;
+  location: null;
+  availability: null;
+  socialLinks: null;
+  yearsOfExperience: null;
+  profileImage: null;
+} | {
+  _id: string;
+  _type: "service";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  firstName: null;
+  lastName: null;
+  headline: null;
+  shortBio: null;
+  email: null;
+  phone: null;
+  location: null;
+  availability: null;
+  socialLinks: null;
+  yearsOfExperience: null;
+  profileImage: null;
+} | {
+  _id: string;
+  _type: "siteSettings";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  firstName: null;
+  lastName: null;
+  headline: null;
+  shortBio: null;
+  email: null;
+  phone: null;
+  location: null;
+  availability: null;
+  socialLinks: null;
+  yearsOfExperience: null;
+  profileImage: null;
+} | {
+  _id: string;
+  _type: "skill";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  firstName: null;
+  lastName: null;
+  headline: null;
+  shortBio: null;
+  email: null;
+  phone: null;
+  location: null;
+  availability: null;
+  socialLinks: null;
+  yearsOfExperience: number | null;
+  profileImage: null;
+} | {
+  _id: string;
+  _type: "testimonial";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  firstName: null;
+  lastName: null;
+  headline: null;
+  shortBio: null;
+  email: null;
+  phone: null;
+  location: null;
+  availability: null;
+  socialLinks: null;
+  yearsOfExperience: null;
+  profileImage: null;
+} | null;
+
 // Source: ./src/components/sections/AboutSection.tsx
 // Variable: ABOUT_QUERY
 // Query: *[_id == "singleton-profile"][0]{  firstName,  lastName,  fullBio,  yearsOfExperience,  stats,  email,  phone,  location}
@@ -837,6 +1118,7 @@ export type HERO_QUERYResult = {
 import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
+    "*[_id == \"singleton-profile\"][0]{\n    _id,\n    _type,\n    _createdAt,\n    _updatedAt,\n    _rev,\n    firstName,\n    lastName,\n    headline,\n    shortBio,\n    email,\n    phone,\n    location,\n    availability,\n    socialLinks,\n    yearsOfExperience,\n    profileImage\n  }": CHAT_PROFILE_QUERYResult;
     "*[_id == \"singleton-profile\"][0]{\n  firstName,\n  lastName,\n  fullBio,\n  yearsOfExperience,\n  stats,\n  email,\n  phone,\n  location\n}": ABOUT_QUERYResult;
     "*[_id== \"singleton-profile\"][0] {\n  firstName,\n  lastName,\n  headline,\n  headlineStaticText,\n  headlineAnimatedWords,\n  headlineAnimationDuration,\n  shortBio,\n  fullBio,\n  email,\n  phone,\n  location,\n  availability,\n  socialLinks,\n  yearsOfExperience,\n  profileImage,\n}": HERO_QUERYResult;
   }
