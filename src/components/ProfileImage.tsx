@@ -3,7 +3,7 @@
 import { useClerk, useUser } from "@clerk/nextjs";
 import { MessageCircle, X } from "lucide-react";
 import Image from "next/image";
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSidebar } from "./ui/sidebar";
 
 interface ProfileImageProps {
@@ -35,7 +35,7 @@ export function ProfileImage({
   }, []); // hasSetMounted ref is stable, doesn't need to be in deps
 
   // Only use Clerk values after mount to avoid SSR issues
-  const isSignedIn = mounted ? userResult.isSignedIn ?? false : false;
+  const isSignedIn = mounted ? (userResult.isSignedIn ?? false) : false;
   const openSignIn = mounted ? clerkResult.openSignIn : undefined;
 
   return (

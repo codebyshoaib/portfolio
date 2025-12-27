@@ -5,7 +5,7 @@ import { FloatingDockClient } from "./FloatingDockClient";
 
 const FloatingDockClientDynamic = dynamic(
   () => Promise.resolve({ default: FloatingDockClient }),
-  { ssr: false }
+  { ssr: false },
 );
 
 interface FloatingDockWrapperProps {

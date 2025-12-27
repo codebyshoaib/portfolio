@@ -3,7 +3,7 @@
 import { useClerk, useUser } from "@clerk/nextjs";
 import { IconLogout, IconMenu2, IconX } from "@tabler/icons-react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { DynamicIcon } from "./DynamicIcon";
 import { useSidebar } from "./ui/sidebar";
 
@@ -55,7 +55,7 @@ export function FloatingDockClient({ navItems }: FloatingDockClientProps) {
   }, []);
 
   // Only use Clerk values after mount to avoid SSR issues
-  const isSignedIn = mounted ? userResult.isSignedIn ?? false : false;
+  const isSignedIn = mounted ? (userResult.isSignedIn ?? false) : false;
   const signOut = mounted ? clerkResult.signOut : undefined;
 
   const isSidebarOpen = isMobile ? openMobile : open;

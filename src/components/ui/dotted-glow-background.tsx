@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type DottedGlowBackgroundProps = {
   className?: string;
@@ -66,32 +66,31 @@ export const DottedGlowBackground = ({
   const [resolvedGlowColor, setResolvedGlowColor] = useState<string>(glowColor);
 
   // Resolve CSS variable value from the container or root
-  const resolveCssVariable = (
-    el: Element,
-    variableName?: string,
-  ): string | null => {
-    if (!variableName) return null;
-    const normalized = variableName.startsWith("--")
-      ? variableName
-      : `--${variableName}`;
-    const fromEl = getComputedStyle(el as Element)
-      .getPropertyValue(normalized)
-      .trim();
-    if (fromEl) return fromEl;
-    const root = document.documentElement;
-    const fromRoot = getComputedStyle(root).getPropertyValue(normalized).trim();
-    return fromRoot || null;
-  };
+  const resolveCssVariable = useCallback(
+    (el: Element, variableName?: string): string | null => {
+      if (!variableName) return null;
+      const normalized = variableName.startsWith("--")
+        ? variableName
+        : `--${variableName}`;
+      const fromEl = getComputedStyle(el as Element)
+        .getPropertyValue(normalized)
+        .trim();
+      if (fromEl) return fromEl;
+      const root = document.documentElement;
+      const fromRoot = getComputedStyle(root)
+        .getPropertyValue(normalized)
+        .trim();
+      return fromRoot || null;
+    },
+    [],
+  );
 
-  const detectDarkMode = (): boolean => {
+  const detectDarkMode = useCallback((): boolean => {
     const root = document.documentElement;
     if (root.classList.contains("dark")) return true;
     if (root.classList.contains("light")) return false;
-    return (
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches
-    );
-  };
+    return window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+  }, []);
 
   // Keep resolved colors in sync with theme changes and prop updates
   useEffect(() => {
@@ -146,6 +145,8 @@ export const DottedGlowBackground = ({
     colorDarkVar,
     glowColorLightVar,
     glowColorDarkVar,
+    detectDarkMode,
+    resolveCssVariable,
   ]);
 
   useEffect(() => {
@@ -207,7 +208,7 @@ export const DottedGlowBackground = ({
 
     const draw = (now: number) => {
       if (stopped) return;
-      const dt = (now - last) / 1000; // seconds
+      const _dt = (now - last) / 1000; // seconds
       last = now;
       const { width, height } = container.getBoundingClientRect();
 

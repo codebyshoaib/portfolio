@@ -1,20 +1,85 @@
 "use client";
 
+import { Loader2, Send, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useSidebar } from "../ui/sidebar";
-import { useState, useRef, useEffect } from "react";
-import { X, Send, Loader2 } from "lucide-react";
+
 interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
 }
 
+interface Profile {
+  firstName?: string | null;
+  lastName?: string | null;
+  headline?: string | null;
+  shortBio?: string | null;
+  fullBio?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  location?: string | null;
+  availability?: string | null;
+  socialLinks?: unknown[];
+  yearsOfExperience?: number | null;
+  stats?: unknown[];
+}
+
+interface Technology {
+  name?: string | null;
+  category?: string | null;
+}
+
+interface Experience {
+  _id?: string;
+  jobTitle?: string | null;
+  company?: string | null;
+  location?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  current?: boolean | null;
+  description?: string | null;
+  achievements?: string[] | null;
+  technologies?: Technology[] | null;
+}
+
+interface Project {
+  _id?: string;
+  title?: string | null;
+  tagline?: string | null;
+  category?: string | null;
+  liveUrl?: string | null;
+  githubUrl?: string | null;
+  technologies?: Technology[] | null;
+}
+
+interface Skill {
+  _id?: string;
+  name?: string | null;
+  category?: string | null;
+  level?: string | null;
+  yearsOfExperience?: number | null;
+  percentage?: number | null;
+}
+
+interface Education {
+  _id?: string;
+  degree?: string | null;
+  field?: string | null;
+  institution?: string | null;
+  location?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  description?: string | null;
+  gpa?: string | null;
+}
+
 interface ChatData {
-  profile: any;
-  experience: any[];
-  projects: any[];
-  skills: any[];
-  education: any[];
+  profile?: Profile | null;
+  experience?: Experience[] | null;
+  projects?: Project[] | null;
+  skills?: Skill[] | null;
+  education?: Education[] | null;
 }
 
 export function Chat({ profile: chatData }: { profile: ChatData | null }) {
@@ -57,7 +122,7 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
         ? `Hi! I'm ${[firstName, lastName]
             .filter(Boolean)
             .join(
-              " "
+              " ",
             )}. Ask me anything about my work, experience, or projects.`
         : "Hi there! Ask me anything about my work, experience, or projects.";
 
@@ -80,7 +145,7 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
 
   // Gatekeeper: Check if question is related to portfolio/profile
   const isQuestionRelevant = (
-    question: string
+    question: string,
   ): { relevant: boolean; message?: string } => {
     const lowerQuestion = question.toLowerCase().trim();
 
@@ -174,13 +239,13 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
 
     // Check if question contains relevant keywords
     const hasRelevantKeywords = relevantKeywords.some((keyword) =>
-      lowerQuestion.includes(keyword)
+      lowerQuestion.includes(keyword),
     );
 
     // Check if it's a generic "what is X" question (not about the person)
     const isGenericQuestion = offTopicKeywords.some(
       (keyword) =>
-        lowerQuestion.startsWith(keyword) && !lowerQuestion.includes("your")
+        lowerQuestion.startsWith(keyword) && !lowerQuestion.includes("your"),
     );
 
     // Check if it's too short or vague
@@ -327,8 +392,8 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
                     prev.map((msg) =>
                       msg.id === assistantMessageId
                         ? { ...msg, content: msg.content + content }
-                        : msg
-                    )
+                        : msg,
+                    ),
                   );
                 }
               } catch {
@@ -425,7 +490,7 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
                     ? `Hi! I'm ${[profile.firstName, profile.lastName]
                         .filter(Boolean)
                         .join(
-                          " "
+                          " ",
                         )}. Ask me anything about my work, experience, or projects.`
                     : "Hi there! Ask me anything about my work, experience, or projects.")}
               </p>

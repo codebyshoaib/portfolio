@@ -2,16 +2,16 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
-import { SanityLive } from "@/sanity/lib/live";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
-import SidebarToggle from "@/components/SidebarToggle";
-import { FloatingDock } from "@/components/FloatingDock";
-import { ThemeProvider } from "@/components/ThemeProvider";
-import { ModeToggle } from "@/components/ui/DarkModeToggle";
 import { draftMode } from "next/headers";
 import { VisualEditing } from "next-sanity/visual-editing";
+import { AppSidebar } from "@/components/app-sidebar";
 import { DisableDraftMode } from "@/components/DisableDraftMode";
+import { FloatingDock } from "@/components/FloatingDock";
+import SidebarToggle from "@/components/SidebarToggle";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { ModeToggle } from "@/components/ui/DarkModeToggle";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { SanityLive } from "@/sanity/lib/live";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

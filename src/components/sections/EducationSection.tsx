@@ -4,6 +4,7 @@ import Link from "next/link";
 import { defineQuery } from "next-sanity";
 import { urlFor } from "@/sanity/lib/image";
 import { sanityFetch } from "@/sanity/lib/live";
+
 //import { DottedGlowBackground } from "../ui/dotted-glow-background";
 
 const EDUCATION_QUERY =
@@ -111,8 +112,8 @@ export async function EducationSection() {
                       {edu.current
                         ? "Present"
                         : edu.endDate
-                        ? formatDate(edu.endDate)
-                        : "N/A"}
+                          ? formatDate(edu.endDate)
+                          : "N/A"}
                     </span>
                   </div>
                   {edu.gpa && (

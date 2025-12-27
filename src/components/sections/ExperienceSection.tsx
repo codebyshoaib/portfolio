@@ -92,8 +92,8 @@ export async function ExperienceSection() {
                         {exp.current
                           ? "Present"
                           : exp.endDate
-                          ? formatDate(exp.endDate)
-                          : "N/A"}
+                            ? formatDate(exp.endDate)
+                            : "N/A"}
                       </span>
                       {exp.location && (
                         <>

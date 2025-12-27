@@ -112,7 +112,7 @@ export async function AchievementsSection() {
                       {achievement.type && (
                         <span
                           className={`px-2.5 py-1 text-xs rounded-full font-medium ${getTypeColor(
-                            achievement.type
+                            achievement.type,
                           )}`}
                         >
                           {getTypeLabel(achievement.type)}
@@ -189,7 +189,7 @@ export async function AchievementsSection() {
                         {achievement.type && (
                           <span
                             className={`px-2 py-0.5 @md/card:py-1 text-xs rounded-full font-medium ${getTypeColor(
-                              achievement.type
+                              achievement.type,
                             )}`}
                           >
                             {getTypeLabel(achievement.type)}

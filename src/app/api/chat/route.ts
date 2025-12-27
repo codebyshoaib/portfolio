@@ -1,3 +1,47 @@
+interface Technology {
+  name: string;
+  category?: string;
+}
+
+interface Experience {
+  jobTitle?: string;
+  company?: string;
+  location?: string;
+  startDate?: string;
+  endDate?: string;
+  current?: boolean;
+  description?: string;
+  achievements?: string[];
+  technologies?: Technology[];
+}
+
+interface Project {
+  title?: string;
+  tagline?: string;
+  category?: string;
+  liveUrl?: string;
+  githubUrl?: string;
+  technologies?: Technology[];
+}
+
+interface Skill {
+  name?: string;
+  category?: string;
+  level?: string;
+  yearsOfExperience?: number;
+}
+
+interface Education {
+  degree?: string;
+  field?: string;
+  institution?: string;
+  location?: string;
+  startDate?: string;
+  endDate?: string;
+  gpa?: string;
+  description?: string;
+}
+
 export async function POST(req: Request) {
   try {
     const { messages, profileData } = await req.json();
@@ -5,7 +49,7 @@ export async function POST(req: Request) {
     if (!process.env.GROQ_API_KEY) {
       return new Response(
         JSON.stringify({ error: "GROQ_API_KEY is not set" }),
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -41,7 +85,7 @@ export async function POST(req: Request) {
       // Add experience
       if (experience && experience.length > 0) {
         systemPrompt += `\n\nYour Professional Experience:\n`;
-        experience.forEach((exp: any, idx: number) => {
+        experience.forEach((exp: Experience, idx: number) => {
           systemPrompt += `${idx + 1}. ${exp.jobTitle} at ${exp.company}`;
           if (exp.location) systemPrompt += ` (${exp.location})`;
           if (exp.startDate) {
@@ -52,12 +96,12 @@ export async function POST(req: Request) {
           if (exp.description) systemPrompt += `\n   ${exp.description}`;
           if (exp.achievements && exp.achievements.length > 0) {
             systemPrompt += `\n   Key Achievements: ${exp.achievements.join(
-              ", "
+              ", ",
             )}`;
           }
           if (exp.technologies && exp.technologies.length > 0) {
             const techNames = exp.technologies
-              .map((t: any) => t.name)
+              .map((t: Technology) => t.name)
               .filter(Boolean);
             if (techNames.length > 0) {
               systemPrompt += `\n   Technologies: ${techNames.join(", ")}`;
@@ -70,7 +114,7 @@ export async function POST(req: Request) {
       // Add projects
       if (projects && projects.length > 0) {
         systemPrompt += `\n\nYour Projects:\n`;
-        projects.forEach((proj: any, idx: number) => {
+        projects.forEach((proj: Project, idx: number) => {
           systemPrompt += `${idx + 1}. ${proj.title}`;
           if (proj.tagline) systemPrompt += ` - ${proj.tagline}`;
           if (proj.category) systemPrompt += ` (${proj.category})`;
@@ -78,7 +122,7 @@ export async function POST(req: Request) {
           if (proj.githubUrl) systemPrompt += `\n   GitHub: ${proj.githubUrl}`;
           if (proj.technologies && proj.technologies.length > 0) {
             const techNames = proj.technologies
-              .map((t: any) => t.name)
+              .map((t: Technology) => t.name)
               .filter(Boolean);
             if (techNames.length > 0) {
               systemPrompt += `\n   Technologies: ${techNames.join(", ")}`;
@@ -91,8 +135,8 @@ export async function POST(req: Request) {
       // Add skills
       if (skills && skills.length > 0) {
         systemPrompt += `\n\nYour Skills:\n`;
-        const skillsByCategory: Record<string, any[]> = {};
-        skills.forEach((skill: any) => {
+        const skillsByCategory: Record<string, Skill[]> = {};
+        skills.forEach((skill: Skill) => {
           const category = skill.category || "Other";
           if (!skillsByCategory[category]) skillsByCategory[category] = [];
           skillsByCategory[category].push(skill);
@@ -102,7 +146,7 @@ export async function POST(req: Request) {
           ([category, categorySkills]) => {
             systemPrompt += `${category}: `;
             const skillNames = categorySkills
-              .map((s: any) => {
+              .map((s: Skill) => {
                 let name = s.name;
                 if (s.level) name += ` (${s.level})`;
                 if (s.yearsOfExperience)
@@ -111,14 +155,14 @@ export async function POST(req: Request) {
               })
               .join(", ");
             systemPrompt += `${skillNames}\n`;
-          }
+          },
         );
       }
 
       // Add education
       if (education && education.length > 0) {
         systemPrompt += `\n\nYour Education:\n`;
-        education.forEach((edu: any, idx: number) => {
+        education.forEach((edu: Education, idx: number) => {
           systemPrompt += `${idx + 1}. ${edu.degree}`;
           if (edu.field) systemPrompt += ` in ${edu.field}`;
           systemPrompt += ` from ${edu.institution}`;
@@ -164,7 +208,7 @@ export async function POST(req: Request) {
           max_tokens: 1024,
           stream: true,
         }),
-      }
+      },
     );
 
     if (!response.ok) {
@@ -183,7 +227,7 @@ export async function POST(req: Request) {
     console.error("Groq API error:", error);
     return new Response(
       JSON.stringify({ error: "Failed to process chat request" }),
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
