@@ -155,4 +155,15 @@
     --chart-4: oklch(0.627 0.265 303.9);
     --chart-5: oklch(0.645 0.246 16.439);
   }
+
+  /* Hide mode toggle when sidebar is open */
+  /* Desktop: Hide when sidebar has data-state="expanded" */
+  .group\/sidebar-wrapper:has([data-state="expanded"]) .mode-toggle-wrapper {
+    display: none !important;
+  }
+  
+  /* Mobile: Hide when Sheet is open (data-state="open") */
+  body:has([data-state="open"][data-sidebar="sidebar"]) .mode-toggle-wrapper {
+    display: none !important;
+  }
 }

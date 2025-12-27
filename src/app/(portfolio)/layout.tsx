@@ -50,7 +50,7 @@ export default async function RootLayout({
               <AppSidebar side="right" />
               <FloatingDock />
               <SidebarToggle />
-              <div className="fixed bottom-4 left-4 md:bottom-auto md:left-auto md:top-6 md:right-6 z-[60] pointer-events-auto">
+              <div className="mode-toggle-wrapper fixed bottom-4 left-4 md:bottom-auto md:left-auto md:top-6 md:right-6 z-30 pointer-events-auto">
                 <div className="w-10 h-10 md:w-12 md:h-12">
                   <ModeToggle />
                 </div>
