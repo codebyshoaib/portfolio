@@ -3,6 +3,7 @@ import { defineQuery } from "next-sanity";
 import { sanityFetch } from "@/sanity/lib/live";
 import WorldMapWrapper from "../world-map-wrapper";
 import { ContactForm } from "./ContactForm";
+import { MailIcon, MapPinIcon, PhoneIcon } from "lucide-react";
 
 const PROFILE_QUERY = defineQuery(`*[_id == "singleton-profile"][0]{
   email,
@@ -42,7 +43,7 @@ export async function ContactSection() {
               {profile.email && (
                 <div className="flex items-start gap-3 @md/info:gap-4">
                   <div className="w-10 h-10 @md/info:w-12 @md/info:h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-xl @md/info:text-2xl">📧</span>
+                    <MailIcon className="w-5 h-5 @md/info:w-6 @md/info:h-6 text-foreground group-hover:text-foreground" />
                   </div>
                   <div className="min-w-0">
                     <h4 className="font-semibold mb-1 text-sm @md/info:text-base">
@@ -61,7 +62,7 @@ export async function ContactSection() {
               {profile.phone && (
                 <div className="flex items-start gap-3 @md/info:gap-4">
                   <div className="w-10 h-10 @md/info:w-12 @md/info:h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-xl @md/info:text-2xl">📱</span>
+                    <PhoneIcon className="w-5 h-5 @md/info:w-6 @md/info:h-6 text-foreground group-hover:text-foreground" />
                   </div>
                   <div className="min-w-0">
                     <h4 className="font-semibold mb-1 text-sm @md/info:text-base">
@@ -80,7 +81,7 @@ export async function ContactSection() {
               {profile.location && (
                 <div className="flex items-start gap-3 @md/info:gap-4">
                   <div className="w-10 h-10 @md/info:w-12 @md/info:h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-xl @md/info:text-2xl">📍</span>
+                    <MapPinIcon className="w-5 h-5 @md/info:w-6 @md/info:h-6 text-foreground group-hover:text-foreground" />
                   </div>
                   <div className="min-w-0">
                     <h4 className="font-semibold mb-1 text-sm @md/info:text-base">
