@@ -1,6 +1,6 @@
 import { defineQuery } from "next-sanity";
 import { sanityFetch } from "@/sanity/lib/live";
-import { FloatingDockClient } from "./FloatingDockClient";
+import { FloatingDockWrapper } from "./FloatingDockWrapper";
 
 const NAVIGATION_QUERY =
   defineQuery(`*[_type == "navigation"] | order(order asc){
@@ -17,5 +17,5 @@ export async function FloatingDock() {
     return null;
   }
 
-  return <FloatingDockClient navItems={navItems} />;
+  return <FloatingDockWrapper navItems={navItems} />;
 }

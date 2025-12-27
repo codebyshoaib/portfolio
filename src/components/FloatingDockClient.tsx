@@ -3,7 +3,7 @@
 import { useClerk, useUser } from "@clerk/nextjs";
 import { IconLogout, IconMenu2, IconX } from "@tabler/icons-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DynamicIcon } from "./DynamicIcon";
 import { useSidebar } from "./ui/sidebar";
 
@@ -39,12 +39,24 @@ const getVisibleLinks = (links: DockLink[], maxItems: number) => {
 };
 
 export function FloatingDockClient({ navItems }: FloatingDockClientProps) {
-  const { isSignedIn } = useUser();
-  const { signOut } = useClerk();
+  const [mounted, setMounted] = useState(false);
+
+  // Always call hooks unconditionally (React rules)
+  const userResult = useUser();
+  const clerkResult = useClerk();
+
   const { open, isMobile, openMobile } = useSidebar();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [desktopMoreMenuOpen, setDesktopMoreMenuOpen] = useState(false);
   const [mobileMoreMenuOpen, setMobileMoreMenuOpen] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Only use Clerk values after mount to avoid SSR issues
+  const isSignedIn = mounted ? userResult.isSignedIn ?? false : false;
+  const signOut = mounted ? clerkResult.signOut : undefined;
 
   const isSidebarOpen = isMobile ? openMobile : open;
 
@@ -55,7 +67,7 @@ export function FloatingDockClient({ navItems }: FloatingDockClientProps) {
       icon: <DynamicIcon iconName={item.icon || "IconHome"} />,
       isExternal: item.isExternal,
     })),
-    ...(isSignedIn && !isSidebarOpen
+    ...(isSignedIn && !isSidebarOpen && signOut
       ? [
           {
             title: "Sign Out",

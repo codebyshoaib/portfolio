@@ -1,9 +1,8 @@
 "use client";
 
-import { X, Send, Loader2 } from "lucide-react";
 import { useSidebar } from "../ui/sidebar";
 import { useState, useRef, useEffect } from "react";
-
+import { X, Send, Loader2 } from "lucide-react";
 interface Message {
   id: string;
   role: "user" | "assistant";
@@ -32,36 +31,45 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const greetingSetRef = useRef(false);
+  const profileRef = useRef({
+    firstName: profile?.firstName,
+    lastName: profile?.lastName,
+  });
 
-  // Generate greeting based on available profile data
-  const getGreeting = () => {
-    if (!profile?.firstName) {
-      return "Hi there! Ask me anything about my work, experience, or projects.";
-    }
-
-    const fullName = [profile.firstName, profile.lastName]
-      .filter(Boolean)
-      .join(" ");
-
-    return `Hi! I'm ${fullName}. Ask me anything about my work, experience, or projects.`;
-  };
-
-  // Set initial greeting
+  // Update profile ref when profile changes (but don't trigger effect)
   useEffect(() => {
-    const greeting = profile?.firstName
-      ? `Hi! I'm ${[profile.firstName, profile.lastName]
-          .filter(Boolean)
-          .join(" ")}. Ask me anything about my work, experience, or projects.`
-      : "Hi there! Ask me anything about my work, experience, or projects.";
-
-    setMessages([
-      {
-        id: "greeting",
-        role: "assistant",
-        content: greeting,
-      },
-    ]);
+    profileRef.current = {
+      firstName: profile?.firstName,
+      lastName: profile?.lastName,
+    };
   }, [profile?.firstName, profile?.lastName]);
+
+  // Set initial greeting - only once on mount
+  // Using ref to ensure it only runs once, regardless of profile changes
+  useEffect(() => {
+    // Only set greeting once, using a ref to track if it's been set
+    // This prevents infinite loops even if profile props change
+    if (!greetingSetRef.current) {
+      greetingSetRef.current = true;
+      const { firstName, lastName } = profileRef.current;
+      const greeting = firstName
+        ? `Hi! I'm ${[firstName, lastName]
+            .filter(Boolean)
+            .join(
+              " "
+            )}. Ask me anything about my work, experience, or projects.`
+        : "Hi there! Ask me anything about my work, experience, or projects.";
+
+      setMessages([
+        {
+          id: "greeting",
+          role: "assistant",
+          content: greeting,
+        },
+      ]);
+    }
+  }, []); // Empty deps - only run once on mount, ref prevents re-setting
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -412,7 +420,14 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
             {/* Greeting at top - bold and prominent */}
             <div className="flex-1 flex items-end  pt-8">
               <p className="text-xl font-bold text-gray-900 dark:text-gray-100 max-w-2xl">
-                {getGreeting()}
+                {messages.find((m) => m.id === "greeting")?.content ||
+                  (profile?.firstName
+                    ? `Hi! I'm ${[profile.firstName, profile.lastName]
+                        .filter(Boolean)
+                        .join(
+                          " "
+                        )}. Ask me anything about my work, experience, or projects.`
+                    : "Hi there! Ask me anything about my work, experience, or projects.")}
               </p>
             </div>
 
