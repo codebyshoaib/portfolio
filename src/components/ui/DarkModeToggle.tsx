@@ -20,16 +20,25 @@ export function ModeToggle() {
     setMounted(true);
   }, []);
 
+  const buttonStyles = `relative w-14 h-14 rounded-full 
+    bg-background border border-border
+    shadow-sm hover:shadow-md
+    transition-all duration-200 
+    hover:scale-105
+    flex items-center justify-center
+    backdrop-blur-sm
+    hover:bg-accent/50`;
+
   if (!mounted) {
     // Return a placeholder with same dimensions to prevent layout shift
     return (
       <button
         type="button"
-        className="w-full h-full rounded-full bg-white/20 dark:bg-black/30 backdrop-blur-xl border border-white/30 dark:border-white/20 flex items-center justify-center"
+        className={buttonStyles}
         aria-label="Toggle theme"
         disabled
       >
-        <Sun className="h-5 w-5 md:h-6 md:w-6" />
+        <Sun className="h-5 w-5 text-foreground/80" />
       </button>
     );
   }
@@ -39,11 +48,11 @@ export function ModeToggle() {
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="w-full h-full rounded-full bg-white/20 dark:bg-black/30 hover:bg-white/30 dark:hover:bg-black/40 backdrop-blur-xl border border-white/30 dark:border-white/20 hover:border-white/40 dark:hover:border-white/30 shadow-[0_8px_32px_0_rgba(0,0,0,0.15)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] flex items-center justify-center text-neutral-500 dark:text-neutral-300 hover:text-neutral-600 dark:hover:text-neutral-200 transition-all duration-300 hover:scale-110"
+          className={`${buttonStyles} group`}
           aria-label="Toggle theme"
         >
-          <Sun className="h-5 w-5 md:h-6 md:w-6 scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
-          <Moon className="absolute h-5 w-5 md:h-6 md:w-6 scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+          <Sun className="h-5 w-5 text-foreground/80 group-hover:text-foreground transition-colors scale-100 rotate-0 dark:scale-0 dark:-rotate-90" />
+          <Moon className="absolute h-5 w-5 text-foreground/80 group-hover:text-foreground transition-colors scale-0 rotate-90 dark:scale-100 dark:rotate-0" />
           <span className="sr-only">Toggle theme</span>
         </button>
       </DropdownMenuTrigger>

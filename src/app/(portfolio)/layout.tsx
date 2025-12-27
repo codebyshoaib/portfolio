@@ -18,9 +18,8 @@ const FloatingDock = dynamic(
     loading: () => null,
   }
 );
-import SidebarToggle from "@/components/SidebarToggle";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { ModeToggle } from "@/components/ui/DarkModeToggle";
+import { FloatingButtons } from "@/components/FloatingButtons";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { SanityLive } from "@/sanity/lib/live";
 
@@ -60,12 +59,7 @@ export default async function RootLayout({
               <SidebarInset>{children}</SidebarInset>
               <AppSidebar side="right" />
               <FloatingDock />
-              <SidebarToggle />
-              <div className="mode-toggle-wrapper fixed bottom-4 left-4 md:bottom-auto md:left-auto md:top-6 md:right-6 z-30 pointer-events-auto">
-                <div className="w-10 h-10 md:w-12 md:h-12">
-                  <ModeToggle />
-                </div>
-              </div>
+              <FloatingButtons />
             </SidebarProvider>
 
             <SanityLive />

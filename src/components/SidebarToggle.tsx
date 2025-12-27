@@ -22,7 +22,7 @@ function SidebarToggle() {
     hover:bg-accent/50`;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 group">
+    <div className="group">
       {/* Tooltip */}
       <div className="absolute bottom-full right-0 mb-3 px-3 py-1.5 rounded-md bg-popover text-popover-foreground text-sm font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none shadow-lg border border-border">
         Chat with My AI Twin
