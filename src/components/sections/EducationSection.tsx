@@ -4,7 +4,7 @@ import Link from "next/link";
 import { defineQuery } from "next-sanity";
 import { urlFor } from "@/sanity/lib/image";
 import { sanityFetch } from "@/sanity/lib/live";
-import { DottedGlowBackground } from "../ui/dotted-glow-background";
+//import { DottedGlowBackground } from "../ui/dotted-glow-background";
 
 const EDUCATION_QUERY =
   defineQuery(`*[_type == "education"] | order(endDate desc, startDate desc){
@@ -41,7 +41,7 @@ export async function EducationSection() {
       id="education"
       className="relative py-20 px-6 bg-muted/30 overflow-hidden"
     >
-      <DottedGlowBackground
+      {/* <DottedGlowBackground
         className="pointer-events-none opacity-30 dark:opacity-50 mask-radial-to-75% mask-radial-at-bottom"
         opacity={0.5}
         gap={10}
@@ -54,7 +54,7 @@ export async function EducationSection() {
         speedMin={0.2}
         speedMax={0.8}
         speedScale={1.2}
-      />
+      /> */}
 
       <div className="container mx-auto max-w-6xl relative z-10">
         <div className="text-center mb-16">
