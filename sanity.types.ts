@@ -639,6 +639,16 @@ export type Geopoint = {
 
 export type AllSanitySchemaTypes = Navigation | SiteSettings | SanityImageCrop | SanityImageHotspot | Contact | Service | Slug | Blog | Achievement | Certification | Testimonial | Education | Experience | Skill | Profile | Project | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset | Geopoint;
 export declare const internalGroqTypeReferenceTo: unique symbol;
+// Source: ./src/components/FloatingDock.tsx
+// Variable: NAVIGATION_QUERY
+// Query: *[_type == "navigation"] | order(order asc){  title,  href,  icon,  isExternal}
+export type NAVIGATION_QUERYResult = Array<{
+  title: string | null;
+  href: string | null;
+  icon: string | null;
+  isExternal: boolean | null;
+}>;
+
 // Source: ./src/components/chat/ChatWrapper.tsx
 // Variable: CHAT_PROFILE_QUERY
 // Query: {    "profile": *[_id == "singleton-profile"][0]{      firstName,      lastName,      headline,      shortBio,      fullBio,      email,      phone,      location,      availability,      socialLinks,      yearsOfExperience,      stats    },    "experience": *[_type == "experience"] | order(startDate desc){      _id,      jobTitle,      company,      location,      startDate,      endDate,      current,      description,      achievements[],      technologies[]->{name, category}    },    "projects": *[_type == "project"] | order(order asc){      _id,      title,      tagline,      category,      liveUrl,      githubUrl,      technologies[]->{name, category}    },    "skills": *[_type == "skill"] | order(name asc){      _id,      name,      category,      level,      yearsOfExperience,      percentage    },    "education": *[_type == "education"] | order(endDate desc){      _id,      degree,      field,      institution,      location,      startDate,      endDate,      description,      gpa    }  }
@@ -1331,6 +1341,7 @@ export type TESTIMONIALS_QUERYResult = Array<{
 import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
+    "*[_type == \"navigation\"] | order(order asc){\n  title,\n  href,\n  icon,\n  isExternal\n}": NAVIGATION_QUERYResult;
     "{\n    \"profile\": *[_id == \"singleton-profile\"][0]{\n      firstName,\n      lastName,\n      headline,\n      shortBio,\n      fullBio,\n      email,\n      phone,\n      location,\n      availability,\n      socialLinks,\n      yearsOfExperience,\n      stats\n    },\n    \"experience\": *[_type == \"experience\"] | order(startDate desc){\n      _id,\n      jobTitle,\n      company,\n      location,\n      startDate,\n      endDate,\n      current,\n      description,\n      achievements[],\n      technologies[]->{name, category}\n    },\n    \"projects\": *[_type == \"project\"] | order(order asc){\n      _id,\n      title,\n      tagline,\n      category,\n      liveUrl,\n      githubUrl,\n      technologies[]->{name, category}\n    },\n    \"skills\": *[_type == \"skill\"] | order(name asc){\n      _id,\n      name,\n      category,\n      level,\n      yearsOfExperience,\n      percentage\n    },\n    \"education\": *[_type == \"education\"] | order(endDate desc){\n      _id,\n      degree,\n      field,\n      institution,\n      location,\n      startDate,\n      endDate,\n      description,\n      gpa\n    }\n  }": CHAT_PROFILE_QUERYResult;
     "*[_id == \"singleton-profile\"][0]{\n  firstName,\n  lastName,\n  fullBio,\n  yearsOfExperience,\n  stats,\n  email,\n  phone,\n  location\n}": ABOUT_QUERYResult;
     "*[_type == \"achievement\"] | order(date desc){\n  title,\n  type,\n  issuer,\n  date,\n  description,\n  image,\n  url,\n  featured,\n  order\n}": ACHIEVEMENTS_QUERYResult;
