@@ -10,19 +10,40 @@ interface Message {
   content: string;
 }
 
+// Portable Text block type for fullBio
+type PortableTextBlock = {
+  _type: "block";
+  _key: string;
+  children?: Array<{
+    _type: "span";
+    _key: string;
+    text?: string;
+    marks?: string[];
+  }>;
+  style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
+  listItem?: "bullet" | "number";
+  markDefs?: Array<{
+    href?: string;
+    _type: "link";
+    _key: string;
+  }>;
+  level?: number;
+  [key: string]: unknown;
+};
+
 interface Profile {
   firstName?: string | null;
   lastName?: string | null;
   headline?: string | null;
   shortBio?: string | null;
-  fullBio?: string | null;
+  fullBio?: PortableTextBlock[] | null;
   email?: string | null;
   phone?: string | null;
   location?: string | null;
   availability?: string | null;
-  socialLinks?: unknown[];
+  socialLinks?: unknown[] | null;
   yearsOfExperience?: number | null;
-  stats?: unknown[];
+  stats?: Array<{ label?: string; value?: string; _key: string }> | null;
 }
 
 interface Technology {
@@ -74,7 +95,7 @@ interface Education {
   gpa?: string | null;
 }
 
-interface ChatData {
+export interface ChatData {
   profile?: Profile | null;
   experience?: Experience[] | null;
   projects?: Project[] | null;
@@ -122,7 +143,7 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
         ? `Hi! I'm ${[firstName, lastName]
             .filter(Boolean)
             .join(
-              " ",
+              " "
             )}. Ask me anything about my work, experience, or projects.`
         : "Hi there! Ask me anything about my work, experience, or projects.";
 
@@ -145,7 +166,7 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
 
   // Gatekeeper: Check if question is related to portfolio/profile
   const isQuestionRelevant = (
-    question: string,
+    question: string
   ): { relevant: boolean; message?: string } => {
     const lowerQuestion = question.toLowerCase().trim();
 
@@ -239,13 +260,13 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
 
     // Check if question contains relevant keywords
     const hasRelevantKeywords = relevantKeywords.some((keyword) =>
-      lowerQuestion.includes(keyword),
+      lowerQuestion.includes(keyword)
     );
 
     // Check if it's a generic "what is X" question (not about the person)
     const isGenericQuestion = offTopicKeywords.some(
       (keyword) =>
-        lowerQuestion.startsWith(keyword) && !lowerQuestion.includes("your"),
+        lowerQuestion.startsWith(keyword) && !lowerQuestion.includes("your")
     );
 
     // Check if it's too short or vague
@@ -392,8 +413,8 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
                     prev.map((msg) =>
                       msg.id === assistantMessageId
                         ? { ...msg, content: msg.content + content }
-                        : msg,
-                    ),
+                        : msg
+                    )
                   );
                 }
               } catch {
@@ -490,7 +511,7 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
                     ? `Hi! I'm ${[profile.firstName, profile.lastName]
                         .filter(Boolean)
                         .join(
-                          " ",
+                          " "
                         )}. Ask me anything about my work, experience, or projects.`
                     : "Hi there! Ask me anything about my work, experience, or projects.")}
               </p>

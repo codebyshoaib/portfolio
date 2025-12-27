@@ -2,6 +2,7 @@ import { defineQuery } from "next-sanity";
 import Chat from "@/components/chat/Chat";
 import { sanityFetch } from "@/sanity/lib/live";
 import SidebarToggle from "../SidebarToggle";
+import type { ChatData } from "@/components/chat/Chat";
 
 const CHAT_PROFILE_QUERY = defineQuery(`{
     "profile": *[_id == "singleton-profile"][0]{
@@ -69,7 +70,8 @@ async function ChatWrapper() {
         <SidebarToggle />
       </div>
 
-      <Chat profile={chatData} />
+      {/* Type assertion needed because Sanity query result types are more specific than ChatData */}
+      <Chat profile={chatData as ChatData} />
     </div>
   );
 }
