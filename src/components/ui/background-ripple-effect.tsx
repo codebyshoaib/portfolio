@@ -19,6 +19,9 @@ export const BackgroundRippleEffect = ({
   const [rippleKey, setRippleKey] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
 
+  const gridWidth = cols * cellSize;
+  const gridHeight = rows * cellSize;
+
   return (
     <div
       ref={ref}
@@ -28,7 +31,13 @@ export const BackgroundRippleEffect = ({
         "dark:[--cell-border-color:var(--color-neutral-700)] dark:[--cell-fill-color:var(--color-neutral-900)] dark:[--cell-shadow-color:var(--color-neutral-800)]",
       )}
     >
-      <div className="relative h-auto w-auto overflow-hidden">
+      <div 
+        className="relative h-full w-full overflow-hidden"
+        style={{
+          minHeight: `${gridHeight}px`,
+          minWidth: `${gridWidth}px`,
+        }}
+      >
         <div className="pointer-events-none absolute inset-0 z-[2] h-full w-full overflow-hidden" />
         <DivGrid
           key={`base-${rippleKey}`}
@@ -87,9 +96,14 @@ const DivGrid = ({
     display: "grid",
     gridTemplateColumns: `repeat(${cols}, ${cellSize}px)`,
     gridTemplateRows: `repeat(${rows}, ${cellSize}px)`,
-    width: cols * cellSize,
-    height: rows * cellSize,
+    width: `${cols * cellSize}px`,
+    height: `${rows * cellSize}px`,
     marginInline: "auto",
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    willChange: "transform",
   };
 
   return (
