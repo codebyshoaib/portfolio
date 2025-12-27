@@ -5,8 +5,6 @@ import { defineQuery } from "next-sanity";
 import { urlFor } from "@/sanity/lib/image";
 import { sanityFetch } from "@/sanity/lib/live";
 
-//import { DottedGlowBackground } from "../ui/dotted-glow-background";
-
 const EDUCATION_QUERY =
   defineQuery(`*[_type == "education"] | order(endDate desc, startDate desc){
   institution,
@@ -42,21 +40,6 @@ export async function EducationSection() {
       id="education"
       className="relative py-20 px-6 bg-muted/30 overflow-hidden"
     >
-      {/* <DottedGlowBackground
-        className="pointer-events-none opacity-30 dark:opacity-50 mask-radial-to-75% mask-radial-at-bottom"
-        opacity={0.5}
-        gap={10}
-        radius={3.5}
-        colorLightVar="--color-neutral-400"
-        glowColorLightVar="--color-primary"
-        colorDarkVar="--color-neutral-600"
-        glowColorDarkVar="--color-primary"
-        backgroundOpacity={0}
-        speedMin={0.2}
-        speedMax={0.8}
-        speedScale={1.2}
-      /> */}
-
       <div className="container mx-auto max-w-6xl relative z-10">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">Education</h2>
@@ -112,8 +95,8 @@ export async function EducationSection() {
                       {edu.current
                         ? "Present"
                         : edu.endDate
-                          ? formatDate(edu.endDate)
-                          : "N/A"}
+                        ? formatDate(edu.endDate)
+                        : "N/A"}
                     </span>
                   </div>
                   {edu.gpa && (
