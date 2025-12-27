@@ -13,6 +13,9 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 
+// Disable static generation for this page since it uses Clerk
+export const dynamic = "force-dynamic";
+
 export default function Page() {
   return (
     <SidebarProvider>
