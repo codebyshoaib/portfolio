@@ -5,6 +5,7 @@ import { sanityFetch } from "@/sanity/lib/live";
 import { ProfileImage } from "../ProfileImage";
 import { BackgroundRippleEffect } from "../ui/background-ripple-effect";
 import { LayoutTextFlip } from "../ui/layout-text-flip";
+import { CheckCircle, CheckIcon, MailIcon, MapPinIcon } from "lucide-react";
 
 const HERO_QUERY = defineQuery(`*[_id== "singleton-profile"][0] {
   firstName,
@@ -36,7 +37,7 @@ export default async function HeroSection() {
     >
       <BackgroundRippleEffect rows={10} cols={27} cellSize={100} />
 
-      <div className="relative z-10 container mx-auto max-w-6xl">
+      <div className="relative z-10 container mx-auto max-w-6xl py-10">
         <div className="@container">
           <div className="grid grid-cols-1 @3xl:grid-cols-2 gap-8 @lg:gap-12 items-center">
             {/* Text Content */}
@@ -108,22 +109,22 @@ export default async function HeroSection() {
                 </div>
               )}
 
-              <div className="flex flex-wrap gap-4 @md/hero:gap-6 pt-4 text-xs @md/hero:text-sm text-muted-foreground">
+              <div className="flex flex-wrap gap-4 @md/hero:gap-6 pt-4 text-sm @md/hero:text-base text-muted-foreground">
                 {profile.email && (
                   <div className="flex items-center gap-2">
-                    <span>📧</span>
+                    <MailIcon className="w-5 h-5 @md/hero:w-6 @md/hero:h-6 text-foreground group-hover:text-foreground" />
                     <span className="truncate">{profile.email}</span>
                   </div>
                 )}
                 {profile.location && (
                   <div className="flex items-center gap-2">
-                    <span>📍</span>
+                    <MapPinIcon className="w-5 h-5 @md/hero:w-6 @md/hero:h-6 text-foreground group-hover:text-foreground" />
                     <span>{profile.location}</span>
                   </div>
                 )}
                 {profile.availability && (
                   <div className="flex items-center gap-2">
-                    <span>✅</span>
+                    <CheckCircle className="w-5 h-5 @md/hero:w-6 @md/hero:h-6 text-foreground group-hover:text-foreground" />
                     <span>{profile.availability}</span>
                   </div>
                 )}
