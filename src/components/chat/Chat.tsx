@@ -1,7 +1,7 @@
 "use client";
 
 import { Loader2, Send, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSidebar } from "../ui/sidebar";
 
 interface Message {
@@ -165,13 +165,9 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
   }, [messages]);
 
   // Gatekeeper: Check if question is related to portfolio/profile
-  const isQuestionRelevant = (
-    question: string
-  ): { relevant: boolean; message?: string } => {
-    const lowerQuestion = question.toLowerCase().trim();
-
-    // Keywords that indicate portfolio-related questions
-    const relevantKeywords = [
+  // Memoize keywords arrays to prevent recreation on every render
+  const relevantKeywords = useMemo(
+    () => [
       // Personal/Profile
       "you",
       "your",
@@ -227,10 +223,12 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
       "qualification",
       "achievement",
       "accomplishment",
-    ];
+    ],
+    []
+  );
 
-    // Keywords that indicate off-topic questions
-    const offTopicKeywords = [
+  const offTopicKeywords = useMemo(
+    () => [
       "what is",
       "explain",
       "define",
@@ -256,16 +254,23 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
       "news",
       "current events",
       "politics",
-    ];
+    ],
+    []
+  );
+
+  const isQuestionRelevant = (
+    question: string
+  ): { relevant: boolean; message?: string } => {
+    const lowerQuestion = question.toLowerCase().trim();
 
     // Check if question contains relevant keywords
-    const hasRelevantKeywords = relevantKeywords.some((keyword) =>
+    const hasRelevantKeywords = relevantKeywords.some((keyword: string) =>
       lowerQuestion.includes(keyword)
     );
 
     // Check if it's a generic "what is X" question (not about the person)
     const isGenericQuestion = offTopicKeywords.some(
-      (keyword) =>
+      (keyword: string) =>
         lowerQuestion.startsWith(keyword) && !lowerQuestion.includes("your")
     );
 

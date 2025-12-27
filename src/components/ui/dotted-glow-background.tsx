@@ -82,7 +82,7 @@ export const DottedGlowBackground = ({
         .trim();
       return fromRoot || null;
     },
-    [],
+    []
   );
 
   const detectDarkMode = useCallback((): boolean => {
@@ -94,6 +94,9 @@ export const DottedGlowBackground = ({
 
   // Keep resolved colors in sync with theme changes and prop updates
   useEffect(() => {
+    // Ensure component is mounted before setting state
+    if (typeof window === "undefined") return;
+
     const container = containerRef.current ?? document.documentElement;
 
     const compute = () => {
@@ -114,11 +117,17 @@ export const DottedGlowBackground = ({
         nextGlow = varGlow || nextGlow;
       }
 
-      setResolvedColor(nextColor);
-      setResolvedGlowColor(nextGlow);
+      // Use requestAnimationFrame to ensure component is mounted
+      requestAnimationFrame(() => {
+        setResolvedColor(nextColor);
+        setResolvedGlowColor(nextGlow);
+      });
     };
 
-    compute();
+    // Delay initial compute to ensure mount
+    const timeoutId = setTimeout(() => {
+      compute();
+    }, 0);
 
     const mql = window.matchMedia
       ? window.matchMedia("(prefers-color-scheme: dark)")
@@ -133,6 +142,7 @@ export const DottedGlowBackground = ({
     });
 
     return () => {
+      clearTimeout(timeoutId);
       mql?.removeEventListener?.("change", handleMql);
       mo.disconnect();
     };
@@ -159,6 +169,7 @@ export const DottedGlowBackground = ({
 
     let raf = 0;
     let stopped = false;
+    let isVisible = true;
 
     const dpr = Math.max(1, window.devicePixelRatio || 1);
 
@@ -223,12 +234,12 @@ export const DottedGlowBackground = ({
           Math.min(width, height) * 0.1,
           width * 0.5,
           height * 0.5,
-          Math.max(width, height) * 0.7,
+          Math.max(width, height) * 0.7
         );
         grad.addColorStop(0, "rgba(0,0,0,0)");
         grad.addColorStop(
           1,
-          `rgba(0,0,0,${Math.min(Math.max(backgroundOpacity, 0), 1)})`,
+          `rgba(0,0,0,${Math.min(Math.max(backgroundOpacity, 0), 1)})`
         );
         ctx.fillStyle = grad as unknown as CanvasGradient;
         ctx.fillRect(0, 0, width, height);
@@ -271,6 +282,19 @@ export const DottedGlowBackground = ({
       regenThrottled();
     };
 
+    // Pause animation when not visible (performance optimization)
+    const observer = new IntersectionObserver(
+      (entries) => {
+        isVisible = entries[0]?.isIntersecting ?? true;
+        if (isVisible && !stopped) {
+          last = performance.now();
+          raf = requestAnimationFrame(draw);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(container);
+
     window.addEventListener("resize", handleResize);
     raf = requestAnimationFrame(draw);
 
@@ -278,6 +302,7 @@ export const DottedGlowBackground = ({
       stopped = true;
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", handleResize);
+      observer.disconnect();
       ro.disconnect();
     };
   }, [

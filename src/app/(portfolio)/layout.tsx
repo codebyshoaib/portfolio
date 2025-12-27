@@ -4,9 +4,20 @@ import "../globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { draftMode } from "next/headers";
 import { VisualEditing } from "next-sanity/visual-editing";
+import dynamic from "next/dynamic";
 import { AppSidebar } from "@/components/app-sidebar";
 import { DisableDraftMode } from "@/components/DisableDraftMode";
-import { FloatingDock } from "@/components/FloatingDock";
+// Lazy load FloatingDock - not critical for initial render
+const FloatingDock = dynamic(
+  () =>
+    import("@/components/FloatingDock").then((mod) => ({
+      default: mod.FloatingDock,
+    })),
+  {
+    ssr: true,
+    loading: () => null,
+  }
+);
 import SidebarToggle from "@/components/SidebarToggle";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ModeToggle } from "@/components/ui/DarkModeToggle";

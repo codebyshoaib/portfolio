@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { Bar, BarChart, LabelList, XAxis, YAxis } from "recharts";
 import {
   type ChartConfig,
@@ -18,33 +19,46 @@ interface Skill {
 }
 
 interface SkillsChartProps {
-  skills: Skill[];
+  serializedGroupedSkills: string;
 }
 
-export function SkillsChart({ skills }: SkillsChartProps) {
-  if (!skills || skills.length === 0) {
+export function SkillsChart({ serializedGroupedSkills }: SkillsChartProps) {
+  // Parse and memoize grouped skills to prevent re-computation
+  const groupedSkills = useMemo(() => {
+    try {
+      return JSON.parse(serializedGroupedSkills) as Array<{
+        normalizedCategory: string;
+        originalCategory: string;
+        skills: Skill[];
+      }>;
+    } catch (error) {
+      console.error("[SkillsChart] Failed to parse grouped skills:", error);
+      return [];
+    }
+  }, [serializedGroupedSkills]);
+
+  if (!groupedSkills || groupedSkills.length === 0) {
     return null;
-  }
-
-  // Group skills by category dynamically
-  const groupedSkills = new Map<string, Skill[]>();
-
-  for (const skill of skills) {
-    const category = skill.category || "other";
-    const existing = groupedSkills.get(category) || [];
-    groupedSkills.set(category, [...existing, skill]);
   }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {Array.from(groupedSkills.entries()).map(([category, categorySkills]) => {
+      {groupedSkills.map((categoryData) => {
+        const {
+          normalizedCategory,
+          originalCategory,
+          skills: categorySkills,
+        } = categoryData;
+
         if (!categorySkills || categorySkills.length === 0) return null;
 
-        // Format category for display
-        const displayLabel = category
+        // Format category for display using original category name
+        const displayLabel = originalCategory
           .split("-")
           .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(" ");
+          .join(" ")
+          .replace(/\bAi\b/gi, "AI")
+          .replace(/\bMl\b/gi, "ML");
 
         // Prepare chart data and config
         const chartData = categorySkills.map((skill) => ({
@@ -68,7 +82,7 @@ export function SkillsChart({ skills }: SkillsChartProps) {
 
         return (
           <div
-            key={category}
+            key={normalizedCategory}
             className="group rounded-xl border bg-card overflow-hidden transition-all hover:shadow-lg hover:border-primary/50"
           >
             {/* Category Header */}
@@ -84,7 +98,7 @@ export function SkillsChart({ skills }: SkillsChartProps) {
             {/* Chart */}
             <div className="p-4">
               <ChartContainer
-                id={`skills-chart-${category}`}
+                id={`skills-chart-${normalizedCategory}`}
                 config={chartConfig}
                 className="w-full"
                 style={{ height: `${chartHeight}px` }}
