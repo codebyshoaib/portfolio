@@ -9,7 +9,7 @@ export function FloatingButtons() {
   const isSidebarOpen = isMobile ? openMobile : open;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col-reverse md:flex-row gap-3 items-end">
+    <div className="fixed bottom-6 right-6 z-40 flex flex-col-reverse md:flex-row gap-3 items-end">
       {/* Theme Toggle - appears above chat button on mobile, to the left on desktop */}
       <div className="relative group">
         {/* Tooltip */}
@@ -28,4 +28,3 @@ export function FloatingButtons() {
     </div>
   );
 }
-
