@@ -7,6 +7,8 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import SidebarToggle from "@/components/SidebarToggle";
 import { FloatingDock } from "@/components/FloatingDock";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { ModeToggle } from "@/components/ui/DarkModeToggle";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,18 +32,30 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en">
+      <html lang="en" suppressHydrationWarning>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-          <SidebarProvider defaultOpen={false}>
-            <SidebarInset>{children}</SidebarInset>
-            <AppSidebar side="right" />
-            <FloatingDock />
-            <SidebarToggle />
-          </SidebarProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <SidebarProvider defaultOpen={false}>
+              <SidebarInset>{children}</SidebarInset>
+              <AppSidebar side="right" />
+              <FloatingDock />
+              <SidebarToggle />
+              <div className="fixed md:bottom-6 md:right-24  top-4 right-18  md:top-automd:left-auto z-20">
+                <div className="w-10 h-10 md:w-12 md:h-12">
+                  <ModeToggle />
+                </div>
+              </div>
+            </SidebarProvider>
 
-          <SanityLive />
+            <SanityLive />
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>
