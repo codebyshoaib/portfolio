@@ -641,284 +641,168 @@ export type AllSanitySchemaTypes = Navigation | SiteSettings | SanityImageCrop |
 export declare const internalGroqTypeReferenceTo: unique symbol;
 // Source: ./src/components/chat/ChatWrapper.tsx
 // Variable: CHAT_PROFILE_QUERY
-// Query: *[_id == "singleton-profile"][0]{    _id,    _type,    _createdAt,    _updatedAt,    _rev,    firstName,    lastName,    headline,    shortBio,    email,    phone,    location,    availability,    socialLinks,    yearsOfExperience,    profileImage  }
+// Query: {    "profile": *[_id == "singleton-profile"][0]{      firstName,      lastName,      headline,      shortBio,      fullBio,      email,      phone,      location,      availability,      socialLinks,      yearsOfExperience,      stats    },    "experience": *[_type == "experience"] | order(startDate desc){      _id,      jobTitle,      company,      location,      startDate,      endDate,      current,      description,      achievements[],      technologies[]->{name, category}    },    "projects": *[_type == "project"] | order(order asc){      _id,      title,      tagline,      category,      liveUrl,      githubUrl,      technologies[]->{name, category}    },    "skills": *[_type == "skill"] | order(name asc){      _id,      name,      category,      level,      yearsOfExperience,      percentage    },    "education": *[_type == "education"] | order(endDate desc){      _id,      degree,      field,      institution,      location,      startDate,      endDate,      description,      gpa    }  }
 export type CHAT_PROFILE_QUERYResult = {
-  _id: string;
-  _type: "achievement";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  firstName: null;
-  lastName: null;
-  headline: null;
-  shortBio: null;
-  email: null;
-  phone: null;
-  location: null;
-  availability: null;
-  socialLinks: null;
-  yearsOfExperience: null;
-  profileImage: null;
-} | {
-  _id: string;
-  _type: "blog";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  firstName: null;
-  lastName: null;
-  headline: null;
-  shortBio: null;
-  email: null;
-  phone: null;
-  location: null;
-  availability: null;
-  socialLinks: null;
-  yearsOfExperience: null;
-  profileImage: null;
-} | {
-  _id: string;
-  _type: "certification";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  firstName: null;
-  lastName: null;
-  headline: null;
-  shortBio: null;
-  email: null;
-  phone: null;
-  location: null;
-  availability: null;
-  socialLinks: null;
-  yearsOfExperience: null;
-  profileImage: null;
-} | {
-  _id: string;
-  _type: "contact";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  firstName: null;
-  lastName: null;
-  headline: null;
-  shortBio: null;
-  email: string | null;
-  phone: null;
-  location: null;
-  availability: null;
-  socialLinks: null;
-  yearsOfExperience: null;
-  profileImage: null;
-} | {
-  _id: string;
-  _type: "education";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  firstName: null;
-  lastName: null;
-  headline: null;
-  shortBio: null;
-  email: null;
-  phone: null;
-  location: null;
-  availability: null;
-  socialLinks: null;
-  yearsOfExperience: null;
-  profileImage: null;
-} | {
-  _id: string;
-  _type: "experience";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  firstName: null;
-  lastName: null;
-  headline: null;
-  shortBio: null;
-  email: null;
-  phone: null;
-  location: string | null;
-  availability: null;
-  socialLinks: null;
-  yearsOfExperience: null;
-  profileImage: null;
-} | {
-  _id: string;
-  _type: "navigation";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  firstName: null;
-  lastName: null;
-  headline: null;
-  shortBio: null;
-  email: null;
-  phone: null;
-  location: null;
-  availability: null;
-  socialLinks: null;
-  yearsOfExperience: null;
-  profileImage: null;
-} | {
-  _id: string;
-  _type: "profile";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  firstName: string | null;
-  lastName: string | null;
-  headline: string | null;
-  shortBio: string | null;
-  email: string | null;
-  phone: string | null;
-  location: string | null;
-  availability: "available" | "open" | "unavailable" | null;
-  socialLinks: {
-    github?: string;
-    linkedin?: string;
-    twitter?: string;
-    website?: string;
-    medium?: string;
-    devto?: string;
-    youtube?: string;
-    stackoverflow?: string;
+  profile: {
+    firstName: null;
+    lastName: null;
+    headline: null;
+    shortBio: null;
+    fullBio: null;
+    email: null;
+    phone: null;
+    location: null;
+    availability: null;
+    socialLinks: null;
+    yearsOfExperience: null;
+    stats: null;
+  } | {
+    firstName: null;
+    lastName: null;
+    headline: null;
+    shortBio: null;
+    fullBio: null;
+    email: null;
+    phone: null;
+    location: null;
+    availability: null;
+    socialLinks: null;
+    yearsOfExperience: number | null;
+    stats: null;
+  } | {
+    firstName: null;
+    lastName: null;
+    headline: null;
+    shortBio: null;
+    fullBio: null;
+    email: null;
+    phone: null;
+    location: string | null;
+    availability: null;
+    socialLinks: null;
+    yearsOfExperience: null;
+    stats: null;
+  } | {
+    firstName: null;
+    lastName: null;
+    headline: null;
+    shortBio: null;
+    fullBio: null;
+    email: string | null;
+    phone: null;
+    location: null;
+    availability: null;
+    socialLinks: null;
+    yearsOfExperience: null;
+    stats: null;
+  } | {
+    firstName: string | null;
+    lastName: string | null;
+    headline: string | null;
+    shortBio: string | null;
+    fullBio: Array<{
+      children?: Array<{
+        marks?: Array<string>;
+        text?: string;
+        _type: "span";
+        _key: string;
+      }>;
+      style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+      listItem?: "bullet" | "number";
+      markDefs?: Array<{
+        href?: string;
+        _type: "link";
+        _key: string;
+      }>;
+      level?: number;
+      _type: "block";
+      _key: string;
+    }> | null;
+    email: string | null;
+    phone: string | null;
+    location: string | null;
+    availability: "available" | "open" | "unavailable" | null;
+    socialLinks: {
+      github?: string;
+      linkedin?: string;
+      twitter?: string;
+      website?: string;
+      medium?: string;
+      devto?: string;
+      youtube?: string;
+      stackoverflow?: string;
+    } | null;
+    yearsOfExperience: number | null;
+    stats: Array<{
+      label?: string;
+      value?: string;
+      _key: string;
+    }> | null;
   } | null;
-  yearsOfExperience: number | null;
-  profileImage: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: "image";
-  } | null;
-} | {
-  _id: string;
-  _type: "project";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  firstName: null;
-  lastName: null;
-  headline: null;
-  shortBio: null;
-  email: null;
-  phone: null;
-  location: null;
-  availability: null;
-  socialLinks: null;
-  yearsOfExperience: null;
-  profileImage: null;
-} | {
-  _id: string;
-  _type: "sanity.fileAsset";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  firstName: null;
-  lastName: null;
-  headline: null;
-  shortBio: null;
-  email: null;
-  phone: null;
-  location: null;
-  availability: null;
-  socialLinks: null;
-  yearsOfExperience: null;
-  profileImage: null;
-} | {
-  _id: string;
-  _type: "sanity.imageAsset";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  firstName: null;
-  lastName: null;
-  headline: null;
-  shortBio: null;
-  email: null;
-  phone: null;
-  location: null;
-  availability: null;
-  socialLinks: null;
-  yearsOfExperience: null;
-  profileImage: null;
-} | {
-  _id: string;
-  _type: "service";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  firstName: null;
-  lastName: null;
-  headline: null;
-  shortBio: null;
-  email: null;
-  phone: null;
-  location: null;
-  availability: null;
-  socialLinks: null;
-  yearsOfExperience: null;
-  profileImage: null;
-} | {
-  _id: string;
-  _type: "siteSettings";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  firstName: null;
-  lastName: null;
-  headline: null;
-  shortBio: null;
-  email: null;
-  phone: null;
-  location: null;
-  availability: null;
-  socialLinks: null;
-  yearsOfExperience: null;
-  profileImage: null;
-} | {
-  _id: string;
-  _type: "skill";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  firstName: null;
-  lastName: null;
-  headline: null;
-  shortBio: null;
-  email: null;
-  phone: null;
-  location: null;
-  availability: null;
-  socialLinks: null;
-  yearsOfExperience: number | null;
-  profileImage: null;
-} | {
-  _id: string;
-  _type: "testimonial";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  firstName: null;
-  lastName: null;
-  headline: null;
-  shortBio: null;
-  email: null;
-  phone: null;
-  location: null;
-  availability: null;
-  socialLinks: null;
-  yearsOfExperience: null;
-  profileImage: null;
-} | null;
+  experience: Array<{
+    _id: string;
+    jobTitle: null;
+    company: string | null;
+    location: string | null;
+    startDate: string | null;
+    endDate: string | null;
+    current: boolean | null;
+    description: Array<{
+      children?: Array<{
+        marks?: Array<string>;
+        text?: string;
+        _type: "span";
+        _key: string;
+      }>;
+      style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+      listItem?: "bullet" | "number";
+      markDefs?: Array<{
+        href?: string;
+        _type: "link";
+        _key: string;
+      }>;
+      level?: number;
+      _type: "block";
+      _key: string;
+    }> | null;
+    achievements: Array<string> | null;
+    technologies: Array<{
+      name: string | null;
+      category: "ai-ml" | "backend" | "cloud" | "database" | "design" | "devops" | "frontend" | "mobile" | "other" | "soft-skills" | "testing" | "tools" | null;
+    }> | null;
+  }>;
+  projects: Array<{
+    _id: string;
+    title: string | null;
+    tagline: string | null;
+    category: "ai-ml" | "api-backend" | "browser-extension" | "cli-tool" | "desktop-app" | "devops" | "game" | "mobile-app" | "open-source" | "other" | "web-app" | null;
+    liveUrl: string | null;
+    githubUrl: string | null;
+    technologies: Array<{
+      name: string | null;
+      category: "ai-ml" | "backend" | "cloud" | "database" | "design" | "devops" | "frontend" | "mobile" | "other" | "soft-skills" | "testing" | "tools" | null;
+    }> | null;
+  }>;
+  skills: Array<{
+    _id: string;
+    name: string | null;
+    category: "ai-ml" | "backend" | "cloud" | "database" | "design" | "devops" | "frontend" | "mobile" | "other" | "soft-skills" | "testing" | "tools" | null;
+    level: null;
+    yearsOfExperience: number | null;
+    percentage: number | null;
+  }>;
+  education: Array<{
+    _id: string;
+    degree: string | null;
+    field: null;
+    institution: string | null;
+    location: null;
+    startDate: string | null;
+    endDate: string | null;
+    description: string | null;
+    gpa: string | null;
+  }>;
+};
 
 // Source: ./src/components/sections/AboutSection.tsx
 // Variable: ABOUT_QUERY
@@ -1114,12 +998,51 @@ export type HERO_QUERYResult = {
   } | null;
 } | null;
 
+// Source: ./src/components/sections/TestimonialsSection.tsx
+// Variable: TESTIMONIALS_QUERY
+// Query: *[_type == "testimonial" && featured == true] | order(order asc){  name,  position,  company,  testimonial,  rating,  date,  avatar,  companyLogo,  linkedinUrl}
+export type TESTIMONIALS_QUERYResult = Array<{
+  name: string | null;
+  position: string | null;
+  company: string | null;
+  testimonial: string | null;
+  rating: number | null;
+  date: string | null;
+  avatar: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  } | null;
+  companyLogo: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  } | null;
+  linkedinUrl: string | null;
+}>;
+
 // Query TypeMap
 import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
-    "*[_id == \"singleton-profile\"][0]{\n    _id,\n    _type,\n    _createdAt,\n    _updatedAt,\n    _rev,\n    firstName,\n    lastName,\n    headline,\n    shortBio,\n    email,\n    phone,\n    location,\n    availability,\n    socialLinks,\n    yearsOfExperience,\n    profileImage\n  }": CHAT_PROFILE_QUERYResult;
+    "{\n    \"profile\": *[_id == \"singleton-profile\"][0]{\n      firstName,\n      lastName,\n      headline,\n      shortBio,\n      fullBio,\n      email,\n      phone,\n      location,\n      availability,\n      socialLinks,\n      yearsOfExperience,\n      stats\n    },\n    \"experience\": *[_type == \"experience\"] | order(startDate desc){\n      _id,\n      jobTitle,\n      company,\n      location,\n      startDate,\n      endDate,\n      current,\n      description,\n      achievements[],\n      technologies[]->{name, category}\n    },\n    \"projects\": *[_type == \"project\"] | order(order asc){\n      _id,\n      title,\n      tagline,\n      category,\n      liveUrl,\n      githubUrl,\n      technologies[]->{name, category}\n    },\n    \"skills\": *[_type == \"skill\"] | order(name asc){\n      _id,\n      name,\n      category,\n      level,\n      yearsOfExperience,\n      percentage\n    },\n    \"education\": *[_type == \"education\"] | order(endDate desc){\n      _id,\n      degree,\n      field,\n      institution,\n      location,\n      startDate,\n      endDate,\n      description,\n      gpa\n    }\n  }": CHAT_PROFILE_QUERYResult;
     "*[_id == \"singleton-profile\"][0]{\n  firstName,\n  lastName,\n  fullBio,\n  yearsOfExperience,\n  stats,\n  email,\n  phone,\n  location\n}": ABOUT_QUERYResult;
     "*[_id== \"singleton-profile\"][0] {\n  firstName,\n  lastName,\n  headline,\n  headlineStaticText,\n  headlineAnimatedWords,\n  headlineAnimationDuration,\n  shortBio,\n  fullBio,\n  email,\n  phone,\n  location,\n  availability,\n  socialLinks,\n  yearsOfExperience,\n  profileImage,\n}": HERO_QUERYResult;
+    "*[_type == \"testimonial\" && featured == true] | order(order asc){\n  name,\n  position,\n  company,\n  testimonial,\n  rating,\n  date,\n  avatar,\n  companyLogo,\n  linkedinUrl\n}": TESTIMONIALS_QUERYResult;
   }
 }
