@@ -111,7 +111,7 @@ export async function BlogSection() {
                   )}
 
                   <Link
-                    href={`/blog/${post.slug?.current}`}
+                    href={`https://www.linkedin.com/in/shoaibbb/`}
                     className="inline-flex items-center text-primary hover:underline text-xs @md/card:text-sm font-medium"
                   >
                     Read More →
