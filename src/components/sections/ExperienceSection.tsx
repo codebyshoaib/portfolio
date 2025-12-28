@@ -3,6 +3,8 @@ import Image from "next/image";
 import { defineQuery } from "next-sanity";
 import { urlFor } from "@/sanity/lib/image";
 import { sanityFetch } from "@/sanity/lib/live";
+import Link from "next/link";
+import { IconExternalLink } from "@tabler/icons-react";
 
 const EXPERIENCE_QUERY =
   defineQuery(`*[_type == "experience"] | order(startDate desc){
@@ -59,12 +61,15 @@ export async function ExperienceSection() {
               <div className="@container/card bg-card border rounded-lg p-4 @md/card:p-6 hover:shadow-lg transition-shadow">
                 <div className="flex flex-col @md/card:flex-row @md/card:items-start gap-4 mb-4">
                   {exp.companyLogo && (
-                    <div className="relative w-12 h-12 @md/card:w-16 @md/card:h-16 rounded-lg overflow-hidden border shrink-0">
+                    <div className="relative w-16 h-16 @md/card:w-24 @md/card:h-24 rounded-lg overflow-hidden border shrink-0">
                       <Image
-                        src={urlFor(exp.companyLogo).width(64).height(64).url()}
+                        src={urlFor(exp.companyLogo)
+                          .width(256)
+                          .height(256)
+                          .url()}
                         alt={`${exp.company} company logo`}
                         fill
-                        className="object-cover"
+                        className="object-contain p-2"
                       />
                     </div>
                   )}
@@ -92,13 +97,21 @@ export async function ExperienceSection() {
                         {exp.current
                           ? "Present"
                           : exp.endDate
-                            ? formatDate(exp.endDate)
-                            : "N/A"}
+                          ? formatDate(exp.endDate)
+                          : "N/A"}
                       </span>
                       {exp.location && (
                         <>
                           <span>•</span>
                           <span className="truncate">{exp.location}</span>
+                        </>
+                      )}
+                      {exp.companyWebsite && (
+                        <>
+                          <span>•</span>
+                          <Link href={exp.companyWebsite} target="_blank">
+                            <IconExternalLink className="w-4 h-4 text-primary" />
+                          </Link>
                         </>
                       )}
                     </div>
