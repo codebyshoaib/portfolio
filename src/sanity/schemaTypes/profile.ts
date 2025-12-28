@@ -65,20 +65,27 @@ export default defineType({
       description: "Detailed about section with rich text formatting",
     }),
     defineField({
-      name: "profileImage",
-      title: "Profile Image",
-      type: "image",
-      options: {
-        hotspot: true,
-      },
-      fields: [
+      name: "profileImages",
+      title: "Profile Images (Carousel)",
+      type: "array",
+      description: "Multiple profile images for carousel display",
+      of: [
         {
-          name: "alt",
-          type: "string",
-          title: "Alternative Text",
-          description: "Important for SEO and accessibility",
+          type: "image",
+          options: {
+            hotspot: true,
+          },
+          fields: [
+            {
+              name: "alt",
+              type: "string",
+              title: "Alternative Text",
+              description: "Important for SEO and accessibility",
+            },
+          ],
         },
       ],
+      validation: (Rule) => Rule.min(1).max(10),
     }),
     defineField({
       name: "email",
@@ -168,13 +175,14 @@ export default defineType({
       title: "firstName",
       subtitle: "headline",
       media: "profileImage",
+      mediaArray: "profileImages",
     },
     prepare(selection) {
-      const { title, subtitle, media } = selection;
+      const { title, subtitle, media, mediaArray } = selection;
       return {
         title: title,
         subtitle: subtitle,
-        media: media,
+        media: mediaArray?.[0] || media,
       };
     },
   },

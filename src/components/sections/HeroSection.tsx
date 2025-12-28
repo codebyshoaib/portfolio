@@ -2,10 +2,10 @@ import Link from "next/link";
 import { defineQuery } from "next-sanity";
 import { urlFor } from "@/sanity/lib/image";
 import { sanityFetch } from "@/sanity/lib/live";
-import { ProfileImage } from "../ProfileImage";
+import { ProfileImageCarousel } from "../ProfileImageCarousel";
 import { BackgroundRippleEffect } from "../ui/background-ripple-effect";
 import { LayoutTextFlip } from "../ui/layout-text-flip";
-import { CheckCircle, CheckIcon, MailIcon, MapPinIcon } from "lucide-react";
+import { CheckCircle, MailIcon, MapPinIcon } from "lucide-react";
 
 const HERO_QUERY = defineQuery(`*[_id== "singleton-profile"][0] {
   firstName,
@@ -23,6 +23,7 @@ const HERO_QUERY = defineQuery(`*[_id== "singleton-profile"][0] {
   socialLinks,
   yearsOfExperience,
   profileImage,
+  profileImages,
 }`);
 
 export default async function HeroSection() {
@@ -131,17 +132,43 @@ export default async function HeroSection() {
               </div>
             </div>
 
-            {/* Profile Image */}
-            {profile.profileImage && (
-              <ProfileImage
-                imageUrl={urlFor(profile.profileImage)
-                  .width(600)
-                  .height(600)
-                  .url()}
+            {/* Profile Image Carousel */}
+            {(profile.profileImages && profile.profileImages.length > 0) ||
+            profile.profileImage ? (
+              <ProfileImageCarousel
+                images={
+                  profile.profileImages && profile.profileImages.length > 0
+                    ? profile.profileImages.map(
+                        (img: {
+                          asset?: { _ref: string; _type: "reference" };
+                          alt?: string;
+                          _type: "image";
+                        }) => ({
+                          url: urlFor(img).width(600).height(600).url(),
+                          alt:
+                            img.alt ||
+                            `${profile.firstName} ${profile.lastName}`,
+                        })
+                      )
+                    : profile.profileImage
+                    ? [
+                        {
+                          url: urlFor(profile.profileImage)
+                            .width(600)
+                            .height(600)
+                            .url(),
+                          alt:
+                            profile.profileImage.alt ||
+                            `${profile.firstName} ${profile.lastName}`,
+                        },
+                      ]
+                    : []
+                }
                 firstName={profile.firstName || ""}
                 lastName={profile.lastName || ""}
+                autoSlideInterval={3000}
               />
-            )}
+            ) : null}
           </div>
         </div>
       </div>
