@@ -6,6 +6,7 @@ import { ProfileImageCarousel } from "../ProfileImageCarousel";
 import { BackgroundRippleEffect } from "../ui/background-ripple-effect";
 import { LayoutTextFlip } from "../ui/layout-text-flip";
 import { CheckCircle, MailIcon, MapPinIcon } from "lucide-react";
+import { ResumeDownloadButton } from "../ResumeDownloadButton";
 
 const HERO_QUERY = defineQuery(`*[_id== "singleton-profile"][0] {
   firstName,
@@ -26,8 +27,21 @@ const HERO_QUERY = defineQuery(`*[_id== "singleton-profile"][0] {
   profileImages,
 }`);
 
+const LATEST_RESUME_QUERY =
+  defineQuery(`*[_type == "resume"] | order(isActive desc, uploadDate desc)[0] {
+  _id,
+  title,
+  resumeFile,
+  version,
+  isActive,
+  uploadDate
+}`);
+
 export default async function HeroSection() {
   const { data: profile } = await sanityFetch({ query: HERO_QUERY });
+  const { data: latestResume } = await sanityFetch({
+    query: LATEST_RESUME_QUERY,
+  });
 
   if (!profile) return null;
 
@@ -87,16 +101,6 @@ export default async function HeroSection() {
                       LinkedIn
                     </Link>
                   )}
-                  {profile.socialLinks.twitter && (
-                    <Link
-                      href={profile.socialLinks.twitter}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-4 py-2 @md/hero:px-6 @md/hero:py-3 rounded-lg border hover:bg-accent transition-colors text-sm @md/hero:text-base"
-                    >
-                      Twitter
-                    </Link>
-                  )}
                   {profile.socialLinks.website && (
                     <Link
                       href={profile.socialLinks.website}
@@ -106,6 +110,13 @@ export default async function HeroSection() {
                     >
                       Website
                     </Link>
+                  )}
+                  {latestResume?.resumeFile && (
+                    <ResumeDownloadButton
+                      resumeFile={latestResume.resumeFile}
+                      title="CV"
+                      className="px-4 py-2 @md/hero:px-6 @md/hero:py-3 rounded-lg border hover:bg-accent transition-colors text-sm @md/hero:text-base"
+                    />
                   )}
                 </div>
               )}
@@ -158,7 +169,7 @@ export default async function HeroSection() {
                             .height(600)
                             .url(),
                           alt:
-                            profile.profileImage.alt ||
+                            (profile.profileImage as { alt?: string })?.alt ||
                             `${profile.firstName} ${profile.lastName}`,
                         },
                       ]

@@ -8,6 +8,7 @@ import experience from "./experience";
 import navigation from "./navigation";
 import profile from "./profile";
 import project from "./project";
+import resume from "./resume";
 import service from "./service";
 import siteSettings from "./siteSettings";
 import skill from "./skill";
@@ -28,5 +29,6 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     contact,
     siteSettings,
     navigation,
+    resume,
   ],
 };
