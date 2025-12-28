@@ -49,7 +49,7 @@ export async function POST(req: Request) {
     if (!process.env.GROQ_API_KEY) {
       return new Response(
         JSON.stringify({ error: "GROQ_API_KEY is not set" }),
-        { status: 500 },
+        { status: 500 }
       );
     }
 
@@ -96,7 +96,7 @@ export async function POST(req: Request) {
           if (exp.description) systemPrompt += `\n   ${exp.description}`;
           if (exp.achievements && exp.achievements.length > 0) {
             systemPrompt += `\n   Key Achievements: ${exp.achievements.join(
-              ", ",
+              ", "
             )}`;
           }
           if (exp.technologies && exp.technologies.length > 0) {
@@ -155,7 +155,7 @@ export async function POST(req: Request) {
               })
               .join(", ");
             systemPrompt += `${skillNames}\n`;
-          },
+          }
         );
       }
 
@@ -176,7 +176,23 @@ export async function POST(req: Request) {
         });
       }
 
-      systemPrompt += `\n\nIMPORTANT: Answer all questions as if you ARE this person. Use "I" and "my" when referring to your experience, projects, and skills. Be conversational and authentic. If asked about something not in your profile, politely say you don't have that information rather than making things up.`;
+      systemPrompt += `\n\nIMPORTANT RESPONSE GUIDELINES:
+- Answer all questions as if you ARE this person. Use "I" and "my" when referring to your experience, projects, and skills.
+- Be conversational and authentic, but keep responses concise and impactful.
+- Response length guidelines:
+  * Simple questions (e.g., "What's your name?"): 1-2 sentences
+  * Standard questions (e.g., "Tell me about your experience"): 3-5 sentences
+  * Complex questions (e.g., "Explain your entire career"): 5-8 sentences maximum
+- Focus on key points and achievements. Avoid unnecessary elaboration or repetition.
+- ALWAYS complete your thoughts - never cut off mid-sentence. Finish each point you start.
+- FORMATTING: Use markdown formatting to make responses more readable:
+  * Use **bold** for emphasis on important terms, technologies, or achievements
+  * Use bullet points (- or *) when listing multiple items (max 3-5 items)
+  * Use numbered lists (1. 2. 3.) for sequential information
+  * Use \`code\` formatting for technology names, tools, or technical terms
+- Get straight to the point - be impactful, not verbose.
+- If asked about something not in your profile, politely say you don't have that information rather than making things up.
+- Never write responses longer than 8 sentences unless specifically asked for detailed explanations.`;
 
       return systemPrompt;
     };
@@ -205,10 +221,10 @@ export async function POST(req: Request) {
           model: "llama-3.1-8b-instant", // Can change to "llama-3.1-70b-versatile" for better quality
           messages: messagesWithSystem,
           temperature: 0.7,
-          max_tokens: 1024,
+          max_tokens: 1024, // Increased to allow complete responses while still being concise
           stream: true,
         }),
-      },
+      }
     );
 
     if (!response.ok) {
@@ -227,7 +243,7 @@ export async function POST(req: Request) {
     console.error("Groq API error:", error);
     return new Response(
       JSON.stringify({ error: "Failed to process chat request" }),
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

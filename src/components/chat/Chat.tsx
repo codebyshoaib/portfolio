@@ -3,6 +3,7 @@
 import { Loader2, Send, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSidebar } from "../ui/sidebar";
+import { MarkdownRenderer } from "./MarkdownRenderer";
 
 interface Message {
   id: string;
@@ -479,11 +480,6 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
       label: "Clear",
       description: "Focused and helpful",
     },
-    {
-      id: "chatty",
-      label: "Chatty",
-      description: "Conversational companion",
-    },
   ];
 
   return (
@@ -558,7 +554,13 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
                         : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                     }`}
                   >
-                    <div className="whitespace-pre-wrap">{message.content}</div>
+                    {message.role === "assistant" ? (
+                      <MarkdownRenderer content={message.content} />
+                    ) : (
+                      <div className="whitespace-pre-wrap">
+                        {message.content}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
