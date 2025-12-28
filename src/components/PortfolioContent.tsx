@@ -61,15 +61,15 @@ function PortfolioContent() {
       <Suspense fallback={<SectionSkeleton />}>
         <CertificationsSection />
       </Suspense>
-      <Suspense fallback={<SectionSkeleton />}>
+      {/* <Suspense fallback={<SectionSkeleton />}>
         <AchievementsSection />
-      </Suspense>
+      </Suspense> */}
       <Suspense fallback={<SectionSkeleton />}>
         <ServicesSection />
       </Suspense>
-      <Suspense fallback={<SectionSkeleton />}>
+      {/* <Suspense fallback={<SectionSkeleton />}>
         <BlogSection />
-      </Suspense>
+      </Suspense> */}
       <Suspense fallback={<SectionSkeleton />}>
         <ContactSection />
       </Suspense>
