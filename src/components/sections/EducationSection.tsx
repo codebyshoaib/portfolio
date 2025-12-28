@@ -66,7 +66,7 @@ export async function EducationSection() {
                         src={urlFor(edu.logo).width(64).height(64).url()}
                         alt={`${edu.institution} logo`}
                         fill
-                        className="object-cover"
+                        className="object-contain p-2 bg-white"
                       />
                     </div>
                   )}
@@ -78,11 +78,18 @@ export async function EducationSection() {
                     <p className="text-lg font-medium text-primary mb-1">
                       {edu.institution}
                     </p>
-                    {edu.fieldOfStudy && (
-                      <p className="text-sm text-muted-foreground">
-                        {edu.fieldOfStudy}
-                      </p>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {edu.fieldOfStudy && (
+                        <p className="text-sm text-muted-foreground">
+                          {edu.fieldOfStudy}
+                        </p>
+                      )}
+                      {edu.website && (
+                        <Link href={edu.website} target="_blank">
+                          <IconExternalLink className="w-4 h-4 text-primary" />
+                        </Link>
+                      )}
+                    </div>
                   </div>
                 </div>
 
