@@ -140,36 +140,6 @@ export async function ContactSection() {
                         Website
                       </Link>
                     )}
-                    {profile.socialLinks.medium && (
-                      <Link
-                        href={profile.socialLinks.medium}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-1.5 @md/info:px-4 @md/info:py-2 rounded-lg border hover:bg-accent transition-colors text-xs @md/info:text-sm"
-                      >
-                        Medium
-                      </Link>
-                    )}
-                    {profile.socialLinks.devto && (
-                      <Link
-                        href={profile.socialLinks.devto}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-1.5 @md/info:px-4 @md/info:py-2 rounded-lg border hover:bg-accent transition-colors text-xs @md/info:text-sm"
-                      >
-                        Dev.to
-                      </Link>
-                    )}
-                    {profile.socialLinks.youtube && (
-                      <Link
-                        href={profile.socialLinks.youtube}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-1.5 @md/info:px-4 @md/info:py-2 rounded-lg border hover:bg-accent transition-colors text-xs @md/info:text-sm"
-                      >
-                        YouTube
-                      </Link>
-                    )}
                   </div>
                 </div>
               )}
