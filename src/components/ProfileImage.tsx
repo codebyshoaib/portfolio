@@ -1,9 +1,7 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
 import { MessageCircle, X } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useSidebar } from "./ui/sidebar";
 
@@ -24,8 +22,6 @@ export function ProfileImage({
 
   // Always call hooks unconditionally (React rules)
   const { toggleSidebar, open } = useSidebar();
-  const userResult = useUser();
-  const router = useRouter();
 
   useEffect(() => {
     if (!hasSetMounted.current) {
@@ -35,19 +31,12 @@ export function ProfileImage({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // hasSetMounted ref is stable, doesn't need to be in deps
 
-  // Only use Clerk values after mount to avoid SSR issues
-  const isSignedIn = mounted ? userResult.isSignedIn ?? false : false;
-
   return (
     <button
       type="button"
       onClick={() => {
         if (mounted) {
-          if (isSignedIn) {
-            toggleSidebar();
-          } else {
-            router.push("/sign-in");
-          }
+          toggleSidebar();
         }
       }}
       className="relative aspect-square rounded-2xl overflow-hidden border-4 border-primary/20 block group cursor-pointer w-full"

@@ -22,6 +22,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { FloatingButtons } from "@/components/FloatingButtons";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { SanityLive } from "@/sanity/lib/live";
+import { EmbeddedBrowserWarning } from "@/components/EmbeddedBrowserWarning";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -137,6 +138,7 @@ export default async function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+            <EmbeddedBrowserWarning />
             <SidebarProvider defaultOpen={false}>
               <SidebarInset>{children}</SidebarInset>
               <AppSidebar side="right" />

@@ -1,9 +1,7 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
 import { MessageCircle, X } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useSidebar } from "./ui/sidebar";
 
@@ -31,8 +29,6 @@ export function ProfileImageCarousel({
 
   // Always call hooks unconditionally (React rules)
   const { toggleSidebar, open } = useSidebar();
-  const userResult = useUser();
-  const router = useRouter();
 
   useEffect(() => {
     if (!hasSetMounted.current) {
@@ -57,16 +53,9 @@ export function ProfileImageCarousel({
     };
   }, [mounted, images.length, autoSlideInterval, isHovered]);
 
-  // Only use Clerk values after mount to avoid SSR issues
-  const isSignedIn = mounted ? (userResult.isSignedIn ?? false) : false;
-
   const handleClick = () => {
     if (mounted) {
-      if (isSignedIn) {
-        toggleSidebar();
-      } else {
-        router.push("/sign-in");
-      }
+      toggleSidebar();
     }
   };
 

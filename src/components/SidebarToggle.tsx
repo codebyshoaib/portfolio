@@ -1,14 +1,12 @@
 "use client";
 
-import { SignInButton, useUser } from "@clerk/nextjs";
 import { MessageSquare } from "lucide-react";
 import { useSidebar } from "./ui/sidebar";
 
 function SidebarToggle() {
-  const { toggleSidebar, open, isMobile, openMobile } = useSidebar();
-  const { isSignedIn } = useUser();
+  const { toggleSidebar, isMobile, openMobile } = useSidebar();
 
-  const isSidebarOpen = isMobile ? openMobile : open;
+  const isSidebarOpen = isMobile ? openMobile : false;
 
   if (isSidebarOpen) return null;
 
@@ -30,26 +28,14 @@ function SidebarToggle() {
         <div className="absolute -bottom-1 right-4 w-2 h-2 rotate-45 bg-popover border-r border-b border-border" />
       </div>
 
-      {isSignedIn ? (
-        <button
-          type="button"
-          onClick={toggleSidebar}
-          className={buttonStyles}
-          aria-label="Chat with AI Twin"
-        >
-          <MessageSquare className="h-5 w-5 text-foreground/80 group-hover:text-foreground transition-colors" />
-        </button>
-      ) : (
-        <SignInButton mode="redirect">
-          <button
-            type="button"
-            className={buttonStyles}
-            aria-label="Sign in to chat with AI Twin"
-          >
-            <MessageSquare className="h-5 w-5 text-foreground/80 group-hover:text-foreground transition-colors" />
-          </button>
-        </SignInButton>
-      )}
+      <button
+        type="button"
+        onClick={toggleSidebar}
+        className={buttonStyles}
+        aria-label="Chat with AI Twin"
+      >
+        <MessageSquare className="h-5 w-5 text-foreground/80 group-hover:text-foreground transition-colors" />
+      </button>
     </div>
   );
 }
