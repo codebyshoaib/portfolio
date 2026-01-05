@@ -1,8 +1,9 @@
 "use client";
 
-import { useClerk, useUser } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import { MessageCircle, X } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useSidebar } from "./ui/sidebar";
 
@@ -31,7 +32,7 @@ export function ProfileImageCarousel({
   // Always call hooks unconditionally (React rules)
   const { toggleSidebar, open } = useSidebar();
   const userResult = useUser();
-  const clerkResult = useClerk();
+  const router = useRouter();
 
   useEffect(() => {
     if (!hasSetMounted.current) {
@@ -58,14 +59,13 @@ export function ProfileImageCarousel({
 
   // Only use Clerk values after mount to avoid SSR issues
   const isSignedIn = mounted ? (userResult.isSignedIn ?? false) : false;
-  const openSignIn = mounted ? clerkResult.openSignIn : undefined;
 
   const handleClick = () => {
     if (mounted) {
       if (isSignedIn) {
         toggleSidebar();
-      } else if (openSignIn) {
-        openSignIn();
+      } else {
+        router.push("/sign-in");
       }
     }
   };
@@ -109,14 +109,22 @@ export function ProfileImageCarousel({
         {images.length > 1 && (
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
             {images.map((_, index) => (
-              <button
+              <div
                 key={index}
-                type="button"
+                role="button"
+                tabIndex={0}
                 onClick={(e) => {
                   e.stopPropagation();
                   goToSlide(index);
                 }}
-                className={`h-2 rounded-full transition-all duration-300 ${
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    goToSlide(index);
+                  }
+                }}
+                className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
                   index === currentIndex
                     ? "w-8 bg-white"
                     : "w-2 bg-white/50 hover:bg-white/75"

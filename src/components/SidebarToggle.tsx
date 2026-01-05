@@ -40,7 +40,7 @@ function SidebarToggle() {
           <MessageSquare className="h-5 w-5 text-foreground/80 group-hover:text-foreground transition-colors" />
         </button>
       ) : (
-        <SignInButton mode="modal">
+        <SignInButton mode="redirect">
           <button
             type="button"
             className={buttonStyles}
