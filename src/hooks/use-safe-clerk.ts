@@ -1,31 +1,26 @@
 "use client";
 
 import { useClerk, useUser } from "@clerk/nextjs";
-import { useEffect, useState } from "react";
 import { isEmbeddedBrowser } from "@/lib/detect-embedded-browser";
 
 /**
  * Safe wrapper for Clerk hooks that returns null/undefined values
  * when Clerk is not available (e.g., in embedded browsers)
- * Always calls hooks (React rules) - Clerk hooks return defaults when provider missing
+ * Always calls hooks unconditionally (React rules)
  */
 export function useSafeClerk() {
-  const [isEmbedded, setIsEmbedded] = useState<boolean | null>(null);
+  // Check for embedded browser synchronously
+  const isEmbedded =
+    typeof window !== "undefined" ? isEmbeddedBrowser() : false;
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setIsEmbedded(isEmbeddedBrowser());
-    }
-  }, []);
-
-  // Always call hooks (React rules)
-  // Clerk hooks will return default values if ClerkProvider is not in the tree
+  // Always call hooks unconditionally (React rules)
+  // Clerk hooks should return default values when ClerkProvider is missing
   const userResult = useUser();
   const clerkResult = useClerk();
 
-  // If we detected embedded browser, force return guest values
-  // This overrides any Clerk values since ClerkProvider won't be rendered
-  if (isEmbedded === true) {
+  // If embedded browser detected, override with guest values
+  // This ensures we never try to use Clerk functionality in embedded browsers
+  if (isEmbedded) {
     return {
       isSignedIn: false,
       signOut: undefined,
@@ -34,7 +29,8 @@ export function useSafeClerk() {
     };
   }
 
-  // Normal browser - return Clerk values (or defaults if ClerkProvider missing)
+  // Normal browser - return Clerk values
+  // If ClerkProvider is missing, these will be default/empty values
   return {
     isSignedIn: userResult?.isSignedIn ?? false,
     signOut: clerkResult?.signOut,
@@ -42,4 +38,3 @@ export function useSafeClerk() {
     clerk: clerkResult ?? null,
   };
 }
-
