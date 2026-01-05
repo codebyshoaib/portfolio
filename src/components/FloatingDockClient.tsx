@@ -1,11 +1,11 @@
 "use client";
 
-import { useClerk, useUser } from "@clerk/nextjs";
 import { IconLogout, IconMenu2, IconX } from "@tabler/icons-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { DynamicIcon } from "./DynamicIcon";
 import { useSidebar } from "./ui/sidebar";
+import { useSafeClerk } from "@/hooks/use-safe-clerk";
 
 interface NavItem {
   title?: string | null;
@@ -41,9 +41,8 @@ const getVisibleLinks = (links: DockLink[], maxItems: number) => {
 export function FloatingDockClient({ navItems }: FloatingDockClientProps) {
   const [mounted, setMounted] = useState(false);
 
-  // Always call hooks unconditionally (React rules)
-  const userResult = useUser();
-  const clerkResult = useClerk();
+  // Use safe Clerk hook that handles embedded browsers
+  const { isSignedIn, signOut } = useSafeClerk();
 
   const { open, isMobile, openMobile } = useSidebar();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -53,10 +52,6 @@ export function FloatingDockClient({ navItems }: FloatingDockClientProps) {
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  // Only use Clerk values after mount to avoid SSR issues
-  const isSignedIn = mounted ? (userResult.isSignedIn ?? false) : false;
-  const signOut = mounted ? clerkResult.signOut : undefined;
 
   const isSidebarOpen = isMobile ? openMobile : open;
 

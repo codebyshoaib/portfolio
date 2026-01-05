@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Inter } from "next/font/google";
 import "../globals.css";
-import { ClerkProvider } from "@clerk/nextjs";
 import { draftMode } from "next/headers";
 import { VisualEditing } from "next-sanity/visual-editing";
 import dynamic from "next/dynamic";
@@ -23,6 +22,7 @@ import { FloatingButtons } from "@/components/FloatingButtons";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { SanityLive } from "@/sanity/lib/live";
 import { EmbeddedBrowserWarning } from "@/components/EmbeddedBrowserWarning";
+import { ConditionalClerkProvider } from "@/components/ConditionalClerkProvider";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -127,7 +127,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ConditionalClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <body
           className={`${spaceGrotesk.variable} ${inter.variable} antialiased`}
@@ -157,6 +157,6 @@ export default async function RootLayout({
           </ThemeProvider>
         </body>
       </html>
-    </ClerkProvider>
+    </ConditionalClerkProvider>
   );
 }
