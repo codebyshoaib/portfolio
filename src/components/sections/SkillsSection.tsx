@@ -1,6 +1,20 @@
 import { defineQuery } from "next-sanity";
 import { sanityFetch } from "@/sanity/lib/live";
-import { SkillsChart } from "./SkillsChart";
+import dynamic from "next/dynamic";
+
+const SkillsChart = dynamic(
+  () => import("./SkillsChart").then((m) => m.SkillsChart),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-pulse">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="h-48 bg-muted rounded-xl" />
+        ))}
+      </div>
+    ),
+  }
+);
 
 const SKILLS_QUERY =
   defineQuery(`*[_type == "skill"] | order(category asc, order asc){
