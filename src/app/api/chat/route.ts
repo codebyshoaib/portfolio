@@ -1,3 +1,6 @@
+import { z } from "zod";
+import { chatRateLimiter } from "@/lib/rate-limit";
+
 interface Technology {
   name: string;
   category?: string;
@@ -42,9 +45,50 @@ interface Education {
   description?: string;
 }
 
+const MessageSchema = z.object({
+  role: z.enum(["user", "assistant", "system"]),
+  content: z.string().min(1).max(500),
+});
+
+const ChatRequestSchema = z.object({
+  messages: z.array(MessageSchema).min(1).max(50),
+  profileData: z.record(z.string(), z.unknown()).optional(),
+});
+
+function getClientIp(req: Request): string {
+  return (
+    req.headers.get("x-forwarded-for")?.split(",")[0].trim() ??
+    req.headers.get("x-real-ip") ??
+    "unknown"
+  );
+}
+
 export async function POST(req: Request) {
   try {
-    const { messages, profileData } = await req.json();
+    // Rate limit check
+    const ip = getClientIp(req);
+    const { success, remaining } = chatRateLimiter.check(ip);
+    if (!success) {
+      return new Response(
+        JSON.stringify({ error: "Too many requests. Please wait a minute." }),
+        {
+          status: 429,
+          headers: { "Retry-After": "60", "X-RateLimit-Remaining": "0" },
+        }
+      );
+    }
+
+    // Parse and validate input
+    const body = await req.json();
+    const parsed = ChatRequestSchema.safeParse(body);
+    if (!parsed.success) {
+      return new Response(
+        JSON.stringify({ error: "Invalid request", details: parsed.error.flatten() }),
+        { status: 400 }
+      );
+    }
+
+    const { messages, profileData } = parsed.data;
 
     if (!process.env.GROQ_API_KEY) {
       return new Response(
@@ -56,7 +100,7 @@ export async function POST(req: Request) {
     // Build system message with profile context
     const buildSystemMessage = () => {
       const { profile, experience, projects, skills, education } =
-        profileData || {};
+        (profileData as { profile?: { firstName?: string; lastName?: string; headline?: string; shortBio?: string; yearsOfExperience?: number; location?: string }; experience?: Experience[]; projects?: Project[]; skills?: Skill[]; education?: Education[] }) || {};
 
       if (!profile) {
         return "You are a helpful AI assistant.";
@@ -237,6 +281,7 @@ export async function POST(req: Request) {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
         Connection: "keep-alive",
+        "X-RateLimit-Remaining": String(remaining),
       },
     });
   } catch (error) {
