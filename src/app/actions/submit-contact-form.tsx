@@ -1,5 +1,6 @@
 "use server";
 
+import { env } from "@/env";
 import { serverClient } from "@/sanity/lib/serverClient";
 
 async function verifyTurnstile(token: string): Promise<boolean> {
@@ -9,7 +10,7 @@ async function verifyTurnstile(token: string): Promise<boolean> {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
-        secret: process.env.TURNSTILE_SECRET_KEY ?? "",
+        secret: env.TURNSTILE_SECRET_KEY,
         response: token,
       }),
     }
