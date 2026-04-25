@@ -83,7 +83,7 @@ export async function POST(req: Request) {
     const parsed = ChatRequestSchema.safeParse(body);
     if (!parsed.success) {
       return new Response(
-        JSON.stringify({ error: "Invalid request", details: parsed.error.flatten() }),
+        JSON.stringify({ error: "Invalid request", details: parsed.error.issues }),
         { status: 400 }
       );
     }

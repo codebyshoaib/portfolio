@@ -9,7 +9,7 @@ vi.mock("@/lib/rate-limit", () => ({
 
 // Mock fetch (Groq API)
 const mockFetch = vi.fn();
-global.fetch = mockFetch;
+globalThis.fetch = mockFetch;
 
 // Mock env
 vi.stubEnv("GROQ_API_KEY", "test-key");
