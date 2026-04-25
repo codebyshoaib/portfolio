@@ -1,12 +1,11 @@
 "use client";
 
 export default function GlobalError({
-  error,
   reset,
-}: {
+}: Readonly<{
   error: Error & { digest?: string };
   reset: () => void;
-}) {
+}>) {
   return (
     <html lang="en">
       <body className="flex min-h-screen flex-col items-center justify-center gap-4 p-8 text-center">
