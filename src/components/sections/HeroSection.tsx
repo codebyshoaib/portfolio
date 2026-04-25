@@ -38,10 +38,10 @@ const LATEST_RESUME_QUERY =
 }`);
 
 export default async function HeroSection() {
-  const { data: profile } = await sanityFetch({ query: HERO_QUERY });
-  const { data: latestResume } = await sanityFetch({
-    query: LATEST_RESUME_QUERY,
-  });
+  const [{ data: profile }, { data: latestResume }] = await Promise.all([
+    sanityFetch({ query: HERO_QUERY }),
+    sanityFetch({ query: LATEST_RESUME_QUERY }),
+  ]);
 
   if (!profile) return null;
 
