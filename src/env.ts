@@ -4,8 +4,8 @@ import { z } from "zod";
 export const env = createEnv({
   server: {
     GROQ_API_KEY: z.string().min(1),
-    SANITY_PROJECT_ID: z.string().min(1),
-    SANITY_DATASET: z.string().min(1),
+    SANITY_PROJECT_ID: z.string().optional(),
+    SANITY_DATASET: z.string().optional(),
     SANITY_API_READ_TOKEN: z.string().optional(),
     SANITY_STUDIO_PREVIEW_ORIGIN: z.string().url().optional(),
     TURNSTILE_SECRET_KEY: z.string().min(1),
