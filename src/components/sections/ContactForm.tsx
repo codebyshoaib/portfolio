@@ -1,5 +1,6 @@
 "use client";
 import { useState, useTransition } from "react";
+import { Turnstile } from "@marsidev/react-turnstile";
 import { submitContactForm } from "@/app/actions/submit-contact-form";
 
 export function ContactForm() {
@@ -125,6 +126,10 @@ export function ContactForm() {
             required
             disabled={isPending}
           />
+        </div>
+
+        <div>
+          <Turnstile siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? ""} />
         </div>
 
         <button

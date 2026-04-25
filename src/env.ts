@@ -8,11 +8,13 @@ export const env = createEnv({
     SANITY_DATASET: z.string().min(1),
     SANITY_API_READ_TOKEN: z.string().optional(),
     SANITY_STUDIO_PREVIEW_ORIGIN: z.string().url().optional(),
+    TURNSTILE_SECRET_KEY: z.string().min(1),
   },
   client: {
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().optional(),
     NEXT_PUBLIC_SANITY_PROJECT_ID: z.string().optional(),
     NEXT_PUBLIC_SANITY_DATASET: z.string().optional(),
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().min(1),
   },
   runtimeEnv: {
     GROQ_API_KEY: process.env.GROQ_API_KEY,
@@ -23,5 +25,7 @@ export const env = createEnv({
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
     NEXT_PUBLIC_SANITY_PROJECT_ID: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
     NEXT_PUBLIC_SANITY_DATASET: process.env.NEXT_PUBLIC_SANITY_DATASET,
+    TURNSTILE_SECRET_KEY: process.env.TURNSTILE_SECRET_KEY,
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
   },
 });
