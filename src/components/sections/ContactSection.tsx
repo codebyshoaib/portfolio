@@ -1,9 +1,9 @@
+import { MailIcon, MapPinIcon, PhoneIcon } from "lucide-react";
 import Link from "next/link";
 import { defineQuery } from "next-sanity";
 import { sanityFetch } from "@/sanity/lib/live";
 import WorldMapWrapper from "../world-map-wrapper";
 import { ContactForm } from "./ContactForm";
-import { MailIcon, MapPinIcon, PhoneIcon } from "lucide-react";
 
 const PROFILE_QUERY = defineQuery(`*[_id == "singleton-profile"][0]{
   email,

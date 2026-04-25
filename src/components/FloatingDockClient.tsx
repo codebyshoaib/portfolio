@@ -3,9 +3,9 @@
 import { IconLogout, IconMenu2, IconX } from "@tabler/icons-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useSafeClerk } from "@/hooks/use-safe-clerk";
 import { DynamicIcon } from "./DynamicIcon";
 import { useSidebar } from "./ui/sidebar";
-import { useSafeClerk } from "@/hooks/use-safe-clerk";
 
 interface NavItem {
   title?: string | null;
@@ -39,7 +39,7 @@ const getVisibleLinks = (links: DockLink[], maxItems: number) => {
 };
 
 export function FloatingDockClient({ navItems }: FloatingDockClientProps) {
-  const [mounted, setMounted] = useState(false);
+  const [_mounted, setMounted] = useState(false);
 
   // Use safe Clerk hook that handles embedded browsers
   const { isSignedIn, signOut } = useSafeClerk();

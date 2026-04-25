@@ -1,12 +1,12 @@
+import { CheckCircle, MailIcon, MapPinIcon } from "lucide-react";
 import Link from "next/link";
 import { defineQuery } from "next-sanity";
 import { urlFor } from "@/sanity/lib/image";
 import { sanityFetch } from "@/sanity/lib/live";
 import { ProfileImageCarousel } from "../ProfileImageCarousel";
+import { ResumeDownloadButton } from "../ResumeDownloadButton";
 import { BackgroundRippleEffect } from "../ui/background-ripple-effect";
 import { LayoutTextFlip } from "../ui/layout-text-flip";
-import { CheckCircle, MailIcon, MapPinIcon } from "lucide-react";
-import { ResumeDownloadButton } from "../ResumeDownloadButton";
 
 const HERO_QUERY = defineQuery(`*[_id== "singleton-profile"][0] {
   firstName,
@@ -159,21 +159,21 @@ export default async function HeroSection() {
                           alt:
                             img.alt ||
                             `${profile.firstName} ${profile.lastName}`,
-                        })
+                        }),
                       )
                     : profile.profileImage
-                    ? [
-                        {
-                          url: urlFor(profile.profileImage)
-                            .width(600)
-                            .height(600)
-                            .url(),
-                          alt:
-                            (profile.profileImage as { alt?: string })?.alt ||
-                            `${profile.firstName} ${profile.lastName}`,
-                        },
-                      ]
-                    : []
+                      ? [
+                          {
+                            url: urlFor(profile.profileImage)
+                              .width(600)
+                              .height(600)
+                              .url(),
+                            alt:
+                              (profile.profileImage as { alt?: string })?.alt ||
+                              `${profile.firstName} ${profile.lastName}`,
+                          },
+                        ]
+                      : []
                 }
                 firstName={profile.firstName || ""}
                 lastName={profile.lastName || ""}

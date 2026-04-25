@@ -56,7 +56,7 @@ export function MarkdownRenderer({
         const matchIndex = match.index;
         const isInBold = matches.some(
           (m) =>
-            m.type === "bold" && matchIndex >= m.start && matchIndex < m.end
+            m.type === "bold" && matchIndex >= m.start && matchIndex < m.end,
         );
         if (!isInBold) {
           matches.push({
@@ -96,13 +96,13 @@ export function MarkdownRenderer({
           parts.push(
             <strong key={`bold-${m.start}`} className="font-semibold">
               {m.content}
-            </strong>
+            </strong>,
           );
         } else if (m.type === "italic") {
           parts.push(
             <em key={`italic-${m.start}`} className="italic">
               {m.content}
-            </em>
+            </em>,
           );
         } else if (m.type === "code") {
           parts.push(
@@ -111,7 +111,7 @@ export function MarkdownRenderer({
               className="bg-black/10 dark:bg-white/10 px-1.5 py-0.5 rounded text-sm font-mono"
             >
               {m.content}
-            </code>
+            </code>,
           );
         }
 
@@ -136,7 +136,7 @@ export function MarkdownRenderer({
       if (bulletMatch || numberMatch) {
         const listItemText = bulletMatch
           ? bulletMatch[1]
-          : numberMatch?.[1] ?? "";
+          : (numberMatch?.[1] ?? "");
         const newListType = bulletMatch ? "ul" : "ol";
 
         // If we're starting a new list or changing list type, close previous list
@@ -155,7 +155,7 @@ export function MarkdownRenderer({
                     .replace(/\s/g, "-")}`;
                   return <li key={itemKey}>{processInline(item)}</li>;
                 })}
-              </ListTag>
+              </ListTag>,
             );
             listItems = [];
           }
@@ -182,7 +182,7 @@ export function MarkdownRenderer({
                   .replace(/\s/g, "-")}`;
                 return <li key={itemKey}>{processInline(item)}</li>;
               })}
-            </ListTag>
+            </ListTag>,
           );
           listItems = [];
           inList = false;
@@ -196,7 +196,7 @@ export function MarkdownRenderer({
           elements.push(
             <p key={lineKey} className="mb-2 last:mb-0">
               {processInline(trimmedLine)}
-            </p>
+            </p>,
           );
         } else {
           // Empty line - add spacing
@@ -219,7 +219,7 @@ export function MarkdownRenderer({
             const itemKey = `final-${item.slice(0, 20).replace(/\s/g, "-")}`;
             return <li key={itemKey}>{processInline(item)}</li>;
           })}
-        </ListTag>
+        </ListTag>,
       );
     }
 

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock the rate limiter
 vi.mock("@/lib/rate-limit", () => ({
@@ -23,14 +23,17 @@ describe("POST /api/chat", () => {
       new Response("data: done", {
         status: 200,
         headers: { "Content-Type": "text/event-stream" },
-      })
+      }),
     );
   });
 
   it("returns 400 when messages is missing", async () => {
     const req = new Request("http://localhost/api/chat", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-forwarded-for": "1.2.3.4" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-forwarded-for": "1.2.3.4",
+      },
       body: JSON.stringify({}),
     });
     const res = await POST(req);
@@ -42,7 +45,10 @@ describe("POST /api/chat", () => {
   it("returns 400 when message content exceeds 500 chars", async () => {
     const req = new Request("http://localhost/api/chat", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-forwarded-for": "1.2.3.4" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-forwarded-for": "1.2.3.4",
+      },
       body: JSON.stringify({
         messages: [{ role: "user", content: "a".repeat(501) }],
       }),
@@ -53,11 +59,17 @@ describe("POST /api/chat", () => {
 
   it("returns 429 when rate limit exceeded", async () => {
     const { chatRateLimiter } = await import("@/lib/rate-limit");
-    vi.mocked(chatRateLimiter.check).mockReturnValue({ success: false, remaining: 0 });
+    vi.mocked(chatRateLimiter.check).mockReturnValue({
+      success: false,
+      remaining: 0,
+    });
 
     const req = new Request("http://localhost/api/chat", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-forwarded-for": "1.2.3.4" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-forwarded-for": "1.2.3.4",
+      },
       body: JSON.stringify({
         messages: [{ role: "user", content: "hello" }],
       }),
@@ -69,7 +81,10 @@ describe("POST /api/chat", () => {
   it("calls Groq and streams response for valid input", async () => {
     const req = new Request("http://localhost/api/chat", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-forwarded-for": "1.2.3.4" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-forwarded-for": "1.2.3.4",
+      },
       body: JSON.stringify({
         messages: [{ role: "user", content: "hello" }],
       }),
@@ -78,7 +93,7 @@ describe("POST /api/chat", () => {
     expect(res.status).toBe(200);
     expect(mockFetch).toHaveBeenCalledWith(
       "https://api.groq.com/openai/v1/chat/completions",
-      expect.objectContaining({ method: "POST" })
+      expect.objectContaining({ method: "POST" }),
     );
   });
 });

@@ -1,19 +1,18 @@
-import { defineQuery } from "next-sanity";
 import dynamic from "next/dynamic";
+import { defineQuery } from "next-sanity";
 import { urlFor } from "@/sanity/lib/image";
 import { sanityFetch } from "@/sanity/lib/live";
 
 const AnimatedTestimonials = dynamic(
   () =>
     import("@/components/ui/animated-testimonials").then(
-      (m) => m.AnimatedTestimonials
+      (m) => m.AnimatedTestimonials,
     ),
   {
-    ssr: false,
     loading: () => (
       <div className="w-full h-64 bg-muted rounded-xl animate-pulse" />
     ),
-  }
+  },
 );
 
 const TESTIMONIALS_QUERY =

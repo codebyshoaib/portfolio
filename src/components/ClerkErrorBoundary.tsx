@@ -1,6 +1,6 @@
 "use client";
 
-import { Component, ReactNode } from "react";
+import { Component, type ReactNode } from "react";
 import { isEmbeddedBrowser } from "@/lib/detect-embedded-browser";
 
 interface Props {
@@ -18,8 +18,7 @@ export class ClerkErrorBoundary extends Component<Props, State> {
     super(props);
     this.state = {
       hasError: false,
-      isEmbedded:
-        typeof window !== "undefined" ? isEmbeddedBrowser() : false,
+      isEmbedded: typeof window !== "undefined" ? isEmbeddedBrowser() : false,
     };
   }
 
@@ -27,8 +26,7 @@ export class ClerkErrorBoundary extends Component<Props, State> {
     // Update state so the next render will show the fallback UI
     return {
       hasError: true,
-      isEmbedded:
-        typeof window !== "undefined" ? isEmbeddedBrowser() : false,
+      isEmbedded: typeof window !== "undefined" ? isEmbeddedBrowser() : false,
     };
   }
 
@@ -48,4 +46,3 @@ export class ClerkErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
-

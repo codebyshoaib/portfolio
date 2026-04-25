@@ -33,7 +33,7 @@ export function ResumeDownloadButton({
       try {
         // Fetch the file asset to get the URL
         const response = await fetch(
-          `/api/resume?assetId=${resumeFile.asset._ref}`
+          `/api/resume?assetId=${resumeFile.asset._ref}`,
         );
         if (response.ok) {
           const data = await response.json();

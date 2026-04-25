@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Inter } from "next/font/google";
+import { Inter, Space_Grotesk } from "next/font/google";
 import "../globals.css";
+import dynamic from "next/dynamic";
 import { draftMode } from "next/headers";
 import { VisualEditing } from "next-sanity/visual-editing";
-import dynamic from "next/dynamic";
 import { AppSidebar } from "@/components/app-sidebar";
 import { DisableDraftMode } from "@/components/DisableDraftMode";
+
 // Lazy load FloatingDock - not critical for initial render
 const FloatingDock = dynamic(
   () =>
@@ -15,13 +16,14 @@ const FloatingDock = dynamic(
   {
     ssr: true,
     loading: () => null,
-  }
+  },
 );
-import { ThemeProvider } from "@/components/ThemeProvider";
+
+import { ConditionalClerkProvider } from "@/components/ConditionalClerkProvider";
 import { FloatingButtons } from "@/components/FloatingButtons";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { SanityLive } from "@/sanity/lib/live";
-import { ConditionalClerkProvider } from "@/components/ConditionalClerkProvider";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",

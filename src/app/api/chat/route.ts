@@ -74,7 +74,7 @@ export async function POST(req: Request) {
         {
           status: 429,
           headers: { "Retry-After": "60", "X-RateLimit-Remaining": "0" },
-        }
+        },
       );
     }
 
@@ -83,8 +83,11 @@ export async function POST(req: Request) {
     const parsed = ChatRequestSchema.safeParse(body);
     if (!parsed.success) {
       return new Response(
-        JSON.stringify({ error: "Invalid request", details: parsed.error.issues }),
-        { status: 400 }
+        JSON.stringify({
+          error: "Invalid request",
+          details: parsed.error.issues,
+        }),
+        { status: 400 },
       );
     }
 
@@ -93,14 +96,27 @@ export async function POST(req: Request) {
     if (!process.env.GROQ_API_KEY) {
       return new Response(
         JSON.stringify({ error: "GROQ_API_KEY is not set" }),
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     // Build system message with profile context
     const buildSystemMessage = () => {
       const { profile, experience, projects, skills, education } =
-        (profileData as { profile?: { firstName?: string; lastName?: string; headline?: string; shortBio?: string; yearsOfExperience?: number; location?: string }; experience?: Experience[]; projects?: Project[]; skills?: Skill[]; education?: Education[] }) || {};
+        (profileData as {
+          profile?: {
+            firstName?: string;
+            lastName?: string;
+            headline?: string;
+            shortBio?: string;
+            yearsOfExperience?: number;
+            location?: string;
+          };
+          experience?: Experience[];
+          projects?: Project[];
+          skills?: Skill[];
+          education?: Education[];
+        }) || {};
 
       if (!profile) {
         return "You are a helpful AI assistant.";
@@ -140,7 +156,7 @@ export async function POST(req: Request) {
           if (exp.description) systemPrompt += `\n   ${exp.description}`;
           if (exp.achievements && exp.achievements.length > 0) {
             systemPrompt += `\n   Key Achievements: ${exp.achievements.join(
-              ", "
+              ", ",
             )}`;
           }
           if (exp.technologies && exp.technologies.length > 0) {
@@ -199,7 +215,7 @@ export async function POST(req: Request) {
               })
               .join(", ");
             systemPrompt += `${skillNames}\n`;
-          }
+          },
         );
       }
 
@@ -268,7 +284,7 @@ export async function POST(req: Request) {
           max_tokens: 1024, // Increased to allow complete responses while still being concise
           stream: true,
         }),
-      }
+      },
     );
 
     if (!response.ok) {
@@ -288,7 +304,7 @@ export async function POST(req: Request) {
     console.error("Groq API error:", error);
     return new Response(
       JSON.stringify({ error: "Failed to process chat request" }),
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

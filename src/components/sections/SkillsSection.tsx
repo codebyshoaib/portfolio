@@ -1,11 +1,10 @@
+import dynamic from "next/dynamic";
 import { defineQuery } from "next-sanity";
 import { sanityFetch } from "@/sanity/lib/live";
-import dynamic from "next/dynamic";
 
 const SkillsChart = dynamic(
   () => import("./SkillsChart").then((m) => m.SkillsChart),
   {
-    ssr: false,
     loading: () => (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-pulse">
         {[1, 2, 3, 4].map((i) => (
@@ -13,7 +12,7 @@ const SkillsChart = dynamic(
         ))}
       </div>
     ),
-  }
+  },
 );
 
 const SKILLS_QUERY =
@@ -35,7 +34,7 @@ const normalizeCategory = (category: string | null | undefined): string => {
     category
       .toLowerCase()
       .trim()
-      .replace(/[\/_]/g, "-")
+      .replace(/[/_]/g, "-")
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-")
       .replace(/^-|-$/g, "") || "other"
@@ -88,7 +87,7 @@ function groupSkillsByCategory(skills: SkillData[]): GroupedSkillCategory[] {
       normalizedCategory,
       originalCategory: data.originalCategory,
       skills: data.skills,
-    })
+    }),
   );
 }
 

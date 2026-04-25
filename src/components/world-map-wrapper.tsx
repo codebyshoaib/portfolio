@@ -17,4 +17,3 @@ const WorldMapDemo = dynamic(() => import("./world-map-demo"), {
 export default function WorldMapWrapper() {
   return <WorldMapDemo />;
 }
-

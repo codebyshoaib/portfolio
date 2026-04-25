@@ -24,7 +24,7 @@ export function isEmbeddedBrowser(): boolean {
 
   // Check user agent
   const isEmbedded = embeddedIndicators.some((indicator) =>
-    userAgent.includes(indicator)
+    userAgent.includes(indicator),
   );
 
   // Additional check: standalone mode (PWA) vs embedded
@@ -34,7 +34,7 @@ export function isEmbeddedBrowser(): boolean {
     (window.navigator as Navigator & { standalone?: boolean }).standalone ===
     true;
   const isInStandaloneMode = window.matchMedia(
-    "(display-mode: standalone)"
+    "(display-mode: standalone)",
   ).matches;
 
   // Check if we're in a webview by checking for missing features

@@ -1,8 +1,8 @@
 "use client";
 
-import { useSidebar } from "./ui/sidebar";
-import { ModeToggle } from "./ui/DarkModeToggle";
 import SidebarToggle from "./SidebarToggle";
+import { ModeToggle } from "./ui/DarkModeToggle";
+import { useSidebar } from "./ui/sidebar";
 
 export function FloatingButtons() {
   const { open, isMobile, openMobile } = useSidebar();

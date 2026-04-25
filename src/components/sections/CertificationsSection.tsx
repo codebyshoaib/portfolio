@@ -1,19 +1,16 @@
 import { IconExternalLink } from "@tabler/icons-react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { defineQuery } from "next-sanity";
-import dynamic from "next/dynamic";
 import { urlFor } from "@/sanity/lib/image";
 import { sanityFetch } from "@/sanity/lib/live";
 
 const CometCard = dynamic(
   () => import("@/components/ui/comet-card").then((m) => m.CometCard),
   {
-    ssr: false,
-    loading: () => (
-      <div className="h-48 bg-muted rounded-xl animate-pulse" />
-    ),
-  }
+    loading: () => <div className="h-48 bg-muted rounded-xl animate-pulse" />,
+  },
 );
 
 const CERTIFICATIONS_QUERY =

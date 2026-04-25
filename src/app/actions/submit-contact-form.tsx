@@ -13,7 +13,7 @@ async function verifyTurnstile(token: string): Promise<boolean> {
         secret: env.TURNSTILE_SECRET_KEY,
         response: token,
       }),
-    }
+    },
   );
   const data = (await res.json()) as { success: boolean };
   return data.success;
@@ -37,7 +37,10 @@ export async function submitContactForm(formData: FormData) {
 
     const isHuman = await verifyTurnstile(turnstileToken);
     if (!isHuman) {
-      return { success: false, error: "CAPTCHA verification failed. Please try again." };
+      return {
+        success: false,
+        error: "CAPTCHA verification failed. Please try again.",
+      };
     }
 
     const result = await serverClient.create({
@@ -53,6 +56,9 @@ export async function submitContactForm(formData: FormData) {
     return { success: true, data: result };
   } catch (error) {
     console.error("Error submitting contact form:", error);
-    return { success: false, error: "Failed to submit the form. Please try again later." };
+    return {
+      success: false,
+      error: "Failed to submit the form. Please try again later.",
+    };
   }
 }

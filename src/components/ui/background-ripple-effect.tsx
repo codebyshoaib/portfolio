@@ -31,7 +31,7 @@ export const BackgroundRippleEffect = ({
         "dark:[--cell-border-color:var(--color-neutral-700)] dark:[--cell-fill-color:var(--color-neutral-900)] dark:[--cell-shadow-color:var(--color-neutral-800)]",
       )}
     >
-      <div 
+      <div
         className="relative h-full w-full overflow-hidden"
         style={{
           minHeight: `${gridHeight}px`,

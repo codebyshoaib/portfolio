@@ -53,7 +53,7 @@ export default function WorldMap({
       {
         rootMargin: "100px", // Start loading 100px before entering viewport
         threshold: 0.1,
-      }
+      },
     );
 
     observer.observe(containerRef.current);
@@ -87,7 +87,7 @@ export default function WorldMap({
       const y = (90 - lat) * (400 / 180);
       return { x, y };
     },
-    []
+    [],
   );
 
   const createCurvedPath = useMemo(
@@ -96,7 +96,7 @@ export default function WorldMap({
       const midY = Math.min(start.y, end.y) - 50;
       return `M ${start.x} ${start.y} Q ${midX} ${midY} ${end.x} ${end.y}`;
     },
-    []
+    [],
   );
 
   // Memoize projected points to avoid recalculating on every render
@@ -107,7 +107,7 @@ export default function WorldMap({
         end: projectPoint(dot.end.lat, dot.end.lng),
         original: dot,
       })),
-    [dots, projectPoint]
+    [dots, projectPoint],
   );
 
   // Don't render until visible

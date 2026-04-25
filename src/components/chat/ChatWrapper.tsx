@@ -1,8 +1,8 @@
 import { defineQuery } from "next-sanity";
+import type { ChatData } from "@/components/chat/Chat";
 import Chat from "@/components/chat/Chat";
 import { sanityFetch } from "@/sanity/lib/live";
 import SidebarToggle from "../SidebarToggle";
-import type { ChatData } from "@/components/chat/Chat";
 
 const CHAT_PROFILE_QUERY = defineQuery(`{
     "profile": *[_id == "singleton-profile"][0]{

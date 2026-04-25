@@ -1,10 +1,10 @@
 import { PortableText } from "@portabletext/react";
+import { IconExternalLink } from "@tabler/icons-react";
 import Image from "next/image";
+import Link from "next/link";
 import { defineQuery } from "next-sanity";
 import { urlFor } from "@/sanity/lib/image";
 import { sanityFetch } from "@/sanity/lib/live";
-import Link from "next/link";
-import { IconExternalLink } from "@tabler/icons-react";
 
 const EXPERIENCE_QUERY =
   defineQuery(`*[_type == "experience"] | order(startDate desc){
@@ -97,8 +97,8 @@ export async function ExperienceSection() {
                         {exp.current
                           ? "Present"
                           : exp.endDate
-                          ? formatDate(exp.endDate)
-                          : "N/A"}
+                            ? formatDate(exp.endDate)
+                            : "N/A"}
                       </span>
                       {exp.location && (
                         <>

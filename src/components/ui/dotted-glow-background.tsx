@@ -82,7 +82,7 @@ export const DottedGlowBackground = ({
         .trim();
       return fromRoot || null;
     },
-    []
+    [],
   );
 
   const detectDarkMode = useCallback((): boolean => {
@@ -241,12 +241,12 @@ export const DottedGlowBackground = ({
           Math.min(width, height) * 0.1,
           width * 0.5,
           height * 0.5,
-          Math.max(width, height) * 0.7
+          Math.max(width, height) * 0.7,
         );
         grad.addColorStop(0, "rgba(0,0,0,0)");
         grad.addColorStop(
           1,
-          `rgba(0,0,0,${Math.min(Math.max(backgroundOpacity, 0), 1)})`
+          `rgba(0,0,0,${Math.min(Math.max(backgroundOpacity, 0), 1)})`,
         );
         ctx.fillStyle = grad as unknown as CanvasGradient;
         ctx.fillRect(0, 0, width, height);
@@ -298,7 +298,7 @@ export const DottedGlowBackground = ({
           raf = requestAnimationFrame(draw);
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
     observer.observe(container);
 

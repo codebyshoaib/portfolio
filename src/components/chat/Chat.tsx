@@ -144,7 +144,7 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
         ? `Hi! I'm ${[firstName, lastName]
             .filter(Boolean)
             .join(
-              " "
+              " ",
             )}. Ask me anything about my work, experience, or projects.`
         : "Hi there! Ask me anything about my work, experience, or projects.";
 
@@ -225,7 +225,7 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
       "achievement",
       "accomplishment",
     ],
-    []
+    [],
   );
 
   const offTopicKeywords = useMemo(
@@ -256,23 +256,23 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
       "current events",
       "politics",
     ],
-    []
+    [],
   );
 
   const isQuestionRelevant = (
-    question: string
+    question: string,
   ): { relevant: boolean; message?: string } => {
     const lowerQuestion = question.toLowerCase().trim();
 
     // Check if question contains relevant keywords
     const hasRelevantKeywords = relevantKeywords.some((keyword: string) =>
-      lowerQuestion.includes(keyword)
+      lowerQuestion.includes(keyword),
     );
 
     // Check if it's a generic "what is X" question (not about the person)
     const isGenericQuestion = offTopicKeywords.some(
       (keyword: string) =>
-        lowerQuestion.startsWith(keyword) && !lowerQuestion.includes("your")
+        lowerQuestion.startsWith(keyword) && !lowerQuestion.includes("your"),
     );
 
     // Check if it's too short or vague
@@ -419,8 +419,8 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
                     prev.map((msg) =>
                       msg.id === assistantMessageId
                         ? { ...msg, content: msg.content + content }
-                        : msg
-                    )
+                        : msg,
+                    ),
                   );
                 }
               } catch {
@@ -512,7 +512,7 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
                     ? `Hi! I'm ${[profile.firstName, profile.lastName]
                         .filter(Boolean)
                         .join(
-                          " "
+                          " ",
                         )}. Ask me anything about my work, experience, or projects.`
                     : "Hi there! Ask me anything about my work, experience, or projects.")}
               </p>

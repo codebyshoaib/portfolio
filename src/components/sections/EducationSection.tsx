@@ -102,8 +102,8 @@ export async function EducationSection() {
                       {edu.current
                         ? "Present"
                         : edu.endDate
-                        ? formatDate(edu.endDate)
-                        : "N/A"}
+                          ? formatDate(edu.endDate)
+                          : "N/A"}
                     </span>
                   </div>
                   {edu.gpa && (

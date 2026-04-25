@@ -1,5 +1,5 @@
-import { client } from "@/sanity/lib/client";
 import { NextResponse } from "next/server";
+import { client } from "@/sanity/lib/client";
 
 export async function GET(request: Request) {
   try {
@@ -9,7 +9,7 @@ export async function GET(request: Request) {
     if (!assetId) {
       return NextResponse.json(
         { error: "Asset ID is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -20,7 +20,7 @@ export async function GET(request: Request) {
         originalFilename,
         mimeType
       }`,
-      { assetId }
+      { assetId },
     );
 
     if (!fileAsset || !fileAsset.url) {
@@ -36,7 +36,7 @@ export async function GET(request: Request) {
     console.error("Error fetching resume file:", error);
     return NextResponse.json(
       { error: "Failed to fetch resume file" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
