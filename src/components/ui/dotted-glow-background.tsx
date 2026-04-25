@@ -216,9 +216,16 @@ export const DottedGlowBackground = ({
     regenDots();
 
     let last = performance.now();
+    const FRAME_MS = 1000 / 30; // 30fps cap
+    let lastFrame = 0;
 
     const draw = (now: number) => {
       if (stopped) return;
+      if (now - lastFrame < FRAME_MS) {
+        raf = requestAnimationFrame(draw);
+        return;
+      }
+      lastFrame = now;
       const _dt = (now - last) / 1000; // seconds
       last = now;
       const { width, height } = container.getBoundingClientRect();
@@ -295,6 +302,17 @@ export const DottedGlowBackground = ({
     );
     observer.observe(container);
 
+    const handleVisibility = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(raf);
+      } else if (!stopped) {
+        last = performance.now();
+        lastFrame = 0;
+        raf = requestAnimationFrame(draw);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
     window.addEventListener("resize", handleResize);
     raf = requestAnimationFrame(draw);
 
@@ -304,6 +322,7 @@ export const DottedGlowBackground = ({
       window.removeEventListener("resize", handleResize);
       observer.disconnect();
       ro.disconnect();
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, [
     gap,
