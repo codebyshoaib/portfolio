@@ -1,7 +1,20 @@
 import { defineQuery } from "next-sanity";
-import { AnimatedTestimonials } from "@/components/ui/animated-testimonials";
+import dynamic from "next/dynamic";
 import { urlFor } from "@/sanity/lib/image";
 import { sanityFetch } from "@/sanity/lib/live";
+
+const AnimatedTestimonials = dynamic(
+  () =>
+    import("@/components/ui/animated-testimonials").then(
+      (m) => m.AnimatedTestimonials
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-64 bg-muted rounded-xl animate-pulse" />
+    ),
+  }
+);
 
 const TESTIMONIALS_QUERY =
   defineQuery(`*[_type == "testimonial" && featured == true] | order(order asc){
