@@ -54,3 +54,6 @@ docs
 plans
 specs
 .env*.local
+
+CLAUDE.md
+AGENTS.md

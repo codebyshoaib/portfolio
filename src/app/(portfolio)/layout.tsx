@@ -23,6 +23,7 @@ import { ConditionalClerkProvider } from "@/components/ConditionalClerkProvider"
 import { FloatingButtons } from "@/components/FloatingButtons";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { V2Banner } from "@/components/V2Banner";
 import { SanityLive } from "@/sanity/lib/live";
 
 const spaceGrotesk = Space_Grotesk({
@@ -144,6 +145,7 @@ export default async function RootLayout({
               <AppSidebar side="right" />
               <FloatingDock />
               <FloatingButtons />
+              <V2Banner />
             </SidebarProvider>
 
             <SanityLive />
