@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 };
 
 const DECISIONS_QUERY = defineQuery(`
-  *[_type == "decision" && published == true] | order(date desc) {
+  *[_type == "decision" && published == true] | order(date asc) {
     "slug": slug.current,
     title,
     date,
@@ -32,7 +32,7 @@ const DECISIONS_QUERY = defineQuery(`
   }
 `);
 
-interface DecisionListItem {
+interface ListItem {
   readonly slug: string | null;
   readonly title: string | null;
   readonly date: string | null;
@@ -41,92 +41,162 @@ interface DecisionListItem {
   readonly tags: readonly (string | null)[] | null;
 }
 
-const STATUS_LABEL: Record<string, string> = {
-  accepted: "accepted",
-  proposed: "proposed",
-  deprecated: "deprecated",
-  superseded: "superseded",
-};
+interface NumberedItem extends ListItem {
+  readonly adrNumber: number;
+}
+
+const MONTH = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
+function fmtDate(iso: string | null): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return `${MONTH[d.getUTCMonth()]} ${String(d.getUTCDate()).padStart(2, "0")}`;
+}
+
+function groupByYear(items: readonly NumberedItem[]) {
+  const buckets = new Map<string, NumberedItem[]>();
+  for (const it of items) {
+    const y = it.date?.slice(0, 4) ?? "—";
+    const list = buckets.get(y) ?? [];
+    list.push(it);
+    buckets.set(y, list);
+  }
+  return [...buckets.entries()].sort(([a], [b]) => b.localeCompare(a));
+}
 
 export default async function DecisionsIndexPage() {
   const res = await sanityFetch({ query: DECISIONS_QUERY });
-  const decisions = (res.data ?? []) as readonly DecisionListItem[];
+  const ascending = ((res.data ?? []) as readonly ListItem[]).filter(
+    (d) => d.slug && d.title,
+  );
+  // Assign stable ADR numbers in chronological order (oldest = ADR-001)
+  const numbered: NumberedItem[] = ascending.map((d, i) => ({
+    ...d,
+    adrNumber: i + 1,
+  }));
+  // Display newest first
+  const display = [...numbered].reverse();
+  const grouped = groupByYear(display);
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-16 sm:px-8 sm:py-24">
-      <header className="border-b border-border pb-10">
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
-          /decisions
+      <header className="border-b border-foreground/10 pb-12">
+        <p className="mono-meta text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+          /decisions · ENGR ADR LOG
         </p>
-        <h1 className="mt-3 text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">
-          Engineering decisions log
+        <h1 className="display-serif mt-4 text-5xl leading-[0.95] tracking-tight sm:text-6xl">
+          Engineering
+          <br />
+          decisions log
         </h1>
-        <p className="mt-4 max-w-prose text-base text-muted-foreground">
-          Public ADRs. Every entry is a real engineering decision I made under
-          real constraints — context, options, trade-offs, and the signal that
-          would force me to revisit.
+        <p className="body-serif mt-6 max-w-prose text-lg leading-relaxed text-muted-foreground">
+          Every entry is a real engineering decision made under real constraints
+          — context, options, trade-offs, and the signal that would force me to
+          revisit. Most ADRs live inside companies; this one's public on
+          purpose.
         </p>
-        <p className="mt-4 font-mono text-xs text-muted-foreground">
-          <Link
-            href="/decisions/feed.xml"
-            className="underline-offset-4 hover:underline"
-          >
+        <div className="mt-8 flex flex-wrap items-baseline gap-x-6 gap-y-2 mono-meta text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+          <span>
+            {ascending.length} {ascending.length === 1 ? "entry" : "entries"} ·{" "}
+            {grouped.length} {grouped.length === 1 ? "year" : "years"}
+          </span>
+          <Link href="/decisions/feed.xml" className="hover:text-foreground">
             RSS →
           </Link>
-        </p>
+        </div>
       </header>
 
-      {decisions.length === 0 ? (
-        <p className="mt-16 text-muted-foreground">
+      {display.length === 0 ? (
+        <p className="body-serif mt-16 italic text-muted-foreground">
           No decisions published yet. Check back soon.
         </p>
       ) : (
-        <ol className="mt-12 space-y-10">
-          {decisions
-            .filter((d) => d.slug && d.title)
-            .map((d) => (
-              <li
-                key={d.slug}
-                className="border-l-2 border-border pl-6 transition-colors hover:border-foreground/60"
-              >
-                <Link href={`/decisions/${d.slug}`} className="group block">
-                  <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-                    <time className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
-                      {d.date?.slice(0, 10) ?? "—"}
-                    </time>
-                    {d.status && d.status !== "accepted" ? (
-                      <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-                        [{STATUS_LABEL[d.status] ?? d.status}]
-                      </span>
-                    ) : null}
-                  </div>
-                  <h2 className="mt-2 text-xl font-medium leading-snug tracking-tight transition-colors group-hover:text-foreground sm:text-2xl">
-                    {d.title}
-                  </h2>
-                  {d.summary ? (
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                      {d.summary}
-                    </p>
-                  ) : null}
-                  {d.tags?.length ? (
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {d.tags
-                        .filter((t): t is string => Boolean(t))
-                        .map((t) => (
-                          <span
-                            key={t}
-                            className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground"
-                          >
-                            #{t}
+        <div className="mt-16 space-y-20">
+          {grouped.map(([year, entries]) => (
+            <section key={year} className="relative">
+              <div className="pointer-events-none absolute -top-6 right-0 select-none year-ribbon">
+                {year}
+              </div>
+
+              <ol className="space-y-12">
+                {entries.map((d) => {
+                  const statusVisible = d.status && d.status !== "accepted";
+                  return (
+                    <li key={d.slug} className="group">
+                      <Link href={`/decisions/${d.slug}`} className="block">
+                        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 mono-meta text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                          <span>
+                            ADR-{String(d.adrNumber).padStart(3, "0")}
                           </span>
-                        ))}
-                    </div>
-                  ) : null}
-                </Link>
-              </li>
-            ))}
-        </ol>
+                          <span className="text-foreground/40">·</span>
+                          <time>{fmtDate(d.date)}</time>
+                          {statusVisible ? (
+                            <>
+                              <span className="text-foreground/40">·</span>
+                              <span
+                                className="status-pill"
+                                data-status={d.status ?? undefined}
+                              >
+                                {d.status}
+                              </span>
+                            </>
+                          ) : null}
+                        </div>
+                        <h2 className="display-serif mt-3 text-3xl leading-[1.1] tracking-tight transition-colors group-hover:text-foreground sm:text-[2.25rem]">
+                          {d.title}
+                        </h2>
+                        {d.summary ? (
+                          <p className="body-serif mt-3 max-w-prose text-[17px] leading-relaxed text-muted-foreground">
+                            {d.summary}
+                          </p>
+                        ) : null}
+                        {d.tags?.length ? (
+                          <div className="mt-4 flex flex-wrap gap-x-3 gap-y-1 mono-meta text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                            {d.tags
+                              .filter((t): t is string => Boolean(t))
+                              .map((t) => (
+                                <span key={t}>#{t}</span>
+                              ))}
+                          </div>
+                        ) : null}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ol>
+            </section>
+          ))}
+        </div>
       )}
+
+      <footer className="mt-32 border-t border-foreground/10 pt-8 mono-meta text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+        <p>
+          Inspired by{" "}
+          <a
+            href="https://adr.github.io"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-foreground"
+          >
+            adr.github.io
+          </a>{" "}
+          · authored by Shoaib Ud Din
+        </p>
+      </footer>
     </main>
   );
 }
