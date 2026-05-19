@@ -28,6 +28,8 @@ const DECISIONS_QUERY = defineQuery(`
     date,
     summary,
     status,
+    impact,
+    domain,
     tags
   }
 `);
@@ -38,6 +40,8 @@ interface ListItem {
   readonly date: string | null;
   readonly summary: string | null;
   readonly status: string | null;
+  readonly impact: string | null;
+  readonly domain: string | null;
   readonly tags: readonly (string | null)[] | null;
 }
 
@@ -45,134 +49,246 @@ interface NumberedItem extends ListItem {
   readonly adrNumber: number;
 }
 
-const MONTH = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
+const MONTH_LONG = [
+  "JANUARY",
+  "FEBRUARY",
+  "MARCH",
+  "APRIL",
+  "MAY",
+  "JUNE",
+  "JULY",
+  "AUGUST",
+  "SEPTEMBER",
+  "OCTOBER",
+  "NOVEMBER",
+  "DECEMBER",
 ];
 
-function fmtDate(iso: string | null): string {
-  if (!iso) return "—";
+const MONTH_SHORT = [
+  "JAN",
+  "FEB",
+  "MAR",
+  "APR",
+  "MAY",
+  "JUN",
+  "JUL",
+  "AUG",
+  "SEP",
+  "OCT",
+  "NOV",
+  "DEC",
+];
+
+interface ParsedDate {
+  readonly year: number;
+  readonly month: number;
+  readonly day: number;
+}
+
+function parseISO(iso: string | null): ParsedDate | null {
+  if (!iso) return null;
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  return `${MONTH[d.getUTCMonth()]} ${String(d.getUTCDate()).padStart(2, "0")}`;
+  if (Number.isNaN(d.getTime())) return null;
+  return {
+    year: d.getUTCFullYear(),
+    month: d.getUTCMonth(),
+    day: d.getUTCDate(),
+  };
 }
 
-function groupByYear(items: readonly NumberedItem[]) {
-  const buckets = new Map<string, NumberedItem[]>();
+function groupByMonth(items: readonly NumberedItem[]) {
+  const buckets = new Map<string, { label: string; entries: NumberedItem[] }>();
   for (const it of items) {
-    const y = it.date?.slice(0, 4) ?? "—";
-    const list = buckets.get(y) ?? [];
-    list.push(it);
-    buckets.set(y, list);
+    const p = parseISO(it.date);
+    if (!p) continue;
+    const key = `${p.year}-${String(p.month).padStart(2, "0")}`;
+    const label = `${MONTH_LONG[p.month]} ${p.year}`;
+    const bucket = buckets.get(key) ?? { label, entries: [] };
+    bucket.entries.push(it);
+    buckets.set(key, bucket);
   }
-  return [...buckets.entries()].sort(([a], [b]) => b.localeCompare(a));
+  return [...buckets.entries()]
+    .sort(([a], [b]) => b.localeCompare(a))
+    .map(([, v]) => v);
 }
 
-export default async function DecisionsIndexPage() {
+function deriveDomain(item: ListItem): string | null {
+  if (item.domain) return item.domain.toUpperCase();
+  const firstTag = (item.tags ?? []).find((t): t is string => Boolean(t));
+  return firstTag ? firstTag.toUpperCase() : null;
+}
+
+function buildVersion(latest: ListItem | undefined, count: number): string {
+  const p = parseISO(latest?.date ?? null);
+  if (!p) return "v0000.00.0";
+  return `v${p.year}.${String(p.month + 1).padStart(2, "0")}.${count}`;
+}
+
+interface PageProps {
+  readonly searchParams: Promise<{ readonly tag?: string }>;
+}
+
+export default async function DecisionsIndexPage({ searchParams }: PageProps) {
+  const sp = await searchParams;
+  const activeTag = sp.tag?.toLowerCase() ?? null;
+
   const res = await sanityFetch({ query: DECISIONS_QUERY });
   const ascending = ((res.data ?? []) as readonly ListItem[]).filter(
     (d) => d.slug && d.title,
   );
-  // Assign stable ADR numbers in chronological order (oldest = ADR-001)
+  // Stable ADR numbers in chronological order (oldest = ADR-001)
   const numbered: NumberedItem[] = ascending.map((d, i) => ({
     ...d,
     adrNumber: i + 1,
   }));
-  // Display newest first
-  const display = [...numbered].reverse();
-  const grouped = groupByYear(display);
+  const newestFirst = [...numbered].reverse();
+  const filtered = activeTag
+    ? newestFirst.filter((d) =>
+        (d.tags ?? []).some(
+          (t) => typeof t === "string" && t.toLowerCase() === activeTag,
+        ),
+      )
+    : newestFirst;
+  const grouped = groupByMonth(filtered);
+
+  const tagSet = new Set<string>();
+  for (const d of numbered) {
+    for (const t of d.tags ?? []) if (t) tagSet.add(t);
+  }
+  const allTags = [...tagSet].sort();
+
+  const latest = newestFirst[0];
+  const version = buildVersion(latest, newestFirst.length);
+
+  const statuses = {
+    accepted: numbered.filter((d) => (d.status ?? "accepted") === "accepted").length,
+    deprecated: numbered.filter((d) => d.status === "deprecated").length,
+    proposed: numbered.filter((d) => d.status === "proposed").length,
+  };
+  const recentThree = newestFirst.slice(0, 3);
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-16 sm:px-8 sm:py-24">
-      <header className="border-b border-foreground/10 pb-12">
-        <p className="mono-meta text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-          /decisions · ENGR ADR LOG
-        </p>
-        <h1 className="display-serif mt-4 text-5xl leading-[0.95] tracking-tight sm:text-6xl">
-          Engineering
-          <br />
-          decisions log
-        </h1>
-        <p className="body-serif mt-6 max-w-prose text-lg leading-relaxed text-muted-foreground">
-          Every entry is a real engineering decision made under real constraints
-          — context, options, trade-offs, and the signal that would force me to
-          revisit. Most ADRs live inside companies; this one's public on
-          purpose.
-        </p>
-        <div className="mt-8 flex flex-wrap items-baseline gap-x-6 gap-y-2 mono-meta text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-          <span>
-            {ascending.length} {ascending.length === 1 ? "entry" : "entries"} ·{" "}
-            {grouped.length} {grouped.length === 1 ? "year" : "years"}
-          </span>
-          <Link href="/decisions/feed.xml" className="hover:text-foreground">
-            RSS →
-          </Link>
-        </div>
-      </header>
+    <main className="mx-auto max-w-5xl px-6 pb-24 sm:px-8">
+      {/* Terminal chrome */}
+      <div className="chrome-bar">
+        <span>
+          shoaib
+          <span className="opacity-50"> /decisions</span>
+        </span>
+        <span className="chrome-right">
+          <Link href="/decisions/feed.xml">RSS</Link>
+          <Link href="/decisions/feed.json">JSON</Link>
+          <span>{version}</span>
+        </span>
+      </div>
 
-      {display.length === 0 ? (
-        <p className="body-serif mt-16 italic text-muted-foreground">
-          No decisions published yet. Check back soon.
+      {/* Breadcrumb */}
+      <p className="breadcrumb mt-10">
+        /DECISIONS <span className="opacity-40">·</span> CHANGELOG
+      </p>
+
+      {/* Headline */}
+      <h1 className="editorial-headline mt-5">
+        <span>What I chose,</span>
+        <span className="accent">and the bill it ran up.</span>
+      </h1>
+
+      <p className="body-serif mt-7 max-w-prose text-[17px] leading-[1.55] text-foreground/70">
+        A public log of engineering decisions made under real constraints. Each
+        one names the call, the alternatives, the trade I made, and the trigger
+        that would force me to revisit. Nothing here is a pattern. All of it is
+        contingent.
+      </p>
+
+      {/* Two-column layout: entries (2/3) + sidebar (1/3) */}
+      <div className="index-grid mt-14">
+        {/* ── Main entry column ── */}
+        <div className="index-col-main">
+        {/* Entries */}
+      {filtered.length === 0 ? (
+        <p className="body-serif mt-16 italic text-foreground/55">
+          {activeTag
+            ? `No decisions tagged #${activeTag}. `
+            : "No decisions published yet. "}
+          <Link href="/decisions" className="underline underline-offset-4">
+            Show all
+          </Link>
+          .
         </p>
       ) : (
-        <div className="mt-16 space-y-20">
-          {grouped.map(([year, entries]) => (
-            <section key={year} className="relative">
-              <div className="pointer-events-none absolute -top-6 right-0 select-none year-ribbon">
-                {year}
-              </div>
+        <div className="mt-14 space-y-14">
+          {grouped.map((g) => (
+            <section key={g.label}>
+              <header className="month-divider">
+                <span>{g.label}</span>
+                <span className="rule-line" aria-hidden />
+                <span>
+                  {g.entries.length}{" "}
+                  {g.entries.length === 1 ? "entry" : "entries"}
+                </span>
+              </header>
 
-              <ol className="space-y-12">
-                {entries.map((d) => {
-                  const statusVisible = d.status && d.status !== "accepted";
+              <ol className="mt-8 space-y-12">
+                {g.entries.map((d) => {
+                  const parsed = parseISO(d.date);
+                  const domain = deriveDomain(d);
                   return (
-                    <li key={d.slug} className="group">
-                      <Link href={`/decisions/${d.slug}`} className="block">
-                        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 mono-meta text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                          <span>
+                    <li key={d.slug}>
+                      <Link
+                        href={`/decisions/${d.slug}`}
+                        className="entry-card group block"
+                      >
+                        <div>
+                          <div className="entry-adr">
                             ADR-{String(d.adrNumber).padStart(3, "0")}
-                          </span>
-                          <span className="text-foreground/40">·</span>
-                          <time>{fmtDate(d.date)}</time>
-                          {statusVisible ? (
-                            <>
-                              <span className="text-foreground/40">·</span>
+                          </div>
+                          <div className="entry-day">
+                            {parsed ? String(parsed.day).padStart(2, "0") : "—"}
+                          </div>
+                          <div className="entry-day-mo">
+                            {parsed ? MONTH_SHORT[parsed.month] : ""}
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span
+                              className="badge badge--status"
+                              data-status={d.status ?? "accepted"}
+                            >
+                              {(d.status ?? "accepted").toUpperCase()}
+                            </span>
+                            {d.impact ? (
                               <span
-                                className="status-pill"
-                                data-status={d.status ?? undefined}
+                                className="badge badge--impact"
+                                data-impact={d.impact}
                               >
-                                {d.status}
+                                Impact · {d.impact}
                               </span>
-                            </>
+                            ) : null}
+                            {domain ? (
+                              <span className="domain-tag ml-auto">
+                                {domain}
+                              </span>
+                            ) : null}
+                          </div>
+
+                          <h2 className="entry-title mt-4">{d.title}</h2>
+
+                          {d.summary ? (
+                            <p className="entry-summary mt-3">{d.summary}</p>
+                          ) : null}
+
+                          {d.tags?.length ? (
+                            <div className="hashtags mt-4">
+                              {d.tags
+                                .filter((t): t is string => Boolean(t))
+                                .map((t) => (
+                                  <span key={t}>#{t}</span>
+                                ))}
+                            </div>
                           ) : null}
                         </div>
-                        <h2 className="display-serif mt-3 text-3xl leading-[1.1] tracking-tight transition-colors group-hover:text-foreground sm:text-[2.25rem]">
-                          {d.title}
-                        </h2>
-                        {d.summary ? (
-                          <p className="body-serif mt-3 max-w-prose text-[17px] leading-relaxed text-muted-foreground">
-                            {d.summary}
-                          </p>
-                        ) : null}
-                        {d.tags?.length ? (
-                          <div className="mt-4 flex flex-wrap gap-x-3 gap-y-1 mono-meta text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                            {d.tags
-                              .filter((t): t is string => Boolean(t))
-                              .map((t) => (
-                                <span key={t}>#{t}</span>
-                              ))}
-                          </div>
-                        ) : null}
                       </Link>
                     </li>
                   );
@@ -183,7 +299,87 @@ export default async function DecisionsIndexPage() {
         </div>
       )}
 
-      <footer className="mt-32 border-t border-foreground/10 pt-8 mono-meta text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+        </div>
+
+        {/* ── Sidebar ── */}
+        <aside className="index-col-sidebar">
+          {/* Tag filter cloud */}
+          {allTags.length ? (
+            <div className="sidebar-block">
+              <p className="sidebar-label">Filter by tag</p>
+              <div className="filter-cloud">
+                <Link
+                  href="/decisions"
+                  className="filter-chip filter-label"
+                  data-active={activeTag === null}
+                >
+                  #all
+                </Link>
+                {allTags.map((t) => (
+                  <Link
+                    key={t}
+                    href={`/decisions?tag=${encodeURIComponent(t)}`}
+                    className="filter-chip"
+                    data-active={activeTag === t.toLowerCase()}
+                  >
+                    #{t}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {/* Stats */}
+          <div className="sidebar-block sidebar-stats">
+            <p className="sidebar-label">Stats</p>
+            <dl className="sidebar-stat-list">
+              <div>
+                <dt>Total</dt>
+                <dd>{numbered.length}</dd>
+              </div>
+              {statuses.accepted > 0 && (
+                <div>
+                  <dt>Accepted</dt>
+                  <dd>{statuses.accepted}</dd>
+                </div>
+              )}
+              {statuses.deprecated > 0 && (
+                <div>
+                  <dt>Deprecated</dt>
+                  <dd>{statuses.deprecated}</dd>
+                </div>
+              )}
+              {statuses.proposed > 0 && (
+                <div>
+                  <dt>Proposed</dt>
+                  <dd>{statuses.proposed}</dd>
+                </div>
+              )}
+            </dl>
+          </div>
+
+          {/* Recent */}
+          {recentThree.length > 0 && (
+            <div className="sidebar-block">
+              <p className="sidebar-label">Recent</p>
+              <ol className="sidebar-recent-list">
+                {recentThree.map((d) => (
+                  <li key={d.slug}>
+                    <Link href={`/decisions/${d.slug}`} className="sidebar-recent-link">
+                      <span className="sidebar-recent-adr">
+                        ADR-{String(d.adrNumber).padStart(3, "0")}
+                      </span>
+                      <span className="sidebar-recent-title">{d.title}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+        </aside>
+      </div>
+
+      <footer className="mt-24 border-t border-foreground/10 pt-8 mono-meta text-[11px] uppercase tracking-[0.18em] text-foreground/45">
         <p>
           Inspired by{" "}
           <a

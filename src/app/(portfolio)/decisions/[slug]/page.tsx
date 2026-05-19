@@ -17,6 +17,8 @@ const DECISION_QUERY = defineQuery(`
     title,
     date,
     status,
+    impact,
+    domain,
     summary,
     context,
     optionsConsidered[] {
@@ -65,6 +67,8 @@ interface Decision {
   readonly title: string | null;
   readonly date: string | null;
   readonly status: string | null;
+  readonly impact: string | null;
+  readonly domain: string | null;
   readonly summary: string | null;
   readonly context: string | null;
   readonly optionsConsidered: readonly OptionRow[] | null;
@@ -106,26 +110,37 @@ export async function generateMetadata({
   };
 }
 
-const MONTH_LONG = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
+const WEEKDAY_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-function longDate(iso: string | null): string {
-  if (!iso) return "—";
+function isoCompact(iso: string | null): {
+  readonly iso: string;
+  readonly weekday: string;
+} {
+  if (!iso) return { iso: "—", weekday: "" };
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  return `${MONTH_LONG[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
+  if (Number.isNaN(d.getTime())) return { iso, weekday: "" };
+  const yyyy = d.getUTCFullYear();
+  const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(d.getUTCDate()).padStart(2, "0");
+  return {
+    iso: `${yyyy}-${mm}-${dd}`,
+    weekday: WEEKDAY_SHORT[d.getUTCDay()],
+  };
+}
+
+function buildVersion(iso: string | null, adrCount: number | null): string {
+  if (!iso) return "v0000.00.0";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "v0000.00.0";
+  const yyyy = d.getUTCFullYear();
+  const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
+  return `v${yyyy}.${mm}.${adrCount ?? 1}`;
+}
+
+function deriveDomain(d: Decision): string | null {
+  if (d.domain) return d.domain.toUpperCase();
+  const firstTag = (d.tags ?? []).find((t): t is string => Boolean(t));
+  return firstTag ? firstTag.toUpperCase() : null;
 }
 
 const pt: PortableTextComponents = {
@@ -140,7 +155,7 @@ const pt: PortableTextComponents = {
           <code data-lang={value.language}>{value.code}</code>
         </pre>
         {value.caption ? (
-          <figcaption className="mt-2 text-center mono-meta text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+          <figcaption className="mt-2 text-center mono-meta text-[11px] uppercase tracking-[0.18em] text-foreground/45">
             {value.caption}
           </figcaption>
         ) : null}
@@ -149,20 +164,20 @@ const pt: PortableTextComponents = {
   },
   block: {
     h2: ({ children }) => (
-      <h2 className="display-serif mt-14 scroll-m-20 text-3xl leading-tight tracking-tight">
+      <h2 className="display-serif mt-12 scroll-m-20 text-2xl font-semibold leading-tight tracking-tight">
         {children}
       </h2>
     ),
     h3: ({ children }) => (
-      <h3 className="display-serif mt-10 scroll-m-20 text-2xl leading-tight tracking-tight">
+      <h3 className="display-serif mt-9 scroll-m-20 text-xl font-semibold leading-tight tracking-tight">
         {children}
       </h3>
     ),
     blockquote: ({ children }) => (
-      <blockquote className="pull-quote my-8">{children}</blockquote>
+      <blockquote className="pull-quote my-7">{children}</blockquote>
     ),
     normal: ({ children }) => (
-      <p className="my-5 text-[17px] leading-[1.75]">{children}</p>
+      <p className="my-4 text-[17px] leading-[1.7]">{children}</p>
     ),
   },
   marks: {
@@ -206,39 +221,20 @@ const pt: PortableTextComponents = {
   },
 };
 
-function MetadataRow({
+function SectionHeader({
+  num,
   label,
-  value,
 }: {
+  readonly num: string;
   readonly label: string;
-  readonly value: React.ReactNode;
 }) {
   return (
-    <div className="border-t border-foreground/10 py-3 first:border-t-0">
-      <div className="mono-meta text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
-        {label}
-      </div>
-      <div className="mt-1 text-sm text-foreground/90">{value}</div>
-    </div>
-  );
-}
-
-function Section({
-  label,
-  children,
-}: {
-  readonly label: string;
-  readonly children: React.ReactNode;
-}) {
-  return (
-    <section className="border-t border-foreground/10 pt-8">
-      <h2 className="mono-meta text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-        {label}
-      </h2>
-      <div className="body-serif mt-3 whitespace-pre-line text-[17px] leading-[1.75]">
-        {children}
-      </div>
-    </section>
+    <header className="section-header">
+      <span className="section-num">#{num}</span>
+      <span>—</span>
+      <span className="section-label">{label}</span>
+      <span className="section-rule" aria-hidden />
+    </header>
   );
 }
 
@@ -255,192 +251,265 @@ export default async function DecisionDetailPage({ params }: PageProps) {
     ? `ADR-${String(d.adrNumber).padStart(3, "0")}`
     : null;
   const tags = (d.tags ?? []).filter((t): t is string => Boolean(t));
+  const { iso: dateIso, weekday } = isoCompact(d.date);
+  const version = buildVersion(d.date, d.adrNumber);
+  const domain = deriveDomain(d);
+
+  // Letter-prefix the options (A, B, C, …)
+  const options = (d.optionsConsidered ?? [])
+    .filter((o): o is { label: string; summary: string | null } =>
+      Boolean(o.label),
+    )
+    .map((o, i) => ({ letter: String.fromCharCode(65 + i), ...o }));
+
+  let sectionIdx = 0;
+  const nextNum = () => String(++sectionIdx).padStart(1, "0");
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12 sm:px-8 sm:py-20">
-      <nav className="mb-12">
-        <Link
-          href="/decisions"
-          className="mono-meta text-[11px] uppercase tracking-[0.22em] text-muted-foreground transition-colors hover:text-foreground"
-        >
-          ← /decisions
-        </Link>
+    <main className="mx-auto max-w-5xl px-6 pb-24 sm:px-8">
+      {/* Terminal chrome */}
+      <div className="chrome-bar">
+        <span>
+          shoaib
+          <span className="opacity-50"> /decisions</span>
+        </span>
+        <span className="chrome-right">
+          <Link href="/decisions/feed.xml">RSS</Link>
+          <Link href="/decisions/feed.json">JSON</Link>
+          <span>{version}</span>
+        </span>
+      </div>
+
+      {/* Breadcrumb */}
+      <nav className="mt-10 flex items-center justify-between gap-4">
+        <p className="breadcrumb">
+          <Link href="/decisions" className="inline-flex items-center gap-2">
+            <span aria-hidden>←</span>
+            <span>/DECISIONS</span>
+          </Link>
+          {adr ? (
+            <>
+              <span className="mx-2 opacity-40">/</span>
+              <span>{adr}</span>
+            </>
+          ) : null}
+        </p>
+        <p className="breadcrumb">
+          {dateIso}
+          {weekday ? (
+            <>
+              <span className="mx-2 opacity-40">·</span>
+              <span>{weekday}</span>
+            </>
+          ) : null}
+        </p>
       </nav>
 
-      <div className="grid grid-cols-1 gap-x-12 lg:grid-cols-[200px_minmax(0,640px)] lg:gap-x-16">
-        {/* Marginalia (sticky on lg+) */}
-        <aside className="order-2 mt-12 self-start lg:sticky lg:top-24 lg:order-1 lg:mt-0">
-          {adr ? (
-            <div className="mb-6">
-              <div className="display-serif text-4xl leading-none tracking-tight text-foreground/30">
-                {adr}
-              </div>
+      {/* Status row */}
+      <div className="mt-8 flex flex-wrap items-center gap-2">
+        <span
+          className="badge badge--status"
+          data-status={d.status ?? "accepted"}
+        >
+          {(d.status ?? "accepted").toUpperCase()}
+        </span>
+        {d.impact ? (
+          <span className="badge badge--impact" data-impact={d.impact}>
+            Impact · {d.impact}
+          </span>
+        ) : null}
+        {domain ? (
+          <span className="domain-tag ml-auto">
+            <span className="opacity-60">Domain · </span>
+            {domain}
+          </span>
+        ) : null}
+      </div>
+
+      {/* Title + lede */}
+      <h1 className="editorial-title mt-6">{d.title}</h1>
+      {d.summary ? <p className="editorial-lede mt-7">{d.summary}</p> : null}
+
+      {/* Tufte layout: left margin | body | right TOC */}
+      <div className="tufte-grid mt-14">
+        {/* Left margin: ADR number + date */}
+        <div className="tufte-left" aria-hidden>
+          <span className="margin-adr">ADR-{String(d.adrNumber).padStart(3, "0")}</span>
+          <span className="margin-date">{dateIso}</span>
+          {weekday ? <span className="margin-weekday">{weekday}</span> : null}
+        </div>
+
+        {/* Body */}
+        <div className="tufte-body">
+      {/* Editorial sections */}
+      <article className="space-y-12">
+        {d.context ? (
+          <section>
+            <SectionHeader num={nextNum()} label="Context" />
+            <div className="section-body mt-4 whitespace-pre-line">
+              {d.context}
             </div>
-          ) : null}
-          <div>
-            <MetadataRow label="Date" value={longDate(d.date)} />
-            {d.status ? (
-              <MetadataRow
-                label="Status"
-                value={
-                  <span className="status-pill" data-status={d.status}>
-                    {d.status}
-                  </span>
-                }
-              />
-            ) : null}
-            {d.supersededBy?.slug ? (
-              <MetadataRow
-                label="Superseded by"
-                value={
-                  <Link
-                    href={`/decisions/${d.supersededBy.slug}`}
-                    className="underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
-                  >
-                    {d.supersededBy.title ?? d.supersededBy.slug}
-                  </Link>
-                }
-              />
-            ) : null}
-            {tags.length ? (
-              <MetadataRow
-                label="Tags"
-                value={
-                  <div className="flex flex-wrap gap-x-3 gap-y-1 mono-meta text-[11px] uppercase tracking-wider text-muted-foreground">
-                    {tags.map((t) => (
-                      <span key={t}>#{t}</span>
-                    ))}
-                  </div>
-                }
-              />
-            ) : null}
-            {d.relatedProjects?.length ? (
-              <MetadataRow
-                label="Related projects"
-                value={
-                  <ul className="space-y-1">
-                    {d.relatedProjects
-                      .filter(
-                        (
-                          p,
-                        ): p is RelatedProject & {
-                          slug: string;
-                          title: string;
-                        } => Boolean(p.slug && p.title),
-                      )
-                      .map((p) => (
-                        <li key={p.slug}>
-                          <Link
-                            href={`/projects/${p.slug}`}
-                            className="underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
-                          >
-                            {p.title}
-                          </Link>
-                        </li>
-                      ))}
-                  </ul>
-                }
-              />
-            ) : null}
-            <MetadataRow label="Author" value="Shoaib Ud Din" />
-          </div>
-        </aside>
+          </section>
+        ) : null}
 
-        {/* Article */}
-        <article className="order-1 lg:order-2">
-          <header>
-            <h1 className="display-serif text-4xl leading-[1.02] tracking-tight sm:text-5xl">
-              {d.title}
-            </h1>
-            {d.summary ? (
-              <p className="body-serif lead-paragraph mt-8 text-[20px] leading-[1.6]">
-                {d.summary}
-              </p>
-            ) : null}
-          </header>
+        {options.length ? (
+          <section>
+            <SectionHeader num={nextNum()} label="Options considered" />
+            <ol className="options-list mt-5">
+              {options.map((o) => (
+                <li key={o.letter} className="option-row">
+                  <span className="option-letter">{o.letter}</span>
+                  <p className="option-body">
+                    <strong className="font-semibold">{o.label}</strong>
+                    {o.summary ? (
+                      <span className="text-foreground/70">
+                        {" — "}
+                        {o.summary}
+                      </span>
+                    ) : null}
+                  </p>
+                </li>
+              ))}
+            </ol>
+          </section>
+        ) : null}
 
-          <div className="mt-16 space-y-12">
-            {d.context ? <Section label="Context">{d.context}</Section> : null}
+        {d.decision ? (
+          <section>
+            <SectionHeader num={nextNum()} label="Decision" />
+            <div className="decision-block mt-5 whitespace-pre-line">
+              {d.decision}
+            </div>
+          </section>
+        ) : null}
 
-            {d.optionsConsidered?.length ? (
-              <section className="border-t border-foreground/10 pt-8">
-                <h2 className="mono-meta text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-                  Options considered
-                </h2>
-                <ol className="body-serif mt-4 space-y-5 text-[17px] leading-[1.7]">
-                  {d.optionsConsidered
-                    .filter(
-                      (o): o is { label: string; summary: string | null } =>
-                        Boolean(o.label),
-                    )
-                    .map((o) => (
-                      <li key={o.label}>
-                        <strong className="font-semibold">{o.label}</strong>
-                        {o.summary ? (
-                          <span className="text-muted-foreground">
-                            {" — "}
-                            {o.summary}
-                          </span>
-                        ) : null}
-                      </li>
-                    ))}
-                </ol>
-              </section>
-            ) : null}
+        {d.tradeoffs ? (
+          <section>
+            <SectionHeader num={nextNum()} label="Trade-offs" />
+            <div className="section-body mt-4 whitespace-pre-line">
+              {d.tradeoffs}
+            </div>
+          </section>
+        ) : null}
 
-            {d.decision ? (
-              <Section label="Decision">{d.decision}</Section>
-            ) : null}
-            {d.tradeoffs ? (
-              <Section label="Trade-offs accepted">{d.tradeoffs}</Section>
-            ) : null}
-            {d.revisitTrigger ? (
-              <Section label="What I'd revisit">{d.revisitTrigger}</Section>
-            ) : null}
+        {d.revisitTrigger ? (
+          <section>
+            <SectionHeader num={nextNum()} label="Revisit trigger" />
+            <div className="section-body mt-4 whitespace-pre-line">
+              {d.revisitTrigger}
+            </div>
+          </section>
+        ) : null}
 
-            {d.takeaways?.length ? (
-              <section className="border-t border-foreground/10 pt-8">
-                <h2 className="mono-meta text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-                  Takeaways
-                </h2>
-                <ol className="mt-6 space-y-6">
-                  {d.takeaways
-                    .filter((t): t is string => Boolean(t))
-                    .map((t, i) => (
-                      <li key={t} className="flex gap-4">
-                        <span className="mono-meta shrink-0 pt-2 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                          {String(i + 1).padStart(2, "0")}
-                        </span>
-                        <p className="pull-quote">{t}</p>
-                      </li>
-                    ))}
-                </ol>
-              </section>
-            ) : null}
+        {d.takeaways?.length ? (
+          <section>
+            <SectionHeader num={nextNum()} label="Takeaways" />
+            <ol className="mt-5 space-y-5">
+              {d.takeaways
+                .filter((t): t is string => Boolean(t))
+                .map((t, i) => (
+                  <li key={t} className="flex gap-4">
+                    <span className="mono-meta shrink-0 pt-2 text-[11px] uppercase tracking-[0.18em] text-foreground/50">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <p className="section-body">{t}</p>
+                  </li>
+                ))}
+            </ol>
+          </section>
+        ) : null}
 
-            {d.body?.length ? (
-              <section className="border-t border-foreground/10 pt-8">
-                <h2 className="mono-meta text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-                  Full write-up
-                </h2>
-                <div className="body-serif mt-4">
-                  <PortableText value={d.body as never} components={pt} />
-                </div>
-              </section>
-            ) : null}
-          </div>
+        {d.body?.length ? (
+          <section>
+            <SectionHeader num={nextNum()} label="Full write-up" />
+            <div className="body-serif mt-4">
+              <PortableText value={d.body as never} components={pt} />
+            </div>
+          </section>
+        ) : null}
 
-          <footer className="mt-20 border-t border-foreground/10 pt-8 mono-meta text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-            <p>
-              {adr ? `${adr} · ` : ""}
-              {longDate(d.date)} · status: {d.status ?? "accepted"} ·{" "}
-              <Link href="/decisions" className="hover:text-foreground">
-                ← back to /decisions
+        {d.supersededBy?.slug ? (
+          <section>
+            <SectionHeader num={nextNum()} label="Superseded by" />
+            <p className="section-body mt-4">
+              <Link
+                href={`/decisions/${d.supersededBy.slug}`}
+                className="underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
+              >
+                {d.supersededBy.title ?? "View successor →"}
               </Link>
             </p>
-          </footer>
-        </article>
-      </div>
+          </section>
+        ) : null}
+
+        {d.relatedProjects?.length ? (
+          <section>
+            <SectionHeader num={nextNum()} label="Related projects" />
+            <ul className="mt-4 space-y-2 section-body">
+              {d.relatedProjects
+                .filter(
+                  (p): p is { slug: string; title: string; tagline: string } =>
+                    Boolean(p.slug && p.title),
+                )
+                .map((p) => (
+                  <li key={p.slug}>
+                    <Link
+                      href={`/projects/${p.slug}`}
+                      className="underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
+                    >
+                      {p.title}
+                    </Link>
+                  </li>
+                ))}
+            </ul>
+          </section>
+        ) : null}
+      </article>
+
+      {/* Tags */}
+      {tags.length ? (
+        <div className="hashtags mt-14">
+          {tags.map((t) => (
+            <span key={t}>#{t}</span>
+          ))}
+        </div>
+      ) : null}
+
+      {/* Footer */}
+      <footer className="mt-16 border-t border-foreground/10 pt-6">
+        <div className="signed-off-row">
+          <span>
+            Signed off
+            <span className="mx-2 opacity-40">·</span>
+            Shoaib
+            <span className="mx-2 opacity-40">·</span>
+            {dateIso}
+          </span>
+          <Link
+            href={`/decisions/${d.slug}`}
+            className="permalink"
+            aria-label="Permalink to this decision"
+          >
+            Permalink
+            <span aria-hidden>↗</span>
+          </Link>
+        </div>
+      </footer>
+        </div>{/* /tufte-body */}
+
+        {/* Right margin: TOC */}
+        <nav className="tufte-right" aria-label="Sections">
+          <div className="margin-toc">
+            <p className="margin-toc-label">Sections</p>
+            {d.context ? <a href="#" className="margin-toc-item">Context</a> : null}
+            {options.length ? <a href="#" className="margin-toc-item">Options</a> : null}
+            {d.decision ? <a href="#" className="margin-toc-item">Decision</a> : null}
+            {d.tradeoffs ? <a href="#" className="margin-toc-item">Trade-offs</a> : null}
+            {d.revisitTrigger ? <a href="#" className="margin-toc-item">Revisit trigger</a> : null}
+            {d.relatedProjects?.length ? <a href="#" className="margin-toc-item">Related</a> : null}
+          </div>
+        </nav>
+      </div>{/* /tufte-grid */}
     </main>
   );
 }
