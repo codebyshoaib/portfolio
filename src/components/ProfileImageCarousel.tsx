@@ -98,10 +98,10 @@ export function ProfileImageCarousel({
         {images.length > 1 && (
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
             {images.map((_, index) => (
-              <button
+              <div
                 // biome-ignore lint/suspicious/noArrayIndexKey: carousel indicators use stable index keys
                 key={index}
-                type="button"
+                role="button"
                 tabIndex={0}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -120,7 +120,7 @@ export function ProfileImageCarousel({
                     : "w-2 bg-white/50 hover:bg-white/75"
                 }`}
                 aria-label={`Go to slide ${index + 1}`}
-              ></button>
+              />
             ))}
           </div>
         )}
