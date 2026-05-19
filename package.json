@@ -10,7 +10,7 @@
     "format": "biome format --write",
     "typegen": "sanity schema extract && sanity typegen generate",
     "analyze": "ANALYZE=true pnpm build",
-    "decisions:import": "tsx scripts/decisions/import.ts"
+    "decisions:import": "tsx --env-file=.env.local scripts/decisions/import.ts"
   },
   "dependencies": {
     "@ai-sdk/groq": "^3.0.1",
