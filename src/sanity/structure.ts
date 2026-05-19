@@ -175,6 +175,38 @@ export const structure: StructureResolver = (S) =>
 
       S.divider(),
 
+      // Operator's Terminal v2
+      S.listItem()
+        .title("Terminal (v2)")
+        .icon(InlineIcon)
+        .child(
+          S.list()
+            .title("Operator's Terminal")
+            .items([
+              S.listItem()
+                .title("Decisions (ADRs)")
+                .icon(DocumentIcon)
+                .schemaType("decision")
+                .child(S.documentTypeList("decision").title("Decisions")),
+
+              S.listItem()
+                .title("Now (monthly focus)")
+                .icon(StarIcon)
+                .child(
+                  S.document().schemaType("now").documentId("singleton-now"),
+                ),
+
+              S.listItem()
+                .title("Uses (setup)")
+                .icon(CogIcon)
+                .child(
+                  S.document().schemaType("uses").documentId("singleton-uses"),
+                ),
+            ]),
+        ),
+
+      S.divider(),
+
       // Site Settings (Singleton)
       S.listItem()
         .title("Site Settings")

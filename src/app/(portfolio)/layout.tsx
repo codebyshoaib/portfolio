@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
 import "../globals.css";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import dynamic from "next/dynamic";
 import { draftMode } from "next/headers";
 import { VisualEditing } from "next-sanity/visual-editing";
@@ -21,6 +23,7 @@ const FloatingDock = dynamic(
 
 import { ConditionalClerkProvider } from "@/components/ConditionalClerkProvider";
 import { FloatingButtons } from "@/components/FloatingButtons";
+import { ScrollDepthTracker } from "@/components/ScrollDepthTracker";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { V2Banner } from "@/components/V2Banner";
@@ -157,6 +160,9 @@ export default async function RootLayout({
               </>
             )}
           </ThemeProvider>
+          <ScrollDepthTracker />
+          <Analytics />
+          <SpeedInsights />
         </body>
       </html>
     </ConditionalClerkProvider>

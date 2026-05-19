@@ -29,6 +29,14 @@ export default defineType({
       validation: (Rule) => Rule.max(150),
     }),
     defineField({
+      name: "metrics",
+      title: "Impact metric",
+      type: "string",
+      description:
+        'Short impact metric for the v2 terminal `ls projects` view, e.g. "38% latency cut" or "4M MAU". Max 60 chars.',
+      validation: (Rule) => Rule.max(60),
+    }),
+    defineField({
       name: "coverImage",
       title: "Cover Image",
       type: "image",

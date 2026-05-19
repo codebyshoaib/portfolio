@@ -1,3 +1,5 @@
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import { Instrument_Serif, JetBrains_Mono } from "next/font/google";
 import "../globals.css";
@@ -30,7 +32,22 @@ export default function V2Layout({
 }) {
   return (
     <html lang="en" className={`${mono.variable} ${serif.variable}`}>
-      <body className="terminal-body">{children}</body>
+      <head>
+        {/* SSR-first: when JS is disabled, swap the interactive terminal for
+            the recruiter-view fallback. Crawlers without JS see real content. */}
+        <noscript>
+          <style>
+            {
+              ".v2-ssr-fallback{display:block!important}.terminal-shell{display:none!important}"
+            }
+          </style>
+        </noscript>
+      </head>
+      <body className="terminal-body">
+        {children}
+        <Analytics />
+        <SpeedInsights />
+      </body>
     </html>
   );
 }

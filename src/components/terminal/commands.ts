@@ -22,6 +22,9 @@ export interface TerminalProfile {
   readonly projects?: readonly TerminalProject[];
   readonly experience?: readonly TerminalExperience[];
   readonly decisions?: readonly TerminalDecision[];
+  readonly now?: TerminalNow;
+  readonly uses?: TerminalUses;
+  readonly trustLogos?: readonly TerminalTrustLogo[];
 }
 
 export interface TerminalProject {
@@ -45,6 +48,25 @@ export interface TerminalDecision {
   readonly title: string;
   readonly date: string;
   readonly summary: string;
+}
+
+export interface TerminalNow {
+  readonly month?: string;
+  readonly items: readonly string[];
+  readonly reading?: string;
+}
+
+export interface TerminalUses {
+  readonly categories: readonly {
+    readonly label: string;
+    readonly value: string;
+  }[];
+}
+
+export interface TerminalTrustLogo {
+  readonly name: string;
+  readonly url?: string;
+  readonly alt?: string;
 }
 
 export type CommandOutput =
@@ -81,8 +103,6 @@ const dim = (s: string): string =>
   `<span style="color: var(--term-fg-dim)">${escape(s)}</span>`;
 const accent = (s: string): string =>
   `<span style="color: var(--term-accent)">${escape(s)}</span>`;
-const prompt = (s: string): string =>
-  `<span style="color: var(--term-prompt)">${escape(s)}</span>`;
 const serif = (s: string): string =>
   `<span class="term-serif" style="font-size: 1.4em">${escape(s)}</span>`;
 
@@ -286,43 +306,80 @@ export const commands: Record<string, Command> = {
   now: {
     name: "now",
     description: "current focus",
-    run: () => ({
-      kind: "html",
-      value: [
-        serif("Now"),
-        dim(`Updated ${new Date().toISOString().slice(0, 10)}`),
-        "",
-        `${accent("›")} Eval harness v2 for production AI agents at Taleemabad`,
-        `${accent("›")} Shipping an open-source rate limiter for Next.js Fluid Compute`,
-        `${accent("›")} Writing the decisions log — 4 entries down, target is one per week`,
-        `${accent("›")} Reading: ${escape("Designing Data-Intensive Applications")} (re-read), Antirez's blog archive`,
-        "",
-        dim("This page updates monthly. Inspired by ") +
-          link("https://nownownow.com", "nownownow.com") +
-          ".",
-      ].join("\n"),
-    }),
+    run: (_args, { profile }) => {
+      if (profile.now?.items?.length) {
+        const ym = profile.now.month
+          ? new Date(profile.now.month).toISOString().slice(0, 7)
+          : new Date().toISOString().slice(0, 7);
+        const lines = [
+          serif("Now"),
+          dim(`Updated ${ym}`),
+          "",
+          ...profile.now.items.map((i) => `${accent("›")} ${escape(i)}`),
+        ];
+        if (profile.now.reading) {
+          lines.push("", `${dim("Reading:")} ${escape(profile.now.reading)}`);
+        }
+        lines.push(
+          "",
+          dim("This page updates monthly. Inspired by ") +
+            link("https://nownownow.com", "nownownow.com") +
+            ".",
+        );
+        return { kind: "html", value: lines.join("\n") };
+      }
+      return {
+        kind: "html",
+        value: [
+          serif("Now"),
+          dim(`Updated ${new Date().toISOString().slice(0, 10)}`),
+          "",
+          `${accent("›")} Eval harness v2 for production AI agents at Taleemabad`,
+          `${accent("›")} Shipping an open-source rate limiter for Next.js Fluid Compute`,
+          `${accent("›")} Writing the decisions log — 4 entries down, target is one per week`,
+          `${accent("›")} Reading: ${escape("Designing Data-Intensive Applications")} (re-read), Antirez's blog archive`,
+          "",
+          dim("This page updates monthly. Inspired by ") +
+            link("https://nownownow.com", "nownownow.com") +
+            ".",
+        ].join("\n"),
+      };
+    },
   },
 
   uses: {
     name: "uses",
     description: "hardware + software",
-    run: () => ({
-      kind: "html",
-      value: [
-        serif("What I use"),
-        "",
-        `${dim("editor")}       Claude Code + Zed · vim bindings · Berkeley Mono`,
-        `${dim("shell")}        zsh · starship · dmux for sessions`,
-        `${dim("machine")}      MacBook Pro M-series · external 4K · Logi MX`,
-        `${dim("os")}           macOS daily · Linux (Ubuntu) on side machine`,
-        `${dim("browser")}      Arc + Chrome DevTools · Firefox for testing`,
-        `${dim("notes")}        Obsidian + beads for project tracking`,
-        `${dim("ai")}           Claude (Opus + Haiku) · Groq · GPT-5 occasionally`,
-        "",
-        dim("Full setup → ") + internalLink("/uses", "/uses"),
-      ].join("\n"),
-    }),
+    run: (_args, { profile }) => {
+      if (profile.uses?.categories?.length) {
+        const lines = [
+          serif("What I use"),
+          "",
+          ...profile.uses.categories.map(
+            (c) => `${dim(c.label.padEnd(12))} ${escape(c.value)}`,
+          ),
+          "",
+          dim("Full setup → ") + internalLink("/uses", "/uses"),
+        ];
+        return { kind: "html", value: lines.join("\n") };
+      }
+      return {
+        kind: "html",
+        value: [
+          serif("What I use"),
+          "",
+          `${dim("editor")}       Claude Code + Zed · vim bindings · Berkeley Mono`,
+          `${dim("shell")}        zsh · starship · dmux for sessions`,
+          `${dim("machine")}      MacBook Pro M-series · external 4K · Logi MX`,
+          `${dim("os")}           macOS daily · Linux (Ubuntu) on side machine`,
+          `${dim("browser")}      Arc + Chrome DevTools · Firefox for testing`,
+          `${dim("notes")}        Obsidian + beads for project tracking`,
+          `${dim("ai")}           Claude (Opus + Haiku) · Groq · GPT-5 occasionally`,
+          "",
+          dim("Full setup → ") + internalLink("/uses", "/uses"),
+        ].join("\n"),
+      };
+    },
   },
 
   contact: {

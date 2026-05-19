@@ -170,6 +170,48 @@ export default defineType({
       ],
     }),
     defineField({
+      name: "trustLogos",
+      title: "Trust logos",
+      type: "array",
+      description:
+        "Logos of companies / clients to display as social proof (used by the v2 recruiter view).",
+      of: [
+        {
+          type: "object",
+          fields: [
+            {
+              name: "name",
+              title: "Name",
+              type: "string",
+              validation: (Rule) => Rule.required(),
+            },
+            {
+              name: "logo",
+              title: "Logo",
+              type: "image",
+              options: { hotspot: true },
+              fields: [
+                {
+                  name: "alt",
+                  type: "string",
+                  title: "Alt text",
+                },
+              ],
+            },
+            {
+              name: "url",
+              title: "URL",
+              type: "url",
+            },
+          ],
+          preview: {
+            select: { title: "name", media: "logo" },
+          },
+        },
+      ],
+      validation: (Rule) => Rule.max(12),
+    }),
+    defineField({
       name: "maintenanceMode",
       title: "Maintenance Mode",
       type: "boolean",

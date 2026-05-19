@@ -96,6 +96,53 @@ export function RecruiterView({ profile }: Props) {
         </div>
       </Section>
 
+      {profile.trustLogos?.length ? (
+        <Section title="Trusted by">
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "12px 20px",
+              alignItems: "center",
+            }}
+          >
+            {profile.trustLogos.map((logo) => {
+              const label = logo.alt ?? logo.name;
+              const labelNode = (
+                <span
+                  style={{
+                    fontSize: "13px",
+                    color: "var(--term-fg-dim)",
+                    letterSpacing: "0.02em",
+                  }}
+                >
+                  {logo.name}
+                </span>
+              );
+              if (logo.url) {
+                return (
+                  <a
+                    key={logo.name}
+                    href={logo.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="term-link-btn"
+                    aria-label={label}
+                  >
+                    {labelNode}
+                  </a>
+                );
+              }
+              return (
+                <span key={logo.name} title={label}>
+                  {labelNode}
+                </span>
+              );
+            })}
+          </div>
+        </Section>
+      ) : null}
+
       <Section title="Experience">
         {profile.experience?.length ? (
           <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>

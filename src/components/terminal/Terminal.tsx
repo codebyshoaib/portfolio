@@ -1,5 +1,6 @@
 "use client";
 
+import { track } from "@vercel/analytics/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   type CommandOutput,
@@ -28,6 +29,7 @@ export function Terminal({ profile, autoRun = ["whoami"] }: TerminalProps) {
   const [history, setHistory] = useState<readonly string[]>([]);
   const [historyIdx, setHistoryIdx] = useState<number>(-1);
   const [completion, setCompletion] = useState<string>("");
+  const [announcement, setAnnouncement] = useState<string>("");
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const nextId = useRef(0);
@@ -90,6 +92,8 @@ export function Terminal({ profile, autoRun = ["whoami"] }: TerminalProps) {
           },
         ]);
         setHistory((h) => [...h, trimmed]);
+        setAnnouncement(`Error: command not found: ${name}`);
+        track("v2_command", { name: name ?? "", outcome: "not_found" });
         return;
       }
 
@@ -98,24 +102,48 @@ export function Terminal({ profile, autoRun = ["whoami"] }: TerminalProps) {
 
       if (outputs.some((o) => o.kind === "clear")) {
         setEntries([]);
+        setAnnouncement("Screen cleared");
       } else {
         setEntries((prev) => [
           ...prev,
           { id: nextId.current++, input: trimmed, outputs },
         ]);
+        setAnnouncement(`Output for ${name}`);
       }
       setHistory((h) => [...h, trimmed]);
       setHistoryIdx(-1);
+      track("v2_command", { name: cmd.name, outcome: "ok" });
     },
     [ctx],
   );
 
-  // Auto-run on mount
+  // Auto-run on mount + focus input for keyboard users
   useEffect(() => {
     if (hasAutoRun.current) return;
     hasAutoRun.current = true;
     for (const c of autoRun) execute(c);
+    // Defer focus so the autoRun output renders first
+    requestAnimationFrame(() => inputRef.current?.focus());
   }, [autoRun, execute]);
+
+  // Track time-in-shell and completion rate on unload
+  useEffect(() => {
+    const mountedAt = performance.now();
+    const handleLeave = () => {
+      const seconds = Math.round((performance.now() - mountedAt) / 1000);
+      // history includes autoRun entries; subtract them for the "user commands" count
+      const userCmds = Math.max(0, history.length - autoRun.length);
+      track("v2_session_end", {
+        seconds,
+        userCommands: userCmds,
+        completed: userCmds > 0 ? 1 : 0,
+      });
+    };
+    window.addEventListener("pagehide", handleLeave);
+    return () => {
+      window.removeEventListener("pagehide", handleLeave);
+    };
+  }, [autoRun.length, history.length]);
 
   // Auto-scroll on new entries
   useEffect(() => {
@@ -129,8 +157,28 @@ export function Terminal({ profile, autoRun = ["whoami"] }: TerminalProps) {
   const handleShellClick = useCallback((e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
     if (target.tagName === "A" || target.closest("a")) return;
+    if (target.tagName === "BUTTON" || target.closest("button")) return;
     if (window.getSelection()?.toString()) return;
     inputRef.current?.focus();
+  }, []);
+
+  // Mobile: swipe up anywhere to focus the input
+  const touchStartY = useRef<number | null>(null);
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0]?.clientY ?? null;
+  }, []);
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (touchStartY.current === null) return;
+    const endY = e.changedTouches[0]?.clientY ?? touchStartY.current;
+    const delta = touchStartY.current - endY;
+    touchStartY.current = null;
+    // Upward swipe of at least 50px while not tapping a link/button
+    if (delta < 50) return;
+    const target = e.target as HTMLElement;
+    if (target.closest("a") || target.closest("button")) return;
+    inputRef.current?.focus();
+    // Scroll input into view so the mobile keyboard doesn't obscure it
+    inputRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
   }, []);
 
   const handleKeyDown = useCallback(
@@ -195,6 +243,13 @@ export function Terminal({ profile, autoRun = ["whoami"] }: TerminalProps) {
       if (e.key === "l" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         setEntries([]);
+        setAnnouncement("Screen cleared");
+        return;
+      }
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setCompletion("");
+        setHistoryIdx(-1);
         return;
       }
     },
@@ -223,7 +278,11 @@ export function Terminal({ profile, autoRun = ["whoami"] }: TerminalProps) {
   return (
     <div
       className="terminal-shell"
+      role="application"
+      aria-label="Operator's terminal — interactive portfolio shell"
       onClick={handleShellClick}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
       style={{
         minHeight: "100dvh",
         padding: "clamp(16px, 4vw, 48px)",
@@ -272,7 +331,12 @@ export function Terminal({ profile, autoRun = ["whoami"] }: TerminalProps) {
         </header>
 
         {/* Entries */}
-        <div>
+        <div
+          role="log"
+          aria-live="polite"
+          aria-relevant="additions"
+          aria-label="Terminal output history"
+        >
           {entries.map((entry) => (
             <div
               key={entry.id}
@@ -298,6 +362,12 @@ export function Terminal({ profile, autoRun = ["whoami"] }: TerminalProps) {
           ))}
         </div>
 
+        {/* Screen-reader-only announcement of the latest result.
+            <output> has an implicit role="status". */}
+        <output aria-live="polite" aria-atomic="true" className="term-sr-only">
+          {announcement}
+        </output>
+
         {/* Live input */}
         <div
           style={{ display: "flex", alignItems: "center", marginTop: "8px" }}
@@ -322,6 +392,8 @@ export function Terminal({ profile, autoRun = ["whoami"] }: TerminalProps) {
               autoCorrect="off"
               spellCheck={false}
               aria-label="Terminal command input"
+              aria-describedby="term-input-help"
+              aria-autocomplete="inline"
             />
             <div
               aria-hidden
@@ -345,7 +417,8 @@ export function Terminal({ profile, autoRun = ["whoami"] }: TerminalProps) {
         </div>
 
         {/* Mobile suggestion chips */}
-        <div
+        <nav
+          aria-label="Suggested commands"
           style={{
             display: "flex",
             flexWrap: "wrap",
@@ -367,6 +440,7 @@ export function Terminal({ profile, autoRun = ["whoami"] }: TerminalProps) {
               key={c}
               type="button"
               className="term-chip"
+              aria-label={`Run ${c}`}
               onClick={() => {
                 execute(c);
                 inputRef.current?.focus();
@@ -375,10 +449,11 @@ export function Terminal({ profile, autoRun = ["whoami"] }: TerminalProps) {
               {c}
             </button>
           ))}
-        </div>
+        </nav>
 
         {/* Footer hint */}
         <footer
+          id="term-input-help"
           style={{
             marginTop: "48px",
             paddingTop: "16px",
@@ -391,7 +466,9 @@ export function Terminal({ profile, autoRun = ["whoami"] }: TerminalProps) {
             gap: "8px",
           }}
         >
-          <span>↑/↓ history · Tab complete · Ctrl+L clear</span>
+          <span>
+            ↑/↓ history · Tab complete · Ctrl+L clear · Esc dismiss completion
+          </span>
           <span>
             built with intent ·{" "}
             <a href="/" className="term-link-btn">
