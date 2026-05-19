@@ -51,7 +51,8 @@ const DECISIONS_QUERY =
   "slug": slug.current,
   title,
   date,
-  summary
+  summary,
+  status
 }`);
 
 const NOW_QUERY = defineQuery(`*[_id == "singleton-now"][0] {
@@ -133,6 +134,7 @@ export default async function V2Page({ searchParams }: PageProps) {
     readonly title?: string | null;
     readonly date?: string | null;
     readonly summary?: string | null;
+    readonly status?: string | null;
   }
   interface RawNow {
     readonly month?: string | null;
@@ -196,12 +198,25 @@ export default async function V2Page({ searchParams }: PageProps) {
   );
 
   const decisions: readonly TerminalDecision[] = sanityDecisions
-    .map((d) => ({
-      slug: d.slug ?? "",
-      title: d.title ?? "",
-      date: d.date ?? "",
-      summary: d.summary ?? "",
-    }))
+    .map((d) => {
+      const allowed = [
+        "proposed",
+        "accepted",
+        "deprecated",
+        "superseded",
+      ] as const;
+      const status =
+        d.status && (allowed as readonly string[]).includes(d.status)
+          ? (d.status as (typeof allowed)[number])
+          : undefined;
+      return {
+        slug: d.slug ?? "",
+        title: d.title ?? "",
+        date: d.date ?? "",
+        summary: d.summary ?? "",
+        status,
+      };
+    })
     .filter((d) => d.title && d.slug);
 
   const now: TerminalNow | undefined = sanityNow

@@ -48,6 +48,7 @@ export interface TerminalDecision {
   readonly title: string;
   readonly date: string;
   readonly summary: string;
+  readonly status?: "proposed" | "accepted" | "deprecated" | "superseded";
 }
 
 export interface TerminalNow {
@@ -267,11 +268,17 @@ export const commands: Record<string, Command> = {
             "Public ADRs. Every entry is a real decision I made under constraint.",
           ),
           "",
-          ...decisions.flatMap((d) => [
-            `${accent(d.date)}  ${escape(d.title)}`,
-            `             ${dim(d.summary)}`,
-            "",
-          ]),
+          ...decisions.flatMap((d) => {
+            const badge =
+              d.status && d.status !== "accepted"
+                ? ` ${dim(`[${d.status}]`)}`
+                : "";
+            return [
+              `${accent(d.date)}  ${escape(d.title)}${badge}`,
+              `             ${dim(d.summary)}             ${internalLink(`/decisions/${d.slug}`, "→ read")}`,
+              "",
+            ];
+          }),
           dim("Full log → ") + internalLink("/decisions", "/decisions"),
         ];
         return { kind: "html", value: lines.join("\n") };
