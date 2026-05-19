@@ -44,6 +44,28 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: "impact",
+      title: "Impact",
+      type: "string",
+      description:
+        "Optional. Visual chip on the index/detail page. S = local fix; M = team-wide; L = product-wide / incident-driven.",
+      options: {
+        list: [
+          { title: "S — small", value: "S" },
+          { title: "M — medium", value: "M" },
+          { title: "L — large", value: "L" },
+        ],
+        layout: "radio",
+      },
+    }),
+    defineField({
+      name: "domain",
+      title: "Domain",
+      type: "string",
+      description:
+        "Optional. One-word area badge shown next to the entry (e.g. MOBILE, FRONTEND, AUTH). Falls back to the first tag, uppercased.",
+    }),
+    defineField({
       name: "supersededBy",
       title: "Superseded by",
       type: "reference",

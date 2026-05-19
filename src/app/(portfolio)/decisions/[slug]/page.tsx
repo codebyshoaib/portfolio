@@ -334,182 +334,215 @@ export default async function DecisionDetailPage({ params }: PageProps) {
       <div className="tufte-grid mt-14">
         {/* Left margin: ADR number + date */}
         <div className="tufte-left" aria-hidden>
-          <span className="margin-adr">ADR-{String(d.adrNumber).padStart(3, "0")}</span>
+          <span className="margin-adr">
+            ADR-{String(d.adrNumber).padStart(3, "0")}
+          </span>
           <span className="margin-date">{dateIso}</span>
           {weekday ? <span className="margin-weekday">{weekday}</span> : null}
         </div>
 
         {/* Body */}
         <div className="tufte-body">
-      {/* Editorial sections */}
-      <article className="space-y-12">
-        {d.context ? (
-          <section>
-            <SectionHeader num={nextNum()} label="Context" />
-            <div className="section-body mt-4 whitespace-pre-line">
-              {d.context}
-            </div>
-          </section>
-        ) : null}
+          {/* Editorial sections */}
+          <article className="space-y-12">
+            {d.context ? (
+              <section>
+                <SectionHeader num={nextNum()} label="Context" />
+                <div className="section-body mt-4 whitespace-pre-line">
+                  {d.context}
+                </div>
+              </section>
+            ) : null}
 
-        {options.length ? (
-          <section>
-            <SectionHeader num={nextNum()} label="Options considered" />
-            <ol className="options-list mt-5">
-              {options.map((o) => (
-                <li key={o.letter} className="option-row">
-                  <span className="option-letter">{o.letter}</span>
-                  <p className="option-body">
-                    <strong className="font-semibold">{o.label}</strong>
-                    {o.summary ? (
-                      <span className="text-foreground/70">
-                        {" — "}
-                        {o.summary}
-                      </span>
-                    ) : null}
-                  </p>
-                </li>
+            {options.length ? (
+              <section>
+                <SectionHeader num={nextNum()} label="Options considered" />
+                <ol className="options-list mt-5">
+                  {options.map((o) => (
+                    <li key={o.letter} className="option-row">
+                      <span className="option-letter">{o.letter}</span>
+                      <p className="option-body">
+                        <strong className="font-semibold">{o.label}</strong>
+                        {o.summary ? (
+                          <span className="text-foreground/70">
+                            {" — "}
+                            {o.summary}
+                          </span>
+                        ) : null}
+                      </p>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            ) : null}
+
+            {d.decision ? (
+              <section>
+                <SectionHeader num={nextNum()} label="Decision" />
+                <div className="decision-block mt-5 whitespace-pre-line">
+                  {d.decision}
+                </div>
+              </section>
+            ) : null}
+
+            {d.tradeoffs ? (
+              <section>
+                <SectionHeader num={nextNum()} label="Trade-offs" />
+                <div className="section-body mt-4 whitespace-pre-line">
+                  {d.tradeoffs}
+                </div>
+              </section>
+            ) : null}
+
+            {d.revisitTrigger ? (
+              <section>
+                <SectionHeader num={nextNum()} label="Revisit trigger" />
+                <div className="section-body mt-4 whitespace-pre-line">
+                  {d.revisitTrigger}
+                </div>
+              </section>
+            ) : null}
+
+            {d.takeaways?.length ? (
+              <section>
+                <SectionHeader num={nextNum()} label="Takeaways" />
+                <ol className="mt-5 space-y-5">
+                  {d.takeaways
+                    .filter((t): t is string => Boolean(t))
+                    .map((t, i) => (
+                      <li key={t} className="flex gap-4">
+                        <span className="mono-meta shrink-0 pt-2 text-[11px] uppercase tracking-[0.18em] text-foreground/50">
+                          {String(i + 1).padStart(2, "0")}
+                        </span>
+                        <p className="section-body">{t}</p>
+                      </li>
+                    ))}
+                </ol>
+              </section>
+            ) : null}
+
+            {d.body?.length ? (
+              <section>
+                <SectionHeader num={nextNum()} label="Full write-up" />
+                <div className="body-serif mt-4">
+                  <PortableText value={d.body as never} components={pt} />
+                </div>
+              </section>
+            ) : null}
+
+            {d.supersededBy?.slug ? (
+              <section>
+                <SectionHeader num={nextNum()} label="Superseded by" />
+                <p className="section-body mt-4">
+                  <Link
+                    href={`/decisions/${d.supersededBy.slug}`}
+                    className="underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
+                  >
+                    {d.supersededBy.title ?? "View successor →"}
+                  </Link>
+                </p>
+              </section>
+            ) : null}
+
+            {d.relatedProjects?.length ? (
+              <section>
+                <SectionHeader num={nextNum()} label="Related projects" />
+                <ul className="mt-4 space-y-2 section-body">
+                  {d.relatedProjects
+                    .filter(
+                      (
+                        p,
+                      ): p is {
+                        slug: string;
+                        title: string;
+                        tagline: string;
+                      } => Boolean(p.slug && p.title),
+                    )
+                    .map((p) => (
+                      <li key={p.slug}>
+                        <Link
+                          href={`/projects/${p.slug}`}
+                          className="underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
+                        >
+                          {p.title}
+                        </Link>
+                      </li>
+                    ))}
+                </ul>
+              </section>
+            ) : null}
+          </article>
+
+          {/* Tags */}
+          {tags.length ? (
+            <div className="hashtags mt-14">
+              {tags.map((t) => (
+                <span key={t}>#{t}</span>
               ))}
-            </ol>
-          </section>
-        ) : null}
-
-        {d.decision ? (
-          <section>
-            <SectionHeader num={nextNum()} label="Decision" />
-            <div className="decision-block mt-5 whitespace-pre-line">
-              {d.decision}
             </div>
-          </section>
-        ) : null}
+          ) : null}
 
-        {d.tradeoffs ? (
-          <section>
-            <SectionHeader num={nextNum()} label="Trade-offs" />
-            <div className="section-body mt-4 whitespace-pre-line">
-              {d.tradeoffs}
-            </div>
-          </section>
-        ) : null}
-
-        {d.revisitTrigger ? (
-          <section>
-            <SectionHeader num={nextNum()} label="Revisit trigger" />
-            <div className="section-body mt-4 whitespace-pre-line">
-              {d.revisitTrigger}
-            </div>
-          </section>
-        ) : null}
-
-        {d.takeaways?.length ? (
-          <section>
-            <SectionHeader num={nextNum()} label="Takeaways" />
-            <ol className="mt-5 space-y-5">
-              {d.takeaways
-                .filter((t): t is string => Boolean(t))
-                .map((t, i) => (
-                  <li key={t} className="flex gap-4">
-                    <span className="mono-meta shrink-0 pt-2 text-[11px] uppercase tracking-[0.18em] text-foreground/50">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <p className="section-body">{t}</p>
-                  </li>
-                ))}
-            </ol>
-          </section>
-        ) : null}
-
-        {d.body?.length ? (
-          <section>
-            <SectionHeader num={nextNum()} label="Full write-up" />
-            <div className="body-serif mt-4">
-              <PortableText value={d.body as never} components={pt} />
-            </div>
-          </section>
-        ) : null}
-
-        {d.supersededBy?.slug ? (
-          <section>
-            <SectionHeader num={nextNum()} label="Superseded by" />
-            <p className="section-body mt-4">
+          {/* Footer */}
+          <footer className="mt-16 border-t border-foreground/10 pt-6">
+            <div className="signed-off-row">
+              <span>
+                Signed off
+                <span className="mx-2 opacity-40">·</span>
+                Shoaib
+                <span className="mx-2 opacity-40">·</span>
+                {dateIso}
+              </span>
               <Link
-                href={`/decisions/${d.supersededBy.slug}`}
-                className="underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
+                href={`/decisions/${d.slug}`}
+                className="permalink"
+                aria-label="Permalink to this decision"
               >
-                {d.supersededBy.title ?? "View successor →"}
+                Permalink
+                <span aria-hidden>↗</span>
               </Link>
-            </p>
-          </section>
-        ) : null}
-
-        {d.relatedProjects?.length ? (
-          <section>
-            <SectionHeader num={nextNum()} label="Related projects" />
-            <ul className="mt-4 space-y-2 section-body">
-              {d.relatedProjects
-                .filter(
-                  (p): p is { slug: string; title: string; tagline: string } =>
-                    Boolean(p.slug && p.title),
-                )
-                .map((p) => (
-                  <li key={p.slug}>
-                    <Link
-                      href={`/projects/${p.slug}`}
-                      className="underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
-                    >
-                      {p.title}
-                    </Link>
-                  </li>
-                ))}
-            </ul>
-          </section>
-        ) : null}
-      </article>
-
-      {/* Tags */}
-      {tags.length ? (
-        <div className="hashtags mt-14">
-          {tags.map((t) => (
-            <span key={t}>#{t}</span>
-          ))}
+            </div>
+          </footer>
         </div>
-      ) : null}
-
-      {/* Footer */}
-      <footer className="mt-16 border-t border-foreground/10 pt-6">
-        <div className="signed-off-row">
-          <span>
-            Signed off
-            <span className="mx-2 opacity-40">·</span>
-            Shoaib
-            <span className="mx-2 opacity-40">·</span>
-            {dateIso}
-          </span>
-          <Link
-            href={`/decisions/${d.slug}`}
-            className="permalink"
-            aria-label="Permalink to this decision"
-          >
-            Permalink
-            <span aria-hidden>↗</span>
-          </Link>
-        </div>
-      </footer>
-        </div>{/* /tufte-body */}
+        {/* /tufte-body */}
 
         {/* Right margin: TOC */}
         <nav className="tufte-right" aria-label="Sections">
           <div className="margin-toc">
             <p className="margin-toc-label">Sections</p>
-            {d.context ? <a href="#" className="margin-toc-item">Context</a> : null}
-            {options.length ? <a href="#" className="margin-toc-item">Options</a> : null}
-            {d.decision ? <a href="#" className="margin-toc-item">Decision</a> : null}
-            {d.tradeoffs ? <a href="#" className="margin-toc-item">Trade-offs</a> : null}
-            {d.revisitTrigger ? <a href="#" className="margin-toc-item">Revisit trigger</a> : null}
-            {d.relatedProjects?.length ? <a href="#" className="margin-toc-item">Related</a> : null}
+            {d.context ? (
+              <a href="#" className="margin-toc-item">
+                Context
+              </a>
+            ) : null}
+            {options.length ? (
+              <a href="#" className="margin-toc-item">
+                Options
+              </a>
+            ) : null}
+            {d.decision ? (
+              <a href="#" className="margin-toc-item">
+                Decision
+              </a>
+            ) : null}
+            {d.tradeoffs ? (
+              <a href="#" className="margin-toc-item">
+                Trade-offs
+              </a>
+            ) : null}
+            {d.revisitTrigger ? (
+              <a href="#" className="margin-toc-item">
+                Revisit trigger
+              </a>
+            ) : null}
+            {d.relatedProjects?.length ? (
+              <a href="#" className="margin-toc-item">
+                Related
+              </a>
+            ) : null}
           </div>
         </nav>
-      </div>{/* /tufte-grid */}
+      </div>
+      {/* /tufte-grid */}
     </main>
   );
 }

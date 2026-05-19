@@ -3,6 +3,8 @@ title: "Clamp every console.log argument before it crosses the Capacitor JS↔na
 slug: "capacitor-console-log-oom-clamp"
 date: "2026-05-18"
 status: "accepted"
+impact: "L"
+domain: "mobile"
 summary: "1,900 OOM crashes/week on low-RAM Android, all from the same Crashlytics signature, were caused by Capacitor's Android bridge running String.format on every console.log payload before any log-level guard. Fixed with a runtime guard that clamps any log argument to 8 KB before crossing the bridge, layered with build-time stripping and an agent safety rule."
 context: |
   We saw 1,900 OutOfMemoryError crashes in a 7-day window from a single Crashlytics signature.

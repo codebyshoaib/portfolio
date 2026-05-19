@@ -161,7 +161,8 @@ export default async function DecisionsIndexPage({ searchParams }: PageProps) {
   const version = buildVersion(latest, newestFirst.length);
 
   const statuses = {
-    accepted: numbered.filter((d) => (d.status ?? "accepted") === "accepted").length,
+    accepted: numbered.filter((d) => (d.status ?? "accepted") === "accepted")
+      .length,
     deprecated: numbered.filter((d) => d.status === "deprecated").length,
     proposed: numbered.filter((d) => d.status === "proposed").length,
   };
@@ -204,101 +205,104 @@ export default async function DecisionsIndexPage({ searchParams }: PageProps) {
       <div className="index-grid mt-14">
         {/* ── Main entry column ── */}
         <div className="index-col-main">
-        {/* Entries */}
-      {filtered.length === 0 ? (
-        <p className="body-serif mt-16 italic text-foreground/55">
-          {activeTag
-            ? `No decisions tagged #${activeTag}. `
-            : "No decisions published yet. "}
-          <Link href="/decisions" className="underline underline-offset-4">
-            Show all
-          </Link>
-          .
-        </p>
-      ) : (
-        <div className="mt-14 space-y-14">
-          {grouped.map((g) => (
-            <section key={g.label}>
-              <header className="month-divider">
-                <span>{g.label}</span>
-                <span className="rule-line" aria-hidden />
-                <span>
-                  {g.entries.length}{" "}
-                  {g.entries.length === 1 ? "entry" : "entries"}
-                </span>
-              </header>
+          {/* Entries */}
+          {filtered.length === 0 ? (
+            <p className="body-serif mt-16 italic text-foreground/55">
+              {activeTag
+                ? `No decisions tagged #${activeTag}. `
+                : "No decisions published yet. "}
+              <Link href="/decisions" className="underline underline-offset-4">
+                Show all
+              </Link>
+              .
+            </p>
+          ) : (
+            <div className="mt-14 space-y-14">
+              {grouped.map((g) => (
+                <section key={g.label}>
+                  <header className="month-divider">
+                    <span>{g.label}</span>
+                    <span className="rule-line" aria-hidden />
+                    <span>
+                      {g.entries.length}{" "}
+                      {g.entries.length === 1 ? "entry" : "entries"}
+                    </span>
+                  </header>
 
-              <ol className="mt-8 space-y-12">
-                {g.entries.map((d) => {
-                  const parsed = parseISO(d.date);
-                  const domain = deriveDomain(d);
-                  return (
-                    <li key={d.slug}>
-                      <Link
-                        href={`/decisions/${d.slug}`}
-                        className="entry-card group block"
-                      >
-                        <div>
-                          <div className="entry-adr">
-                            ADR-{String(d.adrNumber).padStart(3, "0")}
-                          </div>
-                          <div className="entry-day">
-                            {parsed ? String(parsed.day).padStart(2, "0") : "—"}
-                          </div>
-                          <div className="entry-day-mo">
-                            {parsed ? MONTH_SHORT[parsed.month] : ""}
-                          </div>
-                        </div>
-
-                        <div>
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span
-                              className="badge badge--status"
-                              data-status={d.status ?? "accepted"}
-                            >
-                              {(d.status ?? "accepted").toUpperCase()}
-                            </span>
-                            {d.impact ? (
-                              <span
-                                className="badge badge--impact"
-                                data-impact={d.impact}
-                              >
-                                Impact · {d.impact}
-                              </span>
-                            ) : null}
-                            {domain ? (
-                              <span className="domain-tag ml-auto">
-                                {domain}
-                              </span>
-                            ) : null}
-                          </div>
-
-                          <h2 className="entry-title mt-4">{d.title}</h2>
-
-                          {d.summary ? (
-                            <p className="entry-summary mt-3">{d.summary}</p>
-                          ) : null}
-
-                          {d.tags?.length ? (
-                            <div className="hashtags mt-4">
-                              {d.tags
-                                .filter((t): t is string => Boolean(t))
-                                .map((t) => (
-                                  <span key={t}>#{t}</span>
-                                ))}
+                  <ol className="mt-8 space-y-12">
+                    {g.entries.map((d) => {
+                      const parsed = parseISO(d.date);
+                      const domain = deriveDomain(d);
+                      return (
+                        <li key={d.slug}>
+                          <Link
+                            href={`/decisions/${d.slug}`}
+                            className="entry-card group block"
+                          >
+                            <div>
+                              <div className="entry-adr">
+                                ADR-{String(d.adrNumber).padStart(3, "0")}
+                              </div>
+                              <div className="entry-day">
+                                {parsed
+                                  ? String(parsed.day).padStart(2, "0")
+                                  : "—"}
+                              </div>
+                              <div className="entry-day-mo">
+                                {parsed ? MONTH_SHORT[parsed.month] : ""}
+                              </div>
                             </div>
-                          ) : null}
-                        </div>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ol>
-            </section>
-          ))}
-        </div>
-      )}
 
+                            <div>
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span
+                                  className="badge badge--status"
+                                  data-status={d.status ?? "accepted"}
+                                >
+                                  {(d.status ?? "accepted").toUpperCase()}
+                                </span>
+                                {d.impact ? (
+                                  <span
+                                    className="badge badge--impact"
+                                    data-impact={d.impact}
+                                  >
+                                    Impact · {d.impact}
+                                  </span>
+                                ) : null}
+                                {domain ? (
+                                  <span className="domain-tag ml-auto">
+                                    {domain}
+                                  </span>
+                                ) : null}
+                              </div>
+
+                              <h2 className="entry-title mt-4">{d.title}</h2>
+
+                              {d.summary ? (
+                                <p className="entry-summary mt-3">
+                                  {d.summary}
+                                </p>
+                              ) : null}
+
+                              {d.tags?.length ? (
+                                <div className="hashtags mt-4">
+                                  {d.tags
+                                    .filter((t): t is string => Boolean(t))
+                                    .map((t) => (
+                                      <span key={t}>#{t}</span>
+                                    ))}
+                                </div>
+                              ) : null}
+                            </div>
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                </section>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* ── Sidebar ── */}
@@ -365,7 +369,10 @@ export default async function DecisionsIndexPage({ searchParams }: PageProps) {
               <ol className="sidebar-recent-list">
                 {recentThree.map((d) => (
                   <li key={d.slug}>
-                    <Link href={`/decisions/${d.slug}`} className="sidebar-recent-link">
+                    <Link
+                      href={`/decisions/${d.slug}`}
+                      className="sidebar-recent-link"
+                    >
                       <span className="sidebar-recent-adr">
                         ADR-{String(d.adrNumber).padStart(3, "0")}
                       </span>

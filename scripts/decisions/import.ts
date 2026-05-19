@@ -34,11 +34,16 @@ const ALLOWED_STATUS = [
 ] as const;
 type Status = (typeof ALLOWED_STATUS)[number];
 
+const ALLOWED_IMPACT = ["S", "M", "L"] as const;
+type Impact = (typeof ALLOWED_IMPACT)[number];
+
 interface Frontmatter {
   readonly title: string;
   readonly slug: string;
   readonly date: string;
   readonly status?: Status;
+  readonly impact?: Impact;
+  readonly domain?: string;
   readonly summary: string;
   readonly context?: string;
   readonly decision?: string;
@@ -83,6 +88,12 @@ function parseFrontmatter(
       `${file}: invalid status '${String(fm.status)}'`,
     );
   }
+  if (fm.impact !== undefined) {
+    assert(
+      ALLOWED_IMPACT.includes(fm.impact as Impact),
+      `${file}: invalid impact '${String(fm.impact)}' (use S, M, or L)`,
+    );
+  }
   return fm as unknown as Frontmatter;
 }
 
@@ -95,6 +106,8 @@ function buildDoc(fm: Frontmatter, body: string) {
     slug: { _type: "slug" as const, current: fm.slug },
     date: fm.date,
     status: fm.status ?? "accepted",
+    ...(fm.impact ? { impact: fm.impact } : {}),
+    ...(fm.domain ? { domain: fm.domain } : {}),
     summary: fm.summary,
     ...(fm.context ? { context: fm.context } : {}),
     ...(fm.decision ? { decision: fm.decision } : {}),
