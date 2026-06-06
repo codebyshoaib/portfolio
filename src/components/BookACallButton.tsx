@@ -62,16 +62,49 @@ export function useBookACall(calLink: string | null | undefined) {
 interface BookACallButtonProps {
   calLink: string | null | undefined;
   className?: string;
+  /**
+   * "default" — shadcn filled Button (contact section).
+   * "bare" — plain <button> taking className verbatim, so it can match a
+   *   surrounding custom button row (e.g. the hero's ghost-style links).
+   */
+  variant?: "default" | "bare";
+  /** Show the calendar icon. Off by default for "bare" to match plain rows. */
+  showIcon?: boolean;
 }
 
 /**
- * Labeled variant for the contact section. Renders nothing when calLink is empty.
+ * "Book a call" button. Renders nothing when calLink is empty.
  */
-export function BookACallButton({ calLink, className }: BookACallButtonProps) {
+export function BookACallButton({
+  calLink,
+  className,
+  variant = "default",
+  showIcon = variant === "default",
+}: BookACallButtonProps) {
   const { openModal, pending, enabled } = useBookACall(calLink);
 
   if (!enabled) {
     return null;
+  }
+
+  const label = pending ? "Opening…" : "Book a call";
+  const icon = showIcon ? (
+    <IconCalendarEvent className="size-4" aria-hidden="true" />
+  ) : null;
+
+  if (variant === "bare") {
+    return (
+      <button
+        type="button"
+        onClick={openModal}
+        disabled={pending}
+        aria-busy={pending}
+        className={className}
+      >
+        {icon}
+        {label}
+      </button>
+    );
   }
 
   return (
@@ -82,8 +115,8 @@ export function BookACallButton({ calLink, className }: BookACallButtonProps) {
       aria-busy={pending}
       className={className}
     >
-      <IconCalendarEvent className="size-4" aria-hidden="true" />
-      {pending ? "Opening…" : "Book a call"}
+      {icon}
+      {label}
     </Button>
   );
 }
