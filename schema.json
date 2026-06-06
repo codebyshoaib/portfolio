@@ -3858,13 +3858,6 @@
         },
         "optional": true
       },
-      "percentage": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "number"
-        },
-        "optional": true
-      },
       "yearsOfExperience": {
         "type": "objectAttribute",
         "value": {

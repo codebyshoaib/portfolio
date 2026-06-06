@@ -1,20 +1,11 @@
 "use client";
 
 import { useMemo } from "react";
-import { Bar, BarChart, LabelList, XAxis, YAxis } from "recharts";
-import {
-  type ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
 
 interface Skill {
   name: string | null;
   category: string | null;
   proficiency: string | null;
-  percentage: number | null;
-  yearsOfExperience: number | null;
   color: string | null;
 }
 
@@ -22,8 +13,36 @@ interface SkillsChartProps {
   serializedGroupedSkills: string;
 }
 
+// Proficiency tiers, strongest first. Drives ordering + visual weight.
+const TIER_ORDER: Record<string, number> = {
+  expert: 0,
+  advanced: 1,
+  intermediate: 2,
+  beginner: 3,
+};
+
+const TIER_LABEL: Record<string, string> = {
+  expert: "Expert",
+  advanced: "Advanced",
+  intermediate: "Intermediate",
+  beginner: "Beginner",
+};
+
+// Tier styling — expert reads strongest, beginner most muted. No percentages,
+// no bars: the tier itself is the signal.
+const TIER_STYLE: Record<string, string> = {
+  expert: "border-primary/40 bg-primary/10 text-foreground",
+  advanced: "border-primary/25 bg-primary/5 text-foreground",
+  intermediate: "border-border bg-muted/40 text-muted-foreground",
+  beginner: "border-border bg-muted/20 text-muted-foreground",
+};
+
+function tierKey(proficiency: string | null): string {
+  const k = (proficiency || "").toLowerCase().trim();
+  return k in TIER_ORDER ? k : "intermediate";
+}
+
 export function SkillsChart({ serializedGroupedSkills }: SkillsChartProps) {
-  // Parse and memoize grouped skills to prevent re-computation
   const groupedSkills = useMemo(() => {
     try {
       return JSON.parse(serializedGroupedSkills) as Array<{
@@ -52,7 +71,6 @@ export function SkillsChart({ serializedGroupedSkills }: SkillsChartProps) {
 
         if (!categorySkills || categorySkills.length === 0) return null;
 
-        // Format category for display using original category name
         const displayLabel = originalCategory
           .split("-")
           .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -60,25 +78,12 @@ export function SkillsChart({ serializedGroupedSkills }: SkillsChartProps) {
           .replace(/\bAi\b/gi, "AI")
           .replace(/\bMl\b/gi, "ML");
 
-        // Prepare chart data and config
-        const chartData = categorySkills.map((skill) => ({
-          name: skill.name || "Unknown",
-          proficiency: skill.percentage || 0,
-          fill: skill.color || "var(--color-default)",
-        }));
-
-        const chartConfig = {
-          proficiency: {
-            label: "Proficiency",
-            color: "hsl(var(--primary))",
-          },
-          default: {
-            color: "hsl(var(--primary))",
-          },
-        } satisfies ChartConfig;
-
-        // Calculate dynamic height based on number of skills
-        const chartHeight = Math.max(140, categorySkills.length * 32);
+        // Strongest skills first within each category.
+        const sortedSkills = [...categorySkills].sort(
+          (a, b) =>
+            TIER_ORDER[tierKey(a.proficiency)] -
+            TIER_ORDER[tierKey(b.proficiency)],
+        );
 
         return (
           <div
@@ -95,56 +100,31 @@ export function SkillsChart({ serializedGroupedSkills }: SkillsChartProps) {
               </div>
             </div>
 
-            {/* Chart */}
-            <div className="p-4">
-              <ChartContainer
-                id={`skills-chart-${normalizedCategory}`}
-                config={chartConfig}
-                className="w-full"
-                style={{ height: `${chartHeight}px` }}
-              >
-                <BarChart
-                  accessibilityLayer
-                  data={chartData}
-                  layout="vertical"
-                  margin={{
-                    left: 0,
-                    right: 28,
-                    top: 5,
-                    bottom: 5,
-                  }}
-                >
-                  <XAxis type="number" hide domain={[0, 100]} />
-                  <YAxis
-                    dataKey="name"
-                    type="category"
-                    tickLine={false}
-                    tickMargin={8}
-                    axisLine={false}
-                    width={85}
-                    className="text-xs"
-                  />
-                  <ChartTooltip
-                    cursor={false}
-                    content={
-                      <ChartTooltipContent
-                        indicator="line"
-                        nameKey="proficiency"
-                        labelFormatter={(value) => value}
-                      />
-                    }
-                  />
-                  <Bar dataKey="proficiency" radius={[0, 6, 6, 0]} barSize={18}>
-                    <LabelList
-                      dataKey="proficiency"
-                      position="right"
-                      offset={4}
-                      className="fill-foreground text-[10px] font-medium"
-                      formatter={(value: number) => `${value}%`}
+            {/* Skill chips — name + proficiency tier, no percentages */}
+            <div className="p-4 flex flex-wrap gap-2">
+              {sortedSkills.map((skill) => {
+                const key = tierKey(skill.proficiency);
+                return (
+                  <span
+                    key={skill.name || Math.random().toString()}
+                    className={`inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm transition-colors ${TIER_STYLE[key]}`}
+                  >
+                    <span
+                      className="h-2 w-2 rounded-full shrink-0"
+                      style={{
+                        backgroundColor: skill.color || "var(--primary)",
+                      }}
+                      aria-hidden="true"
                     />
-                  </Bar>
-                </BarChart>
-              </ChartContainer>
+                    <span className="font-medium">
+                      {skill.name || "Unknown"}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {TIER_LABEL[key]}
+                    </span>
+                  </span>
+                );
+              })}
             </div>
           </div>
         );

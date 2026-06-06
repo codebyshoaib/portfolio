@@ -48,16 +48,11 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: "percentage",
-      title: "Proficiency Percentage",
-      type: "number",
-      description: "0-100 for visual progress bars",
-      validation: (Rule) => Rule.min(0).max(100),
-    }),
-    defineField({
       name: "yearsOfExperience",
       title: "Years of Experience",
       type: "number",
+      description:
+        "Internal reference only — not displayed on the site (we show proficiency tiers, not year counts or percentages)",
       validation: (Rule) => Rule.min(0),
     }),
     defineField({

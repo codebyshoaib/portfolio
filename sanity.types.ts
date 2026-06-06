@@ -579,7 +579,6 @@ export type Skill = {
   name?: string;
   category?: "frontend" | "backend" | "ai-ml" | "devops" | "database" | "mobile" | "cloud" | "testing" | "design" | "tools" | "soft-skills" | "other";
   proficiency?: "beginner" | "intermediate" | "advanced" | "expert";
-  percentage?: number;
   yearsOfExperience?: number;
   color?: string;
 };
@@ -1042,7 +1041,7 @@ export type CHAT_PROFILE_QUERYResult = {
     category: "ai-ml" | "backend" | "cloud" | "database" | "design" | "devops" | "frontend" | "mobile" | "other" | "soft-skills" | "testing" | "tools" | null;
     level: null;
     yearsOfExperience: number | null;
-    percentage: number | null;
+    percentage: null;
   }>;
   education: Array<{
     _id: string;
@@ -1442,13 +1441,11 @@ export type SERVICES_QUERYResult = Array<{
 
 // Source: ./src/components/sections/SkillsSection.tsx
 // Variable: SKILLS_QUERY
-// Query: *[_type == "skill"] | order(category asc, order asc){  name,  category,  proficiency,  percentage,  yearsOfExperience,  color}
+// Query: *[_type == "skill"] | order(category asc, order asc){  name,  category,  proficiency,  color}
 export type SKILLS_QUERYResult = Array<{
   name: string | null;
   category: "ai-ml" | "backend" | "cloud" | "database" | "design" | "devops" | "frontend" | "mobile" | "other" | "soft-skills" | "testing" | "tools" | null;
   proficiency: "advanced" | "beginner" | "expert" | "intermediate" | null;
-  percentage: number | null;
-  yearsOfExperience: number | null;
   color: string | null;
 }>;
 
@@ -1508,7 +1505,7 @@ declare module "@sanity/client" {
     "*[_id== \"singleton-profile\"][0] {\n  firstName,\n  lastName,\n  headline,\n  headlineStaticText,\n  headlineAnimatedWords,\n  headlineAnimationDuration,\n  shortBio,\n  fullBio,\n  email,\n  phone,\n  location,\n  availability,\n  socialLinks,\n  yearsOfExperience,\n  profileImage,\n  profileImages,\n}": HERO_QUERYResult;
     "*[_type == \"resume\"] | order(isActive desc, uploadDate desc)[0] {\n  _id,\n  title,\n  resumeFile,\n  version,\n  isActive,\n  uploadDate\n}": LATEST_RESUME_QUERYResult;
     "*[_type == \"service\"] | order(order asc, _createdAt desc){\n  title,\n  slug,\n  icon,\n  shortDescription,\n  fullDescription,\n  features,\n  technologies[]->{name, category},\n  deliverables,\n  pricing,\n  timeline,\n  featured,\n  order\n}": SERVICES_QUERYResult;
-    "*[_type == \"skill\"] | order(category asc, order asc){\n  name,\n  category,\n  proficiency,\n  percentage,\n  yearsOfExperience,\n  color\n}": SKILLS_QUERYResult;
+    "*[_type == \"skill\"] | order(category asc, order asc){\n  name,\n  category,\n  proficiency,\n  color\n}": SKILLS_QUERYResult;
     "*[_type == \"testimonial\" && featured == true] | order(order asc){\n  name,\n  position,\n  company,\n  testimonial,\n  rating,\n  date,\n  avatar,\n  companyLogo,\n  linkedinUrl\n}": TESTIMONIALS_QUERYResult;
   }
 }

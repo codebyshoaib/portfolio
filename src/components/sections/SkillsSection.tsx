@@ -20,8 +20,6 @@ const SKILLS_QUERY =
   name,
   category,
   proficiency,
-  percentage,
-  yearsOfExperience,
   color
 }`);
 
@@ -46,8 +44,6 @@ type SkillData = {
   name: string | null;
   category: string | null;
   proficiency: string | null;
-  percentage: number | null;
-  yearsOfExperience: number | null;
   color: string | null;
 };
 
