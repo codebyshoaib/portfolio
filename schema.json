@@ -4251,6 +4251,13 @@
         },
         "optional": true
       },
+      "calLink": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
       "availability": {
         "type": "objectAttribute",
         "value": {

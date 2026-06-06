@@ -105,6 +105,13 @@ export default defineType({
       description: "E.g., 'San Francisco, CA' or 'Remote'",
     }),
     defineField({
+      name: "calLink",
+      title: "Cal.com Booking Link",
+      type: "string",
+      description:
+        "Your Cal.com link in path form, e.g. 'shoaib-uddin-wszyfy/30min' (NOT the full https URL). Leave empty to hide the 'Book a call' button.",
+    }),
+    defineField({
       name: "availability",
       title: "Availability Status",
       type: "string",

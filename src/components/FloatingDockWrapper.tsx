@@ -15,8 +15,12 @@ interface FloatingDockWrapperProps {
     icon?: string | null;
     isExternal?: boolean | null;
   }>;
+  calLink?: string | null;
 }
 
-export function FloatingDockWrapper({ navItems }: FloatingDockWrapperProps) {
-  return <FloatingDockClientDynamic navItems={navItems} />;
+export function FloatingDockWrapper({
+  navItems,
+  calLink,
+}: FloatingDockWrapperProps) {
+  return <FloatingDockClientDynamic navItems={navItems} calLink={calLink} />;
 }
