@@ -1,9 +1,15 @@
 "use client";
 
-import { IconLogout, IconMenu2, IconX } from "@tabler/icons-react";
+import {
+  IconCalendarEvent,
+  IconLogout,
+  IconMenu2,
+  IconX,
+} from "@tabler/icons-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSafeClerk } from "@/hooks/use-safe-clerk";
+import { useBookACall } from "./BookACallButton";
 import { DynamicIcon } from "./DynamicIcon";
 import { useSidebar } from "./ui/sidebar";
 
@@ -16,6 +22,7 @@ interface NavItem {
 
 interface FloatingDockClientProps {
   navItems: NavItem[];
+  calLink?: string | null;
 }
 
 interface DockLink {
@@ -38,11 +45,19 @@ const getVisibleLinks = (links: DockLink[], maxItems: number) => {
   };
 };
 
-export function FloatingDockClient({ navItems }: FloatingDockClientProps) {
+export function FloatingDockClient({
+  navItems,
+  calLink,
+}: FloatingDockClientProps) {
   const [_mounted, setMounted] = useState(false);
 
   // Use safe Clerk hook that handles embedded browsers
   const { isSignedIn, signOut } = useSafeClerk();
+
+  // Cal.com booking modal. enabled is false when no calLink is configured,
+  // in which case we don't inject the dock action at all.
+  const { openModal: openBooking, enabled: bookingEnabled } =
+    useBookACall(calLink);
 
   const { open, isMobile, openMobile } = useSidebar();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -72,6 +87,17 @@ export function FloatingDockClient({ navItems }: FloatingDockClientProps) {
         ]
       : []),
   ];
+
+  // Pin "Book a call" to the FRONT of the dock so it stays within the visible
+  // slice (caps 6 desktop / 8 mobile) and never hides in the "More" overflow.
+  // unshift must happen BEFORE getVisibleLinks so both desktop and mobile see it.
+  if (bookingEnabled) {
+    links.unshift({
+      title: "Book a call",
+      icon: <IconCalendarEvent className="h-full w-full" />,
+      onClick: openBooking,
+    });
+  }
 
   const desktop = getVisibleLinks(links, MAX_VISIBLE_ITEMS_DESKTOP);
   const mobile = getVisibleLinks(links, MAX_VISIBLE_ITEMS_MOBILE);

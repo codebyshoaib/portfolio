@@ -631,6 +631,7 @@ export type Profile = {
   email?: string;
   phone?: string;
   location?: string;
+  calLink?: string;
   availability?: "available" | "open" | "unavailable";
   socialLinks?: {
     github?: string;
@@ -1009,14 +1010,17 @@ export type SITE_SETTINGS_QUERYResult = {
 } | null;
 
 // Source: ./src/components/FloatingDock.tsx
-// Variable: NAVIGATION_QUERY
-// Query: *[_type == "navigation"] | order(order asc){  title,  href,  icon,  isExternal}
-export type NAVIGATION_QUERYResult = Array<{
-  title: string | null;
-  href: string | null;
-  icon: string | null;
-  isExternal: boolean | null;
-}>;
+// Variable: DOCK_DATA_QUERY
+// Query: {  "navItems": *[_type == "navigation"] | order(order asc){    title,    href,    icon,    isExternal  },  "calLink": *[_id == "singleton-profile"][0].calLink}
+export type DOCK_DATA_QUERYResult = {
+  navItems: Array<{
+    title: string | null;
+    href: string | null;
+    icon: string | null;
+    isExternal: boolean | null;
+  }>;
+  calLink: null | string;
+};
 
 // Source: ./src/components/chat/ChatWrapper.tsx
 // Variable: CHAT_PROFILE_QUERY
@@ -1338,22 +1342,25 @@ export type CERTIFICATIONS_QUERYResult = Array<{
 
 // Source: ./src/components/sections/ContactSection.tsx
 // Variable: PROFILE_QUERY
-// Query: *[_id == "singleton-profile"][0]{  email,  phone,  location,  socialLinks}
+// Query: *[_id == "singleton-profile"][0]{  email,  phone,  location,  socialLinks,  calLink}
 export type PROFILE_QUERYResult = {
   email: null;
   phone: null;
   location: null;
   socialLinks: null;
+  calLink: null;
 } | {
   email: null;
   phone: null;
   location: string | null;
   socialLinks: null;
+  calLink: null;
 } | {
   email: string | null;
   phone: null;
   location: null;
   socialLinks: null;
+  calLink: null;
 } | {
   email: string | null;
   phone: string | null;
@@ -1368,6 +1375,7 @@ export type PROFILE_QUERYResult = {
     youtube?: string;
     stackoverflow?: string;
   } | null;
+  calLink: string | null;
 } | null;
 
 // Source: ./src/components/sections/EducationSection.tsx
@@ -1744,13 +1752,13 @@ declare module "@sanity/client" {
     "*[_id == \"singleton-now\"][0] {\n  month,\n  items,\n  reading\n}": NOW_QUERYResult;
     "*[_id == \"singleton-uses\"][0] {\n  categories\n}": USES_QUERYResult;
     "*[_id == \"singleton-siteSettings\"][0] {\n  trustLogos[] {\n    name,\n    url,\n    \"logoAlt\": logo.alt\n  }\n}": SITE_SETTINGS_QUERYResult;
-    "*[_type == \"navigation\"] | order(order asc){\n  title,\n  href,\n  icon,\n  isExternal\n}": NAVIGATION_QUERYResult;
+    "{\n  \"navItems\": *[_type == \"navigation\"] | order(order asc){\n    title,\n    href,\n    icon,\n    isExternal\n  },\n  \"calLink\": *[_id == \"singleton-profile\"][0].calLink\n}": DOCK_DATA_QUERYResult;
     "{\n    \"profile\": *[_id == \"singleton-profile\"][0]{\n      firstName,\n      lastName,\n      headline,\n      shortBio,\n      fullBio,\n      email,\n      phone,\n      location,\n      availability,\n      socialLinks,\n      yearsOfExperience,\n      stats\n    },\n    \"experience\": *[_type == \"experience\"] | order(startDate desc){\n      _id,\n      jobTitle,\n      company,\n      location,\n      startDate,\n      endDate,\n      current,\n      description,\n      achievements[],\n      technologies[]->{name, category}\n    },\n    \"projects\": *[_type == \"project\"] | order(order asc){\n      _id,\n      title,\n      tagline,\n      category,\n      liveUrl,\n      githubUrl,\n      technologies[]->{name, category}\n    },\n    \"skills\": *[_type == \"skill\"] | order(name asc){\n      _id,\n      name,\n      category,\n      level,\n      yearsOfExperience,\n      percentage\n    },\n    \"education\": *[_type == \"education\"] | order(endDate desc){\n      _id,\n      degree,\n      field,\n      institution,\n      location,\n      startDate,\n      endDate,\n      description,\n      gpa\n    }\n  }": CHAT_PROFILE_QUERYResult;
     "*[_id == \"singleton-profile\"][0]{\n  firstName,\n  lastName,\n  fullBio,\n  yearsOfExperience,\n  stats,\n  email,\n  phone,\n  location\n}": ABOUT_QUERYResult;
     "*[_type == \"achievement\"] | order(date desc){\n  title,\n  type,\n  issuer,\n  date,\n  description,\n  image,\n  url,\n  featured,\n  order\n}": ACHIEVEMENTS_QUERYResult;
     "*[_type == \"blog\"] | order(publishedAt desc){\n  title,\n  slug,\n  excerpt,\n  category,\n  tags,\n  publishedAt,\n  readTime,\n  featuredImage\n}": BLOG_QUERYResult;
     "*[_type == \"certification\"] | order(issueDate desc){\n  name,\n  issuer,\n  issueDate,\n  expiryDate,\n  credentialId,\n  credentialUrl,\n  logo,\n  description,\n  skills[]->{name, category},\n  order\n}": CERTIFICATIONS_QUERYResult;
-    "*[_id == \"singleton-profile\"][0]{\n  email,\n  phone,\n  location,\n  socialLinks\n}": PROFILE_QUERYResult;
+    "*[_id == \"singleton-profile\"][0]{\n  email,\n  phone,\n  location,\n  socialLinks,\n  calLink\n}": PROFILE_QUERYResult;
     "*[_type == \"education\"] | order(endDate desc, startDate desc){\n  institution,\n  degree,\n  fieldOfStudy,\n  startDate,\n  endDate,\n  current,\n  gpa,\n  description,\n  achievements,\n  logo,\n  website,\n  order\n}": EDUCATION_QUERYResult;
     "*[_type == \"experience\"] | order(startDate desc){\n  company,\n  position,\n  employmentType,\n  location,\n  startDate,\n  endDate,\n  current,\n  description,\n  responsibilities,\n  achievements,\n  technologies[]->{name, category},\n  companyLogo,\n  companyWebsite\n}": EXPERIENCE_QUERYResult;
     "*[_id== \"singleton-profile\"][0] {\n  firstName,\n  lastName,\n  headline,\n  headlineStaticText,\n  headlineAnimatedWords,\n  headlineAnimationDuration,\n  shortBio,\n  fullBio,\n  email,\n  phone,\n  location,\n  availability,\n  socialLinks,\n  yearsOfExperience,\n  profileImage,\n  profileImages,\n}": HERO_QUERYResult;

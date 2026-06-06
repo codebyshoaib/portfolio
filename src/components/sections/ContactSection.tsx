@@ -2,6 +2,7 @@ import { MailIcon, MapPinIcon, PhoneIcon } from "lucide-react";
 import Link from "next/link";
 import { defineQuery } from "next-sanity";
 import { sanityFetch } from "@/sanity/lib/live";
+import { BookACallButton } from "../BookACallButton";
 import WorldMapWrapper from "../world-map-wrapper";
 import { ContactForm } from "./ContactForm";
 
@@ -9,7 +10,8 @@ const PROFILE_QUERY = defineQuery(`*[_id == "singleton-profile"][0]{
   email,
   phone,
   location,
-  socialLinks
+  socialLinks,
+  calLink
 }`);
 
 export async function ContactSection() {
@@ -91,6 +93,18 @@ export async function ContactSection() {
                       {profile.location}
                     </p>
                   </div>
+                </div>
+              )}
+
+              {profile.calLink && (
+                <div className="pt-2">
+                  <BookACallButton
+                    calLink={profile.calLink}
+                    className="w-full @md/info:w-auto"
+                  />
+                  <p className="text-muted-foreground text-xs @md/info:text-sm mt-2">
+                    Prefer to talk? Grab a slot on my calendar.
+                  </p>
                 </div>
               )}
 
