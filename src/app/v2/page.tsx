@@ -14,7 +14,7 @@ import { RecruiterView } from "./RecruiterView";
 
 export const revalidate = 3600;
 
-const PROFILE_QUERY = defineQuery(`*[_id == "singleton-profile"][0] {
+const V2_PROFILE_QUERY = defineQuery(`*[_id == "singleton-profile"][0] {
   firstName,
   lastName,
   headline,
@@ -26,7 +26,7 @@ const PROFILE_QUERY = defineQuery(`*[_id == "singleton-profile"][0] {
   socialLinks,
 }`);
 
-const PROJECTS_QUERY =
+const V2_PROJECTS_QUERY =
   defineQuery(`*[_type == "project"] | order(featured desc, _createdAt desc)[0...8] {
   title,
   tagline,
@@ -36,7 +36,7 @@ const PROJECTS_QUERY =
   "stack": technologies[]->name
 }`);
 
-const EXPERIENCE_QUERY =
+const V2_EXPERIENCE_QUERY =
   defineQuery(`*[_type == "experience"] | order(startDate desc)[0...5] {
   jobTitle,
   company,
@@ -46,7 +46,7 @@ const EXPERIENCE_QUERY =
   achievements
 }`);
 
-const DECISIONS_QUERY =
+const V2_DECISIONS_QUERY =
   defineQuery(`*[_type == "decision" && published == true] | order(date desc)[0...12] {
   "slug": slug.current,
   title,
@@ -89,10 +89,10 @@ export default async function V2Page({ searchParams }: PageProps) {
     usesRes,
     settingsRes,
   ] = await Promise.all([
-    sanityFetch({ query: PROFILE_QUERY }),
-    sanityFetch({ query: PROJECTS_QUERY }),
-    sanityFetch({ query: EXPERIENCE_QUERY }),
-    sanityFetch({ query: DECISIONS_QUERY }),
+    sanityFetch({ query: V2_PROFILE_QUERY }),
+    sanityFetch({ query: V2_PROJECTS_QUERY }),
+    sanityFetch({ query: V2_EXPERIENCE_QUERY }),
+    sanityFetch({ query: V2_DECISIONS_QUERY }),
     sanityFetch({ query: NOW_QUERY }),
     sanityFetch({ query: USES_QUERY }),
     sanityFetch({ query: SITE_SETTINGS_QUERY }),

@@ -881,6 +881,133 @@ export type DECISIONS_QUERYResult = Array<{
   tags: Array<string> | null;
 }>;
 
+// Source: ./src/app/v2/page.tsx
+// Variable: V2_PROFILE_QUERY
+// Query: *[_id == "singleton-profile"][0] {  firstName,  lastName,  headline,  shortBio,  location,  yearsOfExperience,  email,  availability,  socialLinks,}
+export type V2_PROFILE_QUERYResult = {
+  firstName: null;
+  lastName: null;
+  headline: null;
+  shortBio: null;
+  location: null;
+  yearsOfExperience: null;
+  email: null;
+  availability: null;
+  socialLinks: null;
+} | {
+  firstName: null;
+  lastName: null;
+  headline: null;
+  shortBio: null;
+  location: null;
+  yearsOfExperience: number | null;
+  email: null;
+  availability: null;
+  socialLinks: null;
+} | {
+  firstName: null;
+  lastName: null;
+  headline: null;
+  shortBio: null;
+  location: string | null;
+  yearsOfExperience: null;
+  email: null;
+  availability: null;
+  socialLinks: null;
+} | {
+  firstName: null;
+  lastName: null;
+  headline: null;
+  shortBio: null;
+  location: null;
+  yearsOfExperience: null;
+  email: string | null;
+  availability: null;
+  socialLinks: null;
+} | {
+  firstName: string | null;
+  lastName: string | null;
+  headline: string | null;
+  shortBio: string | null;
+  location: string | null;
+  yearsOfExperience: number | null;
+  email: string | null;
+  availability: "available" | "open" | "unavailable" | null;
+  socialLinks: {
+    github?: string;
+    linkedin?: string;
+    twitter?: string;
+    website?: string;
+    medium?: string;
+    devto?: string;
+    youtube?: string;
+    stackoverflow?: string;
+  } | null;
+} | null;
+// Variable: V2_PROJECTS_QUERY
+// Query: *[_type == "project"] | order(featured desc, _createdAt desc)[0...8] {  title,  tagline,  metrics,  liveUrl,  githubUrl,  "stack": technologies[]->name}
+export type V2_PROJECTS_QUERYResult = Array<{
+  title: string | null;
+  tagline: string | null;
+  metrics: string | null;
+  liveUrl: string | null;
+  githubUrl: string | null;
+  stack: Array<string | null> | null;
+}>;
+// Variable: V2_EXPERIENCE_QUERY
+// Query: *[_type == "experience"] | order(startDate desc)[0...5] {  jobTitle,  company,  startDate,  endDate,  current,  achievements}
+export type V2_EXPERIENCE_QUERYResult = Array<{
+  jobTitle: null;
+  company: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  current: boolean | null;
+  achievements: Array<string> | null;
+}>;
+// Variable: V2_DECISIONS_QUERY
+// Query: *[_type == "decision" && published == true] | order(date desc)[0...12] {  "slug": slug.current,  title,  date,  summary,  status}
+export type V2_DECISIONS_QUERYResult = Array<{
+  slug: string | null;
+  title: string | null;
+  date: string | null;
+  summary: string | null;
+  status: "accepted" | "deprecated" | "proposed" | "superseded" | null;
+}>;
+// Variable: NOW_QUERY
+// Query: *[_id == "singleton-now"][0] {  month,  items,  reading}
+export type NOW_QUERYResult = {
+  month: null;
+  items: null;
+  reading: null;
+} | {
+  month: string | null;
+  items: Array<string> | null;
+  reading: string | null;
+} | null;
+// Variable: USES_QUERY
+// Query: *[_id == "singleton-uses"][0] {  categories}
+export type USES_QUERYResult = {
+  categories: null;
+} | {
+  categories: Array<{
+    label?: string;
+    value?: string;
+    _type: "category";
+    _key: string;
+  }> | null;
+} | null;
+// Variable: SITE_SETTINGS_QUERY
+// Query: *[_id == "singleton-siteSettings"][0] {  trustLogos[] {    name,    url,    "logoAlt": logo.alt  }}
+export type SITE_SETTINGS_QUERYResult = {
+  trustLogos: null;
+} | {
+  trustLogos: Array<{
+    name: string | null;
+    url: string | null;
+    logoAlt: string | null;
+  }> | null;
+} | null;
+
 // Source: ./src/components/FloatingDock.tsx
 // Variable: NAVIGATION_QUERY
 // Query: *[_type == "navigation"] | order(order asc){  title,  href,  icon,  isExternal}
@@ -1209,6 +1336,40 @@ export type CERTIFICATIONS_QUERYResult = Array<{
   order: number | null;
 }>;
 
+// Source: ./src/components/sections/ContactSection.tsx
+// Variable: PROFILE_QUERY
+// Query: *[_id == "singleton-profile"][0]{  email,  phone,  location,  socialLinks}
+export type PROFILE_QUERYResult = {
+  email: null;
+  phone: null;
+  location: null;
+  socialLinks: null;
+} | {
+  email: null;
+  phone: null;
+  location: string | null;
+  socialLinks: null;
+} | {
+  email: string | null;
+  phone: null;
+  location: null;
+  socialLinks: null;
+} | {
+  email: string | null;
+  phone: string | null;
+  location: string | null;
+  socialLinks: {
+    github?: string;
+    linkedin?: string;
+    twitter?: string;
+    website?: string;
+    medium?: string;
+    devto?: string;
+    youtube?: string;
+    stackoverflow?: string;
+  } | null;
+} | null;
+
 // Source: ./src/components/sections/EducationSection.tsx
 // Variable: EDUCATION_QUERY
 // Query: *[_type == "education"] | order(endDate desc, startDate desc){  institution,  degree,  fieldOfStudy,  startDate,  endDate,  current,  gpa,  description,  achievements,  logo,  website,  order}
@@ -1236,6 +1397,57 @@ export type EDUCATION_QUERYResult = Array<{
   } | null;
   website: string | null;
   order: number | null;
+}>;
+
+// Source: ./src/components/sections/ExperienceSection.tsx
+// Variable: EXPERIENCE_QUERY
+// Query: *[_type == "experience"] | order(startDate desc){  company,  position,  employmentType,  location,  startDate,  endDate,  current,  description,  responsibilities,  achievements,  technologies[]->{name, category},  companyLogo,  companyWebsite}
+export type EXPERIENCE_QUERYResult = Array<{
+  company: string | null;
+  position: string | null;
+  employmentType: "contract" | "freelance" | "full-time" | "internship" | "part-time" | null;
+  location: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  current: boolean | null;
+  description: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }> | null;
+  responsibilities: Array<string> | null;
+  achievements: Array<string> | null;
+  technologies: Array<{
+    name: string | null;
+    category: "ai-ml" | "backend" | "cloud" | "database" | "design" | "devops" | "frontend" | "mobile" | "other" | "soft-skills" | "testing" | "tools" | null;
+  }> | null;
+  companyLogo: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  } | null;
+  companyWebsite: string | null;
 }>;
 
 // Source: ./src/components/sections/HeroSection.tsx
@@ -1386,6 +1598,36 @@ export type LATEST_RESUME_QUERYResult = {
   uploadDate: string | null;
 } | null;
 
+// Source: ./src/components/sections/ProjectsSection.tsx
+// Variable: PROJECTS_QUERY
+// Query: *[_type == "project" && featured == true] | order(order asc)[0...6]{  title,  slug,  tagline,  category,  liveUrl,  githubUrl,  coverImage,  technologies[]->{name, category, color}}
+export type PROJECTS_QUERYResult = Array<{
+  title: string | null;
+  slug: Slug | null;
+  tagline: string | null;
+  category: "ai-ml" | "api-backend" | "browser-extension" | "cli-tool" | "desktop-app" | "devops" | "game" | "mobile-app" | "open-source" | "other" | "web-app" | null;
+  liveUrl: string | null;
+  githubUrl: string | null;
+  coverImage: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  } | null;
+  technologies: Array<{
+    name: string | null;
+    category: "ai-ml" | "backend" | "cloud" | "database" | "design" | "devops" | "frontend" | "mobile" | "other" | "soft-skills" | "testing" | "tools" | null;
+    color: string | null;
+  }> | null;
+}>;
+
 // Source: ./src/components/sections/ServicesSection.tsx
 // Variable: SERVICES_QUERY
 // Query: *[_type == "service"] | order(order asc, _createdAt desc){  title,  slug,  icon,  shortDescription,  fullDescription,  features,  technologies[]->{name, category},  deliverables,  pricing,  timeline,  featured,  order}
@@ -1495,15 +1737,25 @@ declare module "@sanity/client" {
     "\n  *[_type == \"decision\" && published == true] | order(date desc)[0...50] {\n    \"slug\": slug.current,\n    title,\n    date,\n    summary,\n    status,\n    impact,\n    domain,\n    tags\n  }\n": FEED_JSON_QUERYResult;
     "\n  *[_type == \"decision\" && published == true] | order(date desc)[0...30] {\n    \"slug\": slug.current,\n    title,\n    date,\n    summary,\n    status\n  }\n": FEED_QUERYResult;
     "\n  *[_type == \"decision\" && published == true] | order(date asc) {\n    \"slug\": slug.current,\n    title,\n    date,\n    summary,\n    status,\n    impact,\n    domain,\n    tags\n  }\n": DECISIONS_QUERYResult;
+    "*[_id == \"singleton-profile\"][0] {\n  firstName,\n  lastName,\n  headline,\n  shortBio,\n  location,\n  yearsOfExperience,\n  email,\n  availability,\n  socialLinks,\n}": V2_PROFILE_QUERYResult;
+    "*[_type == \"project\"] | order(featured desc, _createdAt desc)[0...8] {\n  title,\n  tagline,\n  metrics,\n  liveUrl,\n  githubUrl,\n  \"stack\": technologies[]->name\n}": V2_PROJECTS_QUERYResult;
+    "*[_type == \"experience\"] | order(startDate desc)[0...5] {\n  jobTitle,\n  company,\n  startDate,\n  endDate,\n  current,\n  achievements\n}": V2_EXPERIENCE_QUERYResult;
+    "*[_type == \"decision\" && published == true] | order(date desc)[0...12] {\n  \"slug\": slug.current,\n  title,\n  date,\n  summary,\n  status\n}": V2_DECISIONS_QUERYResult;
+    "*[_id == \"singleton-now\"][0] {\n  month,\n  items,\n  reading\n}": NOW_QUERYResult;
+    "*[_id == \"singleton-uses\"][0] {\n  categories\n}": USES_QUERYResult;
+    "*[_id == \"singleton-siteSettings\"][0] {\n  trustLogos[] {\n    name,\n    url,\n    \"logoAlt\": logo.alt\n  }\n}": SITE_SETTINGS_QUERYResult;
     "*[_type == \"navigation\"] | order(order asc){\n  title,\n  href,\n  icon,\n  isExternal\n}": NAVIGATION_QUERYResult;
     "{\n    \"profile\": *[_id == \"singleton-profile\"][0]{\n      firstName,\n      lastName,\n      headline,\n      shortBio,\n      fullBio,\n      email,\n      phone,\n      location,\n      availability,\n      socialLinks,\n      yearsOfExperience,\n      stats\n    },\n    \"experience\": *[_type == \"experience\"] | order(startDate desc){\n      _id,\n      jobTitle,\n      company,\n      location,\n      startDate,\n      endDate,\n      current,\n      description,\n      achievements[],\n      technologies[]->{name, category}\n    },\n    \"projects\": *[_type == \"project\"] | order(order asc){\n      _id,\n      title,\n      tagline,\n      category,\n      liveUrl,\n      githubUrl,\n      technologies[]->{name, category}\n    },\n    \"skills\": *[_type == \"skill\"] | order(name asc){\n      _id,\n      name,\n      category,\n      level,\n      yearsOfExperience,\n      percentage\n    },\n    \"education\": *[_type == \"education\"] | order(endDate desc){\n      _id,\n      degree,\n      field,\n      institution,\n      location,\n      startDate,\n      endDate,\n      description,\n      gpa\n    }\n  }": CHAT_PROFILE_QUERYResult;
     "*[_id == \"singleton-profile\"][0]{\n  firstName,\n  lastName,\n  fullBio,\n  yearsOfExperience,\n  stats,\n  email,\n  phone,\n  location\n}": ABOUT_QUERYResult;
     "*[_type == \"achievement\"] | order(date desc){\n  title,\n  type,\n  issuer,\n  date,\n  description,\n  image,\n  url,\n  featured,\n  order\n}": ACHIEVEMENTS_QUERYResult;
     "*[_type == \"blog\"] | order(publishedAt desc){\n  title,\n  slug,\n  excerpt,\n  category,\n  tags,\n  publishedAt,\n  readTime,\n  featuredImage\n}": BLOG_QUERYResult;
     "*[_type == \"certification\"] | order(issueDate desc){\n  name,\n  issuer,\n  issueDate,\n  expiryDate,\n  credentialId,\n  credentialUrl,\n  logo,\n  description,\n  skills[]->{name, category},\n  order\n}": CERTIFICATIONS_QUERYResult;
+    "*[_id == \"singleton-profile\"][0]{\n  email,\n  phone,\n  location,\n  socialLinks\n}": PROFILE_QUERYResult;
     "*[_type == \"education\"] | order(endDate desc, startDate desc){\n  institution,\n  degree,\n  fieldOfStudy,\n  startDate,\n  endDate,\n  current,\n  gpa,\n  description,\n  achievements,\n  logo,\n  website,\n  order\n}": EDUCATION_QUERYResult;
+    "*[_type == \"experience\"] | order(startDate desc){\n  company,\n  position,\n  employmentType,\n  location,\n  startDate,\n  endDate,\n  current,\n  description,\n  responsibilities,\n  achievements,\n  technologies[]->{name, category},\n  companyLogo,\n  companyWebsite\n}": EXPERIENCE_QUERYResult;
     "*[_id== \"singleton-profile\"][0] {\n  firstName,\n  lastName,\n  headline,\n  headlineStaticText,\n  headlineAnimatedWords,\n  headlineAnimationDuration,\n  shortBio,\n  fullBio,\n  email,\n  phone,\n  location,\n  availability,\n  socialLinks,\n  yearsOfExperience,\n  profileImage,\n  profileImages,\n}": HERO_QUERYResult;
     "*[_type == \"resume\"] | order(isActive desc, uploadDate desc)[0] {\n  _id,\n  title,\n  resumeFile,\n  version,\n  isActive,\n  uploadDate\n}": LATEST_RESUME_QUERYResult;
+    "*[_type == \"project\" && featured == true] | order(order asc)[0...6]{\n  title,\n  slug,\n  tagline,\n  category,\n  liveUrl,\n  githubUrl,\n  coverImage,\n  technologies[]->{name, category, color}\n}": PROJECTS_QUERYResult;
     "*[_type == \"service\"] | order(order asc, _createdAt desc){\n  title,\n  slug,\n  icon,\n  shortDescription,\n  fullDescription,\n  features,\n  technologies[]->{name, category},\n  deliverables,\n  pricing,\n  timeline,\n  featured,\n  order\n}": SERVICES_QUERYResult;
     "*[_type == \"skill\"] | order(category asc, order asc){\n  name,\n  category,\n  proficiency,\n  color\n}": SKILLS_QUERYResult;
     "*[_type == \"testimonial\" && featured == true] | order(order asc){\n  name,\n  position,\n  company,\n  testimonial,\n  rating,\n  date,\n  avatar,\n  companyLogo,\n  linkedinUrl\n}": TESTIMONIALS_QUERYResult;
