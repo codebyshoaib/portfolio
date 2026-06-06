@@ -41,6 +41,34 @@ describe("BookACallButton", () => {
     ).toBeInTheDocument();
   });
 
+  it("bare variant renders a plain button with the passed className and still opens", async () => {
+    const user = userEvent.setup();
+    render(
+      <BookACallButton
+        calLink="user/30min"
+        variant="bare"
+        className="my-hero-btn"
+      />,
+    );
+    const btn = screen.getByRole("button", { name: /book a call/i });
+    expect(btn).toHaveClass("my-hero-btn");
+
+    await user.click(btn);
+    await waitFor(() => {
+      expect(calSpy).toHaveBeenCalledWith("modal", {
+        calLink: "user/30min",
+        config: { theme: "light" },
+      });
+    });
+  });
+
+  it("bare variant renders nothing when calLink is empty", () => {
+    const { container } = render(
+      <BookACallButton calLink={null} variant="bare" />,
+    );
+    expect(container).toBeEmptyDOMElement();
+  });
+
   it("opens the Cal modal on click with the calLink and theme", async () => {
     const user = userEvent.setup();
     render(<BookACallButton calLink="user/30min" />);

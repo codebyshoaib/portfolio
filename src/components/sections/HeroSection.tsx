@@ -3,6 +3,7 @@ import Link from "next/link";
 import { defineQuery } from "next-sanity";
 import { urlFor } from "@/sanity/lib/image";
 import { sanityFetch } from "@/sanity/lib/live";
+import { BookACallButton } from "../BookACallButton";
 import { ProfileImageCarousel } from "../ProfileImageCarousel";
 import { ResumeDownloadButton } from "../ResumeDownloadButton";
 import { BackgroundRippleEffect } from "../ui/background-ripple-effect";
@@ -22,6 +23,7 @@ const HERO_QUERY = defineQuery(`*[_id== "singleton-profile"][0] {
   location,
   availability,
   socialLinks,
+  calLink,
   yearsOfExperience,
   profileImage,
   profileImages,
@@ -79,9 +81,19 @@ export default async function HeroSection() {
                 {profile.shortBio}
               </p>
 
-              {profile.socialLinks && (
+              {(profile.socialLinks ||
+                profile.calLink ||
+                latestResume?.resumeFile) && (
                 <div className="flex flex-wrap gap-3 @md/hero:gap-4 pt-4">
-                  {profile.socialLinks.github && (
+                  {/* "Book a call" replaces the old "Website" link (which pointed
+                      back to this same portfolio). Bare variant matches the
+                      ghost style of the other hero buttons. */}
+                  <BookACallButton
+                    calLink={profile.calLink}
+                    variant="bare"
+                    className="px-4 py-2 @md/hero:px-6 @md/hero:py-3 rounded-lg border hover:bg-accent transition-colors text-sm @md/hero:text-base disabled:opacity-60"
+                  />
+                  {profile.socialLinks?.github && (
                     <Link
                       href={profile.socialLinks.github}
                       target="_blank"
@@ -91,7 +103,7 @@ export default async function HeroSection() {
                       GitHub
                     </Link>
                   )}
-                  {profile.socialLinks.linkedin && (
+                  {profile.socialLinks?.linkedin && (
                     <Link
                       href={profile.socialLinks.linkedin}
                       target="_blank"
@@ -99,16 +111,6 @@ export default async function HeroSection() {
                       className="px-4 py-2 @md/hero:px-6 @md/hero:py-3 rounded-lg border hover:bg-accent transition-colors text-sm @md/hero:text-base"
                     >
                       LinkedIn
-                    </Link>
-                  )}
-                  {profile.socialLinks.website && (
-                    <Link
-                      href={profile.socialLinks.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-4 py-2 @md/hero:px-6 @md/hero:py-3 rounded-lg border hover:bg-accent transition-colors text-sm @md/hero:text-base"
-                    >
-                      Website
                     </Link>
                   )}
                   {latestResume?.resumeFile && (
