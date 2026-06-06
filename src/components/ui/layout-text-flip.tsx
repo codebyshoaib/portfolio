@@ -1,5 +1,5 @@
 "use client";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -15,14 +15,17 @@ export const LayoutTextFlip = ({
   className?: string;
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
+    // Don't auto-rotate words when the user prefers reduced motion.
+    if (reducedMotion) return;
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % words.length);
     }, duration);
 
     return () => clearInterval(interval);
-  }, [duration, words.length]);
+  }, [duration, words.length, reducedMotion]);
 
   return (
     <span className={cn("inline-flex flex-wrap items-center gap-2", className)}>

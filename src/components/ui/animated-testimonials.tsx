@@ -1,7 +1,7 @@
 "use client";
 
 import { IconArrowLeft, IconArrowRight } from "@tabler/icons-react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
 
 import { useCallback, useEffect, useState } from "react";
@@ -20,6 +20,7 @@ export const AnimatedTestimonials = ({
   autoplay?: boolean;
 }) => {
   const [active, setActive] = useState(0);
+  const reducedMotion = useReducedMotion();
 
   const handleNext = useCallback(() => {
     setActive((prev) => (prev + 1) % testimonials.length);
@@ -34,11 +35,12 @@ export const AnimatedTestimonials = ({
   };
 
   useEffect(() => {
-    if (autoplay) {
+    // Respect reduced-motion: keep manual prev/next, drop the auto-advance.
+    if (autoplay && !reducedMotion) {
       const interval = setInterval(handleNext, 5000);
       return () => clearInterval(interval);
     }
-  }, [autoplay, handleNext]);
+  }, [autoplay, handleNext, reducedMotion]);
 
   // Deterministic rotation based on index to avoid hydration mismatch
   const getRotateY = (index: number) => {

@@ -191,3 +191,29 @@
     display: none;
   }
 }
+
+/*
+ * Reduced-motion baseline.
+ * Neutralizes CSS keyframe loops, transitions, and smooth scrolling for users
+ * who request reduced motion. JS-driven motion (canvas rAF loops, setInterval
+ * carousels, framer-motion) is gated separately in the respective components
+ * via useReducedMotion / matchMedia — a CSS rule can't stop those.
+ *
+ * We collapse durations to ~0 rather than `animation: none` so single-shot
+ * enter transitions still settle into their final state instead of being
+ * stuck at the initial keyframe.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    /* biome-ignore lint/complexity/noImportantStyles: must override Tailwind utility + inline animation declarations */
+    animation-duration: 0.01ms !important;
+    /* biome-ignore lint/complexity/noImportantStyles: must override Tailwind utility + inline animation declarations */
+    animation-iteration-count: 1 !important;
+    /* biome-ignore lint/complexity/noImportantStyles: must override Tailwind utility + inline transition declarations */
+    transition-duration: 0.01ms !important;
+    /* biome-ignore lint/complexity/noImportantStyles: must override scroll-behavior set elsewhere */
+    scroll-behavior: auto !important;
+  }
+}

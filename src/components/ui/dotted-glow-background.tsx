@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
 type DottedGlowBackgroundProps = {
   className?: string;
@@ -64,6 +65,7 @@ export const DottedGlowBackground = ({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [resolvedColor, setResolvedColor] = useState<string>(color);
   const [resolvedGlowColor, setResolvedGlowColor] = useState<string>(glowColor);
+  const reducedMotion = useReducedMotion();
 
   // Resolve CSS variable value from the container or root
   const resolveCssVariable = useCallback(
@@ -219,9 +221,11 @@ export const DottedGlowBackground = ({
     const FRAME_MS = 1000 / 30; // 30fps cap
     let lastFrame = 0;
 
+    // When reduced motion is requested, freeze time so dots render as a single
+    // static frame at their base alpha — no shimmering, no rAF loop.
     const draw = (now: number) => {
       if (stopped) return;
-      if (now - lastFrame < FRAME_MS) {
+      if (!reducedMotion && now - lastFrame < FRAME_MS) {
         raf = requestAnimationFrame(draw);
         return;
       }
@@ -256,7 +260,7 @@ export const DottedGlowBackground = ({
       ctx.save();
       ctx.fillStyle = resolvedColor;
 
-      const time = (now / 1000) * Math.max(speedScale, 0);
+      const time = reducedMotion ? 0 : (now / 1000) * Math.max(speedScale, 0);
       for (let i = 0; i < dots.length; i++) {
         const d = dots[i];
         // Linear triangle wave 0..1..0 for linear glow/dim
@@ -281,6 +285,8 @@ export const DottedGlowBackground = ({
       }
       ctx.restore();
 
+      // Reduced motion: one static frame, never reschedule.
+      if (reducedMotion) return;
       raf = requestAnimationFrame(draw);
     };
 
@@ -334,6 +340,7 @@ export const DottedGlowBackground = ({
     speedMin,
     speedMax,
     speedScale,
+    reducedMotion,
   ]);
 
   return (

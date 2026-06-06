@@ -3,6 +3,7 @@
 import { MessageCircle, X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { useSidebar } from "./ui/sidebar";
 
 interface ProfileImageCarouselProps {
@@ -26,6 +27,7 @@ export function ProfileImageCarousel({
   const [mounted, setMounted] = useState(false);
   const hasSetMounted = useRef(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const reducedMotion = useReducedMotion();
 
   // Always call hooks unconditionally (React rules)
   const { toggleSidebar, open } = useSidebar();
@@ -40,7 +42,7 @@ export function ProfileImageCarousel({
 
   // Auto-slide functionality
   useEffect(() => {
-    if (!mounted || images.length <= 1 || isHovered) return;
+    if (!mounted || images.length <= 1 || isHovered || reducedMotion) return;
 
     intervalRef.current = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
@@ -51,7 +53,7 @@ export function ProfileImageCarousel({
         clearInterval(intervalRef.current);
       }
     };
-  }, [mounted, images.length, autoSlideInterval, isHovered]);
+  }, [mounted, images.length, autoSlideInterval, isHovered, reducedMotion]);
 
   const handleClick = () => {
     if (mounted) {
@@ -65,7 +67,7 @@ export function ProfileImageCarousel({
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
-    if (!isHovered && images.length > 1) {
+    if (!isHovered && images.length > 1 && !reducedMotion) {
       intervalRef.current = setInterval(() => {
         setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
       }, autoSlideInterval);
