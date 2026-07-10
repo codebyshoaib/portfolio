@@ -6,8 +6,12 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-muted: var(--brand-muted);
   --font-sans: var(--font-inter);
-  --font-heading: var(--font-space-grotesk);
+  --font-heading: var(--font-serif);
+  --font-serif: var(--font-serif);
   --font-mono:
     ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
     monospace;
@@ -68,24 +72,30 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  /* Neutrals carry a faint teal bias (hue ~185) so they read "chosen", not
+     default shadcn grayscale. Brand teal is a dedicated token used deliberately. */
+  --background: oklch(0.995 0.002 185);
+  --foreground: oklch(0.18 0.008 200);
+  --card: oklch(1 0.001 185);
+  --card-foreground: oklch(0.18 0.008 200);
+  --popover: oklch(1 0.001 185);
+  --popover-foreground: oklch(0.18 0.008 200);
+  --primary: oklch(0.21 0.01 200);
+  --primary-foreground: oklch(0.985 0.002 185);
+  --secondary: oklch(0.968 0.004 185);
+  --secondary-foreground: oklch(0.21 0.01 200);
+  --muted: oklch(0.968 0.004 185);
+  --muted-foreground: oklch(0.5 0.012 195);
+  --accent: oklch(0.962 0.006 185);
+  --accent-foreground: oklch(0.21 0.01 200);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --border: oklch(0.918 0.006 185);
+  --input: oklch(0.918 0.006 185);
+  --ring: oklch(0.48 0.078 182);
+  /* Brand — deep teal for restraint on the light ground. */
+  --brand: oklch(0.48 0.078 182);
+  --brand-foreground: oklch(0.99 0.005 185);
+  --brand-muted: oklch(0.9 0.045 185);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -102,24 +112,30 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  /* Near-black with a faint teal-green bias; brand teal brightens for
+     attention on the dark ground. */
+  --background: oklch(0.165 0.008 200);
+  --foreground: oklch(0.925 0.006 185);
+  --card: oklch(0.205 0.008 200);
+  --card-foreground: oklch(0.925 0.006 185);
+  --popover: oklch(0.205 0.008 200);
+  --popover-foreground: oklch(0.925 0.006 185);
+  --primary: oklch(0.922 0.006 185);
+  --primary-foreground: oklch(0.205 0.008 200);
+  --secondary: oklch(0.27 0.01 200);
+  --secondary-foreground: oklch(0.925 0.006 185);
+  --muted: oklch(0.27 0.01 200);
+  --muted-foreground: oklch(0.71 0.012 190);
+  --accent: oklch(0.27 0.01 200);
+  --accent-foreground: oklch(0.925 0.006 185);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  --ring: oklch(0.77 0.085 184);
+  /* Brand — luminous teal for attention on the dark ground. */
+  --brand: oklch(0.77 0.085 184);
+  --brand-foreground: oklch(0.18 0.02 200);
+  --brand-muted: oklch(0.34 0.05 190);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
@@ -155,8 +171,9 @@
   h5,
   h6 {
     font-family:
-      var(--font-space-grotesk), system-ui, -apple-system, sans-serif;
+      var(--font-serif), Georgia, "Iowan Old Style", "Times New Roman", serif;
     font-weight: 600;
+    letter-spacing: -0.015em;
   }
 
   main {
@@ -189,6 +206,57 @@
   /* Mobile: Hide when Sheet is open (data-state="open") */
   body:has([data-state="open"][data-sidebar="sidebar"]) .mode-toggle-wrapper {
     display: none;
+  }
+}
+
+/*
+ * Duotone portrait — grayscale base tinted toward brand teal, revealing true
+ * color on hover/focus. See Portrait.tsx.
+ */
+.portrait-duotone img {
+  filter: grayscale(1) contrast(1.03);
+  transition: filter 0.5s ease;
+}
+.portrait-duotone::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--brand);
+  mix-blend-mode: color;
+  opacity: 0.5;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+.portrait-duotone:hover img,
+.portrait-duotone:focus-within img {
+  filter: grayscale(0) contrast(1);
+}
+.portrait-duotone:hover::after,
+.portrait-duotone:focus-within::after {
+  opacity: 0;
+}
+
+/* One quiet editorial entrance — a single fade-up, staggered. */
+@media (prefers-reduced-motion: no-preference) {
+  .editorial-fade {
+    opacity: 0;
+    transform: translateY(8px);
+    animation: editorial-up 0.6s ease forwards;
+  }
+  .editorial-fade-2 {
+    animation-delay: 0.08s;
+  }
+  .editorial-fade-3 {
+    animation-delay: 0.16s;
+  }
+  .editorial-fade-4 {
+    animation-delay: 0.24s;
+  }
+  @keyframes editorial-up {
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
 }
 

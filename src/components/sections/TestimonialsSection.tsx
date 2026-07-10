@@ -1,19 +1,8 @@
-import dynamic from "next/dynamic";
+import Image from "next/image";
 import { defineQuery } from "next-sanity";
+import { Section, SectionHeader } from "@/components/sections/Section";
 import { urlFor } from "@/sanity/lib/image";
 import { sanityFetch } from "@/sanity/lib/live";
-
-const AnimatedTestimonials = dynamic(
-  () =>
-    import("@/components/ui/animated-testimonials").then(
-      (m) => m.AnimatedTestimonials,
-    ),
-  {
-    loading: () => (
-      <div className="w-full h-64 bg-muted rounded-xl animate-pulse" />
-    ),
-  },
-);
 
 const TESTIMONIALS_QUERY =
   defineQuery(`*[_type == "testimonial" && featured == true] | order(order asc){
@@ -37,40 +26,66 @@ export async function TestimonialsSection() {
     return null;
   }
 
-  // Map Sanity testimonials to AnimatedTestimonials format
-  const formattedTestimonials = testimonials.map((testimonial) => ({
-    quote: testimonial.testimonial || "",
-    name: testimonial.name || "Anonymous",
-    designation: testimonial.company
-      ? `${testimonial.position} at ${testimonial.company}`
-      : testimonial.position || "",
-    // Use avatar for the main image
-    src: testimonial.avatar
-      ? urlFor(testimonial.avatar).width(500).height(500).url()
-      : "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=500&auto=format&fit=crop",
-    // Pass company logo separately to show next to name
-    companyLogo: testimonial.companyLogo
-      ? urlFor(testimonial.companyLogo).width(32).height(32).url()
-      : undefined,
-  }));
-
   return (
-    <section id="testimonials" className="py-20 px-6">
-      <div className="container mx-auto max-w-6xl">
-        <div className="text-center mb-8">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Client Testimonials
-          </h2>
-          <p className="text-xl text-muted-foreground">
-            What people say about working with me
-          </p>
-        </div>
+    <Section id="testimonials">
+      <SectionHeader
+        eyebrow="Testimonials"
+        title="What people say"
+        description="Words from the people I've built with, managed, and shipped for."
+      />
 
-        <AnimatedTestimonials
-          testimonials={formattedTestimonials}
-          autoplay={true}
-        />
+      <div className="grid gap-px overflow-hidden rounded-[10px] border border-border bg-border sm:grid-cols-2">
+        {testimonials.map((testimonial) => {
+          const name = testimonial.name || "Anonymous";
+          const role = testimonial.company
+            ? testimonial.position
+              ? `${testimonial.position}, ${testimonial.company}`
+              : testimonial.company
+            : testimonial.position || "";
+          const avatarUrl = testimonial.avatar
+            ? urlFor(testimonial.avatar).width(80).height(80).url()
+            : null;
+
+          return (
+            <figure
+              key={`${name}-${role}`}
+              className="flex flex-col bg-card p-6 md:p-8"
+            >
+              <blockquote className="relative flex-1">
+                <span
+                  aria-hidden
+                  className="absolute -left-1 -top-3 font-serif text-4xl leading-none text-brand/40 select-none"
+                >
+                  &ldquo;
+                </span>
+                <p className="font-serif text-lg leading-relaxed text-foreground">
+                  {testimonial.testimonial}
+                </p>
+              </blockquote>
+
+              <figcaption className="mt-6 flex items-center gap-3 border-t border-border pt-4">
+                {avatarUrl && (
+                  <Image
+                    src={avatarUrl}
+                    alt={name}
+                    width={40}
+                    height={40}
+                    className="h-10 w-10 flex-none rounded-full object-cover"
+                  />
+                )}
+                <div className="min-w-0">
+                  <div className="font-semibold text-foreground">{name}</div>
+                  {role && (
+                    <div className="truncate text-sm text-muted-foreground">
+                      {role}
+                    </div>
+                  )}
+                </div>
+              </figcaption>
+            </figure>
+          );
+        })}
       </div>
-    </section>
+    </Section>
   );
 }

@@ -1,6 +1,7 @@
 import { MailIcon, MapPinIcon, PhoneIcon } from "lucide-react";
 import Link from "next/link";
 import { defineQuery } from "next-sanity";
+import { Section, SectionHeader } from "@/components/sections/Section";
 import { sanityFetch } from "@/sanity/lib/live";
 import { BookACallButton } from "../BookACallButton";
 import WorldMapWrapper from "../world-map-wrapper";
@@ -22,148 +23,121 @@ export async function ContactSection() {
   }
 
   return (
-    <section id="contact" className="py-20 px-6 pb-40 bg-muted/10 ">
+    <Section id="contact">
       <WorldMapWrapper />
 
-      <div className="container mx-auto max-w-4xl">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">Get In Touch</h2>
-          <p className="text-xl text-muted-foreground">
-            Wherever you are in the world, let&apos;s work together on your next
-            project.
+      <SectionHeader
+        eyebrow="Contact"
+        title="Get in touch"
+        description="Wherever you are in the world, let's work together on your next project."
+      />
+
+      <div className="grid grid-cols-1 gap-12 md:grid-cols-2 md:gap-16">
+        {/* Invitation copy + contact facts */}
+        <div>
+          <p className="max-w-[48ch] leading-relaxed text-muted-foreground">
+            Have a project in mind, a role to fill, or just want to compare
+            notes? Send a message and I'll get back to you.
           </p>
-        </div>
 
-        <div className="@container">
-          <div className="grid grid-cols-1 @3xl:grid-cols-2 gap-8">
-            {/* Contact Info */}
-            <div className="@container/info space-y-6">
-              <h3 className="text-xl @md/info:text-2xl font-semibold mb-6">
-                Contact Information
-              </h3>
+          <div className="mt-8 space-y-4">
+            {profile.email && (
+              <div className="flex items-center gap-3">
+                <MailIcon className="h-4 w-4 flex-shrink-0 text-brand" />
+                <Link
+                  href={`mailto:${profile.email}`}
+                  className="font-mono text-[13px] text-muted-foreground transition-colors hover:text-brand"
+                >
+                  {profile.email}
+                </Link>
+              </div>
+            )}
 
-              {profile.email && (
-                <div className="flex items-start gap-3 @md/info:gap-4">
-                  <div className="w-10 h-10 @md/info:w-12 @md/info:h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <MailIcon className="w-5 h-5 @md/info:w-6 @md/info:h-6 text-foreground group-hover:text-foreground" />
-                  </div>
-                  <div className="min-w-0">
-                    <h4 className="font-semibold mb-1 text-sm @md/info:text-base">
-                      Email
-                    </h4>
-                    <Link
-                      href={`mailto:${profile.email}`}
-                      className="text-muted-foreground hover:text-primary transition-colors text-xs @md/info:text-sm truncate block"
-                    >
-                      {profile.email}
-                    </Link>
-                  </div>
-                </div>
-              )}
+            {profile.phone && (
+              <div className="flex items-center gap-3">
+                <PhoneIcon className="h-4 w-4 flex-shrink-0 text-brand" />
+                <Link
+                  href={`tel:${profile.phone}`}
+                  className="font-mono text-[13px] text-muted-foreground transition-colors hover:text-brand"
+                >
+                  {profile.phone}
+                </Link>
+              </div>
+            )}
 
-              {profile.phone && (
-                <div className="flex items-start gap-3 @md/info:gap-4">
-                  <div className="w-10 h-10 @md/info:w-12 @md/info:h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <PhoneIcon className="w-5 h-5 @md/info:w-6 @md/info:h-6 text-foreground group-hover:text-foreground" />
-                  </div>
-                  <div className="min-w-0">
-                    <h4 className="font-semibold mb-1 text-sm @md/info:text-base">
-                      Phone
-                    </h4>
-                    <Link
-                      href={`tel:${profile.phone}`}
-                      className="text-muted-foreground hover:text-primary transition-colors text-xs @md/info:text-sm"
-                    >
-                      {profile.phone}
-                    </Link>
-                  </div>
-                </div>
-              )}
-
-              {profile.location && (
-                <div className="flex items-start gap-3 @md/info:gap-4">
-                  <div className="w-10 h-10 @md/info:w-12 @md/info:h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <MapPinIcon className="w-5 h-5 @md/info:w-6 @md/info:h-6 text-foreground group-hover:text-foreground" />
-                  </div>
-                  <div className="min-w-0">
-                    <h4 className="font-semibold mb-1 text-sm @md/info:text-base">
-                      Location
-                    </h4>
-                    <p className="text-muted-foreground text-xs @md/info:text-sm">
-                      {profile.location}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {profile.calLink && (
-                <div className="pt-2">
-                  <BookACallButton
-                    calLink={profile.calLink}
-                    className="w-full @md/info:w-auto"
-                  />
-                  <p className="text-muted-foreground text-xs @md/info:text-sm mt-2">
-                    Prefer to talk? Grab a slot on my calendar.
-                  </p>
-                </div>
-              )}
-
-              {profile.socialLinks && (
-                <div className="pt-6">
-                  <h4 className="font-semibold mb-4 text-sm @md/info:text-base">
-                    Follow Me
-                  </h4>
-                  <div className="flex flex-wrap gap-2 @md/info:gap-3">
-                    {profile.socialLinks.github && (
-                      <Link
-                        href={profile.socialLinks.github}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-1.5 @md/info:px-4 @md/info:py-2 rounded-lg border hover:bg-accent transition-colors text-xs @md/info:text-sm"
-                      >
-                        GitHub
-                      </Link>
-                    )}
-                    {profile.socialLinks.linkedin && (
-                      <Link
-                        href={profile.socialLinks.linkedin}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-1.5 @md/info:px-4 @md/info:py-2 rounded-lg border hover:bg-accent transition-colors text-xs @md/info:text-sm"
-                      >
-                        LinkedIn
-                      </Link>
-                    )}
-                    {profile.socialLinks.twitter && (
-                      <Link
-                        href={profile.socialLinks.twitter}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-1.5 @md/info:px-4 @md/info:py-2 rounded-lg border hover:bg-accent transition-colors text-xs @md/info:text-sm"
-                      >
-                        Twitter
-                      </Link>
-                    )}
-                    {profile.socialLinks.website && (
-                      <Link
-                        href={profile.socialLinks.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-1.5 @md/info:px-4 @md/info:py-2 rounded-lg border hover:bg-accent transition-colors text-xs @md/info:text-sm"
-                      >
-                        Website
-                      </Link>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Contact Form */}
-            <ContactForm />
+            {profile.location && (
+              <div className="flex items-center gap-3">
+                <MapPinIcon className="h-4 w-4 flex-shrink-0 text-brand" />
+                <span className="font-mono text-[13px] text-muted-foreground">
+                  {profile.location}
+                </span>
+              </div>
+            )}
           </div>
+
+          {profile.calLink && (
+            <div className="mt-8">
+              <BookACallButton calLink={profile.calLink} />
+              <p className="mt-2 text-sm text-muted-foreground">
+                Prefer to talk? Grab a slot on my calendar.
+              </p>
+            </div>
+          )}
+
+          {profile.socialLinks && (
+            <div className="mt-8">
+              <h4 className="mb-3 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                Follow me
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {profile.socialLinks.github && (
+                  <Link
+                    href={profile.socialLinks.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-md border border-border px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:border-foreground/25 hover:text-foreground"
+                  >
+                    GitHub
+                  </Link>
+                )}
+                {profile.socialLinks.linkedin && (
+                  <Link
+                    href={profile.socialLinks.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-md border border-border px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:border-foreground/25 hover:text-foreground"
+                  >
+                    LinkedIn
+                  </Link>
+                )}
+                {profile.socialLinks.twitter && (
+                  <Link
+                    href={profile.socialLinks.twitter}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-md border border-border px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:border-foreground/25 hover:text-foreground"
+                  >
+                    Twitter
+                  </Link>
+                )}
+                {profile.socialLinks.website && (
+                  <Link
+                    href={profile.socialLinks.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-md border border-border px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:border-foreground/25 hover:text-foreground"
+                  >
+                    Website
+                  </Link>
+                )}
+              </div>
+            </div>
+          )}
         </div>
+
+        {/* Contact Form */}
+        <ContactForm />
       </div>
-    </section>
+    </Section>
   );
 }

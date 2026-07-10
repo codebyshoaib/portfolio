@@ -1,19 +1,6 @@
-import dynamic from "next/dynamic";
 import { defineQuery } from "next-sanity";
+import { Section, SectionHeader } from "@/components/sections/Section";
 import { sanityFetch } from "@/sanity/lib/live";
-
-const SkillsChart = dynamic(
-  () => import("./SkillsChart").then((m) => m.SkillsChart),
-  {
-    loading: () => (
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-pulse">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-48 bg-muted rounded-xl" />
-        ))}
-      </div>
-    ),
-  },
-);
 
 const SKILLS_QUERY =
   defineQuery(`*[_type == "skill"] | order(category asc, order asc){
@@ -87,6 +74,30 @@ function groupSkillsByCategory(skills: SkillData[]): GroupedSkillCategory[] {
   );
 }
 
+// Proficiency tiers, strongest first — drives ordering and which chips read
+// as top-tier. The tier itself is the signal; no percentages, no bars.
+const TIER_ORDER: Record<string, number> = {
+  expert: 0,
+  advanced: 1,
+  intermediate: 2,
+  beginner: 3,
+};
+
+function tierKey(proficiency: string | null): string {
+  const k = (proficiency || "").toLowerCase().trim();
+  return k in TIER_ORDER ? k : "intermediate";
+}
+
+// Prettify a normalized category slug into an editorial label.
+function formatCategoryLabel(originalCategory: string): string {
+  return originalCategory
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ")
+    .replace(/\bAi\b/gi, "AI")
+    .replace(/\bMl\b/gi, "ML");
+}
+
 export async function SkillsSection() {
   const { data: skills } = await sanityFetch({ query: SKILLS_QUERY });
 
@@ -94,25 +105,63 @@ export async function SkillsSection() {
     return null;
   }
 
-  // Group skills on the server side and serialize to prevent visual editing interference
   const groupedSkills = groupSkillsByCategory(skills);
-  const serializedGroupedSkills = JSON.stringify(groupedSkills);
 
   return (
-    <section id="skills" className="py-20 px-6 bg-muted/30">
-      <div className="container mx-auto max-w-7xl">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Skills & Expertise
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            A comprehensive overview of my technical proficiencies and tools I
-            work with daily
-          </p>
-        </div>
+    <Section id="skills">
+      <SectionHeader
+        eyebrow="Skills"
+        title="Tools & technologies"
+        description="Grouped by discipline, ordered by depth — the strongest work sits first in each set."
+      />
 
-        <SkillsChart serializedGroupedSkills={serializedGroupedSkills} />
+      <div className="border-t border-border">
+        {groupedSkills.map((categoryData) => {
+          const {
+            normalizedCategory,
+            originalCategory,
+            skills: categorySkills,
+          } = categoryData;
+
+          if (!categorySkills || categorySkills.length === 0) return null;
+
+          // Strongest skills first within each category.
+          const sortedSkills = [...categorySkills].sort(
+            (a, b) =>
+              TIER_ORDER[tierKey(a.proficiency)] -
+              TIER_ORDER[tierKey(b.proficiency)],
+          );
+
+          return (
+            <div
+              key={normalizedCategory}
+              className="grid grid-cols-1 gap-4 border-b border-border py-6 md:grid-cols-[16rem_1fr] md:gap-8"
+            >
+              <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground md:pt-1">
+                {formatCategoryLabel(originalCategory)}
+              </div>
+
+              <ul className="flex flex-wrap gap-2">
+                {sortedSkills.map((skill, idx) => {
+                  const isTopTier = tierKey(skill.proficiency) === "expert";
+                  return (
+                    <li
+                      key={skill.name || `${normalizedCategory}-${idx}`}
+                      className={`rounded border px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.14em] ${
+                        isTopTier
+                          ? "border-brand/40 text-brand"
+                          : "border-border text-muted-foreground"
+                      }`}
+                    >
+                      {skill.name || "Unknown"}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          );
+        })}
       </div>
-    </section>
+    </Section>
   );
 }

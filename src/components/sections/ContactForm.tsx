@@ -38,15 +38,20 @@ export function ContactForm() {
     });
   };
 
+  const labelClass =
+    "mb-2 block font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground";
+  const fieldClass =
+    "w-full rounded-md border border-border bg-transparent px-3 py-2 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand transition disabled:opacity-60";
+
   return (
-    <div className="@container/form bg-card border rounded-lg p-4 @md/form:p-6">
-      <h3 className="text-xl @md/form:text-2xl font-semibold mb-6">
-        Send a Message
+    <div className="rounded-[10px] border border-border bg-card p-5 md:p-6">
+      <h3 className="mb-6 font-serif text-lg font-semibold text-foreground">
+        Send a message
       </h3>
 
       {status.type && (
         <div
-          className={`mb-4 p-3 rounded-lg text-sm ${
+          className={`mb-4 rounded-md p-3 text-sm ${
             status.type === "success"
               ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
               : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
@@ -56,19 +61,16 @@ export function ContactForm() {
         </div>
       )}
 
-      <form className="space-y-3 @md/form:space-y-4" onSubmit={handleSubmit}>
+      <form className="space-y-4" onSubmit={handleSubmit}>
         <div>
-          <label
-            htmlFor="name"
-            className="block text-xs @md/form:text-sm font-medium mb-2"
-          >
+          <label htmlFor="name" className={labelClass}>
             Name
           </label>
           <input
             type="text"
             id="name"
             name="name"
-            className="w-full px-3 py-1.5 @md/form:px-4 @md/form:py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary text-sm @md/form:text-base"
+            className={fieldClass}
             placeholder="Your name"
             required
             disabled={isPending}
@@ -76,17 +78,14 @@ export function ContactForm() {
         </div>
 
         <div>
-          <label
-            htmlFor="email"
-            className="block text-xs @md/form:text-sm font-medium mb-2"
-          >
+          <label htmlFor="email" className={labelClass}>
             Email
           </label>
           <input
             type="email"
             id="email"
             name="email"
-            className="w-full px-3 py-1.5 @md/form:px-4 @md/form:py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary text-sm @md/form:text-base"
+            className={fieldClass}
             placeholder="your.email@example.com"
             required
             disabled={isPending}
@@ -94,17 +93,14 @@ export function ContactForm() {
         </div>
 
         <div>
-          <label
-            htmlFor="subject"
-            className="block text-xs @md/form:text-sm font-medium mb-2"
-          >
+          <label htmlFor="subject" className={labelClass}>
             Subject
           </label>
           <input
             type="text"
             id="subject"
             name="subject"
-            className="w-full px-3 py-1.5 @md/form:px-4 @md/form:py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary text-sm @md/form:text-base"
+            className={fieldClass}
             placeholder="What's this about?"
             required
             disabled={isPending}
@@ -112,17 +108,14 @@ export function ContactForm() {
         </div>
 
         <div>
-          <label
-            htmlFor="message"
-            className="block text-xs @md/form:text-sm font-medium mb-2"
-          >
+          <label htmlFor="message" className={labelClass}>
             Message
           </label>
           <textarea
             id="message"
             name="message"
             rows={5}
-            className="w-full px-3 py-1.5 @md/form:px-4 @md/form:py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary resize-none text-sm @md/form:text-base"
+            className={`${fieldClass} resize-none`}
             placeholder="Tell me about your project..."
             required
             disabled={isPending}
@@ -136,7 +129,7 @@ export function ContactForm() {
         <button
           type="submit"
           disabled={isPending}
-          className="w-full px-4 py-2 @md/form:px-6 @md/form:py-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-medium text-sm @md/form:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+          className="rounded-md bg-brand px-5 py-2.5 font-medium text-brand-foreground transition hover:opacity-90 disabled:opacity-60"
         >
           {isPending ? "Sending..." : "Send Message"}
         </button>

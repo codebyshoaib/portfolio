@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk } from "next/font/google";
+import { Inter, Source_Serif_4 } from "next/font/google";
 import "../globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -29,10 +29,13 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { V2Banner } from "@/components/V2Banner";
 import { SanityLive } from "@/sanity/lib/live";
 
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
+// Source Serif 4 — editorial display face for headings (replaces Space Grotesk).
+// Carries the "senior editorial" identity shared with /decisions.
+const sourceSerif = Source_Serif_4({
+  variable: "--font-serif",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -135,7 +138,7 @@ export default async function RootLayout({
     <ConditionalClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <body
-          className={`${spaceGrotesk.variable} ${inter.variable} antialiased`}
+          className={`${sourceSerif.variable} ${inter.variable} antialiased`}
         >
           <ThemeProvider
             attribute="class"

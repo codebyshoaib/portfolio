@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { defineQuery } from "next-sanity";
+import { Section, SectionHeader } from "@/components/sections/Section";
 import { urlFor } from "@/sanity/lib/image";
 import { sanityFetch } from "@/sanity/lib/live";
 
@@ -24,111 +25,99 @@ export async function ProjectsSection() {
   }
 
   return (
-    <section id="projects" className="py-20 px-6 bg-muted/30">
-      <div className="container mx-auto max-w-6xl">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Featured Projects
-          </h2>
-          <p className="text-xl text-muted-foreground">Some of my best work</p>
-        </div>
+    <Section id="projects">
+      <SectionHeader
+        eyebrow="Projects"
+        title="Selected work"
+        description="Some of my best work"
+      />
 
-        <div className="@container">
-          <div className="grid grid-cols-1 @2xl:grid-cols-2 @5xl:grid-cols-3 gap-8">
-            {projects.map((project) => (
-              <div
-                key={project.slug?.current}
-                className="@container/card group bg-card border rounded-lg overflow-hidden hover:shadow-xl transition-all duration-300"
-              >
-                {/* Project Image */}
-                {project.coverImage && (
-                  <div className="relative aspect-video overflow-hidden bg-muted">
-                    <Image
-                      src={urlFor(project.coverImage)
-                        .width(600)
-                        .height(400)
-                        .url()}
-                      alt={project.title || "Project image"}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    {/* Glass overlay that fades on hover */}
-                    <div className="absolute inset-0 bg-background/10 group-hover:opacity-0 transition-opacity duration-300" />
-                  </div>
-                )}
-
-                {/* Project Content */}
-                <div className="p-4 @md/card:p-6 space-y-3 @md/card:space-y-4">
-                  <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      {project.category && (
-                        <span className="text-xs px-2 py-0.5 @md/card:py-1 rounded-full bg-primary/10 text-primary">
-                          {project.category}
-                        </span>
-                      )}
-                    </div>
-                    <h3 className="text-lg @md/card:text-xl font-semibold mb-2 line-clamp-2">
-                      {project.title || "Untitled Project"}
-                    </h3>
-                    <p className="text-muted-foreground text-xs @md/card:text-sm line-clamp-2">
-                      {project.tagline}
-                    </p>
-                  </div>
-
-                  {/* Tech Stack */}
-                  {project.technologies && project.technologies.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 @md/card:gap-2">
-                      {project.technologies.slice(0, 4).map((tech, idx) => {
-                        const techData =
-                          tech && typeof tech === "object" && "name" in tech
-                            ? tech
-                            : null;
-                        return techData?.name ? (
-                          <span
-                            key={`${project.slug?.current}-tech-${idx}`}
-                            className="text-xs px-2 py-0.5 @md/card:py-1 rounded-md bg-muted"
-                          >
-                            {techData.name}
-                          </span>
-                        ) : null;
-                      })}
-                      {project.technologies.length > 4 && (
-                        <span className="text-xs px-2 py-0.5 @md/card:py-1 rounded-md bg-muted">
-                          +{project.technologies.length - 4}
-                        </span>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Actions */}
-                  <div className="flex flex-col @xs/card:flex-row gap-2 @xs/card:gap-3 pt-2">
-                    {project.liveUrl && (
-                      <Link
-                        href={project.liveUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 text-center px-3 py-2 @md/card:px-4 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-xs @md/card:text-sm"
-                      >
-                        Live Demo
-                      </Link>
-                    )}
-                    {project.githubUrl && (
-                      <Link
-                        href={project.githubUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-2 @md/card:px-4 rounded-lg border hover:bg-accent transition-colors text-xs @md/card:text-sm text-center"
-                      >
-                        GitHub
-                      </Link>
-                    )}
-                  </div>
-                </div>
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {projects.map((project) => (
+          <div
+            key={project.slug?.current}
+            className="group rounded-[10px] border border-border bg-card overflow-hidden transition-colors hover:border-foreground/25"
+          >
+            {project.coverImage && (
+              <div className="relative aspect-[16/10] overflow-hidden bg-muted">
+                <Image
+                  src={urlFor(project.coverImage).width(600).height(375).url()}
+                  alt={project.title || "Project image"}
+                  fill
+                  className="object-cover"
+                />
               </div>
-            ))}
+            )}
+
+            <div className="p-6">
+              {project.category && (
+                <div className="mb-3 font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+                  {project.category}
+                </div>
+              )}
+
+              <h3 className="font-serif text-lg font-semibold group-hover:text-brand transition-colors">
+                {project.title || "Untitled Project"}
+              </h3>
+
+              {project.tagline && (
+                <p className="mt-2 text-muted-foreground leading-relaxed line-clamp-3">
+                  {project.tagline}
+                </p>
+              )}
+
+              {project.technologies && project.technologies.length > 0 && (
+                <div className="mt-4 flex flex-wrap gap-1.5">
+                  {project.technologies.slice(0, 4).map((tech, idx) => {
+                    const techData =
+                      tech && typeof tech === "object" && "name" in tech
+                        ? tech
+                        : null;
+                    return techData?.name ? (
+                      <span
+                        key={`${project.slug?.current}-tech-${idx}`}
+                        className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground border border-border rounded px-2 py-0.5"
+                      >
+                        {techData.name}
+                      </span>
+                    ) : null;
+                  })}
+                  {project.technologies.length > 4 && (
+                    <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground border border-border rounded px-2 py-0.5">
+                      +{project.technologies.length - 4}
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {(project.liveUrl || project.githubUrl) && (
+                <div className="mt-5 flex items-center gap-4 font-mono text-[11px] uppercase tracking-[0.14em]">
+                  {project.liveUrl && (
+                    <Link
+                      href={project.liveUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-brand hover:opacity-80"
+                    >
+                      Live
+                    </Link>
+                  )}
+                  {project.githubUrl && (
+                    <Link
+                      href={project.githubUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-brand hover:opacity-80"
+                    >
+                      Repo
+                    </Link>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        ))}
       </div>
-    </section>
+    </Section>
   );
 }

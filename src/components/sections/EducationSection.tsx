@@ -1,8 +1,7 @@
-import { IconAward, IconCalendar, IconExternalLink } from "@tabler/icons-react";
-import Image from "next/image";
+import { IconExternalLink } from "@tabler/icons-react";
 import Link from "next/link";
 import { defineQuery } from "next-sanity";
-import { urlFor } from "@/sanity/lib/image";
+import { Section, SectionHeader } from "@/components/sections/Section";
 import { sanityFetch } from "@/sanity/lib/live";
 
 const EDUCATION_QUERY =
@@ -36,129 +35,77 @@ export async function EducationSection() {
   };
 
   return (
-    <section
-      id="education"
-      className="relative py-20 px-6 bg-muted/30 overflow-hidden"
-    >
-      <div className="container mx-auto max-w-6xl relative z-10">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">Education</h2>
-          <p className="text-xl text-muted-foreground">
-            My academic background
-          </p>
-        </div>
+    <Section id="education">
+      <SectionHeader eyebrow="Education" title="Education" />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {education.map((edu) => (
-            <div
-              key={`${edu.institution}-${edu.degree}-${edu.startDate}`}
-              className="group relative bg-card border rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300"
-            >
-              {/* Accent gradient bar */}
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-primary/60 to-primary/30 z-10" />
-
-              <div className="relative z-10 p-6">
-                {/* Header with logo and basic info */}
-                <div className="flex items-start gap-4 mb-4">
-                  {edu.logo && (
-                    <div className="relative w-16 h-16 rounded-lg overflow-hidden border-2 border-primary/20 shrink-0 group-hover:border-primary/40 transition-colors">
-                      <Image
-                        src={urlFor(edu.logo).width(64).height(64).url()}
-                        alt={`${edu.institution} logo`}
-                        fill
-                        className="object-contain p-2 bg-white"
-                      />
-                    </div>
-                  )}
-
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-xl font-bold mb-1 line-clamp-2 group-hover:text-primary transition-colors">
-                      {edu.degree}
-                    </h3>
-                    <p className="text-lg font-medium text-primary mb-1">
-                      {edu.institution}
-                    </p>
-                    <div className="flex items-center gap-2">
-                      {edu.fieldOfStudy && (
-                        <p className="text-sm text-muted-foreground">
-                          {edu.fieldOfStudy}
-                        </p>
-                      )}
-                      {edu.website && (
-                        <Link href={edu.website} target="_blank">
-                          <IconExternalLink className="w-4 h-4 text-primary" />
-                        </Link>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Date and GPA badges */}
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted text-sm">
-                    <IconCalendar className="w-3.5 h-3.5" />
-                    <span>
-                      {edu.startDate && formatDate(edu.startDate)} -{" "}
-                      {edu.current
-                        ? "Present"
-                        : edu.endDate
-                          ? formatDate(edu.endDate)
-                          : "N/A"}
-                    </span>
-                  </div>
-                  {edu.gpa && (
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">
-                      <IconAward className="w-3.5 h-3.5" />
-                      <span>GPA: {edu.gpa}</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Description */}
-                {edu.description && (
-                  <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
-                    {edu.description}
-                  </p>
-                )}
-
-                {/* Achievements */}
-                {edu.achievements && edu.achievements.length > 0 && (
-                  <div className="mb-4 p-3 rounded-lg bg-muted/50">
-                    <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                      <IconAward className="w-4 h-4 text-primary" />
-                      Achievements & Honors
-                    </h4>
-                    <ul className="space-y-1.5">
-                      {edu.achievements.map((achievement, idx) => (
-                        <li
-                          key={`${edu.institution}-achievement-${idx}`}
-                          className="text-xs text-muted-foreground flex items-start gap-2"
-                        >
-                          <span className="text-primary mt-1">▸</span>
-                          <span className="flex-1">{achievement}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Website link */}
-                {edu.website && (
+      <div>
+        {education.map((edu) => (
+          <div
+            key={`${edu.institution}-${edu.degree}-${edu.startDate}`}
+            className="grid gap-x-8 gap-y-3 border-t border-border py-8 md:grid-cols-[1fr_auto]"
+          >
+            <div className="min-w-0">
+              <h3 className="font-serif text-lg font-semibold tracking-tight text-foreground">
+                {edu.degree}
+              </h3>
+              <p className="mt-1 flex items-center gap-2 text-brand">
+                {edu.website ? (
                   <Link
                     href={edu.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-sm text-primary hover:underline font-medium group-hover:gap-3 transition-all"
+                    className="inline-flex items-center gap-1.5 hover:opacity-80"
                   >
-                    Visit Website
-                    <IconExternalLink className="w-4 h-4" />
+                    {edu.institution}
+                    <IconExternalLink className="h-3.5 w-3.5" />
                   </Link>
+                ) : (
+                  edu.institution
                 )}
-              </div>
+              </p>
+              {edu.fieldOfStudy && (
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {edu.fieldOfStudy}
+                </p>
+              )}
+              {edu.description && (
+                <p className="mt-3 max-w-[60ch] text-sm leading-relaxed text-muted-foreground">
+                  {edu.description}
+                </p>
+              )}
+              {edu.achievements && edu.achievements.length > 0 && (
+                <ul className="mt-3 space-y-1.5">
+                  {edu.achievements.map((achievement, idx) => (
+                    <li
+                      key={`${edu.institution}-achievement-${idx}`}
+                      className="flex items-start gap-2 text-sm text-muted-foreground"
+                    >
+                      <span aria-hidden className="text-brand">
+                        &#8250;
+                      </span>
+                      <span className="flex-1">{achievement}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
-          ))}
-        </div>
+
+            <div className="font-mono text-[11px] uppercase tracking-[0.18em] tabular-nums text-muted-foreground md:text-right">
+              <span>
+                {edu.startDate && formatDate(edu.startDate)} &ndash;{" "}
+                {edu.current
+                  ? "Present"
+                  : edu.endDate
+                    ? formatDate(edu.endDate)
+                    : "N/A"}
+              </span>
+              {edu.gpa && (
+                <span className="mt-2 block text-brand">GPA {edu.gpa}</span>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
-    </section>
+    </Section>
   );
 }

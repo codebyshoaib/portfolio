@@ -1,9 +1,8 @@
 import { PortableText } from "@portabletext/react";
 import { IconExternalLink } from "@tabler/icons-react";
-import Image from "next/image";
 import Link from "next/link";
 import { defineQuery } from "next-sanity";
-import { urlFor } from "@/sanity/lib/image";
+import { Section, SectionHeader } from "@/components/sections/Section";
 import { sanityFetch } from "@/sanity/lib/live";
 
 const EXPERIENCE_QUERY =
@@ -38,143 +37,118 @@ export async function ExperienceSection() {
   };
 
   return (
-    <section id="experience" className="py-20 px-6">
-      <div className="container mx-auto max-w-6xl">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Work Experience
-          </h2>
-          <p className="text-xl text-muted-foreground">
-            My professional journey
-          </p>
-        </div>
+    <Section id="experience">
+      <SectionHeader
+        eyebrow="Experience"
+        title="Work Experience"
+        description="A record of the roles, teams, and problems I've worked on."
+      />
 
-        <div className="space-y-8">
-          {experiences.map((exp) => (
-            <div
-              key={`${exp.company}-${exp.position}-${exp.startDate}`}
-              className="relative pl-8 pb-8 border-l-2 border-muted last:border-l-0"
-            >
-              {/* Timeline dot */}
-              <div className="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-primary border-4 border-background" />
+      <div>
+        {experiences.map((exp) => (
+          <article
+            key={`${exp.company}-${exp.position}-${exp.startDate}`}
+            className="grid gap-3 border-t border-border py-8 md:grid-cols-[140px_1fr] md:gap-8"
+          >
+            {/* Date range — mono, tabular */}
+            <div className="font-mono text-[13px] tabular-nums text-muted-foreground">
+              <span>
+                {exp.startDate && formatDate(exp.startDate)} &ndash;{" "}
+                {exp.current
+                  ? "Present"
+                  : exp.endDate
+                    ? formatDate(exp.endDate)
+                    : "N/A"}
+              </span>
+            </div>
 
-              <div className="@container/card bg-card border rounded-lg p-4 @md/card:p-6 hover:shadow-lg transition-shadow">
-                <div className="flex flex-col @md/card:flex-row @md/card:items-start gap-4 mb-4">
-                  {exp.companyLogo && (
-                    <div className="relative w-16 h-16 @md/card:w-24 @md/card:h-24 rounded-lg overflow-hidden border shrink-0">
-                      <Image
-                        src={urlFor(exp.companyLogo)
-                          .width(256)
-                          .height(256)
-                          .url()}
-                        alt={`${exp.company} company logo`}
-                        fill
-                        className="object-contain p-2"
-                      />
-                    </div>
-                  )}
+            {/* Content */}
+            <div className="min-w-0">
+              <h3 className="font-serif text-lg font-semibold text-foreground">
+                {exp.position}
+              </h3>
 
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-xl @md/card:text-2xl font-semibold line-clamp-2">
-                      {exp.position}
-                    </h3>
-                    <div className="flex flex-wrap items-center gap-2 mt-1">
-                      <p className="text-base @md/card:text-lg text-primary font-medium truncate">
-                        {exp.company}
-                      </p>
-                      {exp.employmentType && (
-                        <>
-                          <span className="text-muted-foreground">•</span>
-                          <span className="text-xs @md/card:text-sm text-muted-foreground">
-                            {exp.employmentType}
-                          </span>
-                        </>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2 mt-2 text-xs @md/card:text-sm text-muted-foreground">
-                      <span>
-                        {exp.startDate && formatDate(exp.startDate)} -{" "}
-                        {exp.current
-                          ? "Present"
-                          : exp.endDate
-                            ? formatDate(exp.endDate)
-                            : "N/A"}
-                      </span>
-                      {exp.location && (
-                        <>
-                          <span>•</span>
-                          <span className="truncate">{exp.location}</span>
-                        </>
-                      )}
-                      {exp.companyWebsite && (
-                        <>
-                          <span>•</span>
-                          <Link href={exp.companyWebsite} target="_blank">
-                            <IconExternalLink className="w-4 h-4 text-primary" />
-                          </Link>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {exp.description && (
-                  <div className="text-muted-foreground mb-4 text-sm @md/card:text-base">
-                    <PortableText value={exp.description} />
-                  </div>
+              <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+                <span className="text-brand">{exp.company}</span>
+                {exp.employmentType && (
+                  <>
+                    <span aria-hidden className="text-muted-foreground">
+                      &middot;
+                    </span>
+                    <span className="text-muted-foreground">
+                      {exp.employmentType}
+                    </span>
+                  </>
                 )}
-
-                {exp.responsibilities && exp.responsibilities.length > 0 && (
-                  <div className="mb-4">
-                    <h4 className="font-semibold mb-2 text-sm @md/card:text-base">
-                      Key Responsibilities:
-                    </h4>
-                    <ul className="list-disc list-inside space-y-1 text-muted-foreground text-xs @md/card:text-sm">
-                      {exp.responsibilities.map((resp, idx) => (
-                        <li key={`${exp.company}-resp-${idx}`}>{resp}</li>
-                      ))}
-                    </ul>
-                  </div>
+                {exp.location && (
+                  <>
+                    <span aria-hidden className="text-muted-foreground">
+                      &middot;
+                    </span>
+                    <span className="text-muted-foreground">
+                      {exp.location}
+                    </span>
+                  </>
                 )}
-
-                {exp.achievements && exp.achievements.length > 0 && (
-                  <div className="mb-4">
-                    <h4 className="font-semibold mb-2 text-sm @md/card:text-base">
-                      Achievements:
-                    </h4>
-                    <ul className="list-disc list-inside space-y-1 text-muted-foreground text-xs @md/card:text-sm">
-                      {exp.achievements.map((achievement, idx) => (
-                        <li key={`${exp.company}-achievement-${idx}`}>
-                          {achievement}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {exp.technologies && exp.technologies.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 @md/card:gap-2 mt-4">
-                    {exp.technologies.map((tech, techIdx) => {
-                      const techData =
-                        tech && typeof tech === "object" && "name" in tech
-                          ? tech
-                          : null;
-                      return techData?.name ? (
-                        <span
-                          key={`${exp.company}-tech-${techIdx}`}
-                          className="px-2 py-0.5 @md/card:px-3 @md/card:py-1 text-xs rounded-full bg-primary/10 text-primary"
-                        >
-                          {techData.name}
-                        </span>
-                      ) : null;
-                    })}
-                  </div>
+                {exp.companyWebsite && (
+                  <Link
+                    href={exp.companyWebsite}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${exp.company} website`}
+                    className="text-muted-foreground hover:text-brand"
+                  >
+                    <IconExternalLink className="h-4 w-4" />
+                  </Link>
                 )}
               </div>
+
+              {exp.description && (
+                <div className="mt-3 max-w-[68ch] leading-relaxed text-muted-foreground">
+                  <PortableText value={exp.description} />
+                </div>
+              )}
+
+              {exp.responsibilities && exp.responsibilities.length > 0 && (
+                <ul className="mt-3 max-w-[68ch] list-disc list-outside space-y-1 pl-5 leading-relaxed text-muted-foreground">
+                  {exp.responsibilities.map((resp, idx) => (
+                    <li key={`${exp.company}-resp-${idx}`}>{resp}</li>
+                  ))}
+                </ul>
+              )}
+
+              {exp.achievements && exp.achievements.length > 0 && (
+                <ul className="mt-3 max-w-[68ch] list-disc list-outside space-y-1 pl-5 leading-relaxed text-muted-foreground">
+                  {exp.achievements.map((achievement, idx) => (
+                    <li key={`${exp.company}-achievement-${idx}`}>
+                      {achievement}
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {exp.technologies && exp.technologies.length > 0 && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {exp.technologies.map((tech, techIdx) => {
+                    const techData =
+                      tech && typeof tech === "object" && "name" in tech
+                        ? tech
+                        : null;
+                    return techData?.name ? (
+                      <span
+                        key={`${exp.company}-tech-${techIdx}`}
+                        className="rounded border border-border px-2 py-0.5 font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground"
+                      >
+                        {techData.name}
+                      </span>
+                    ) : null;
+                  })}
+                </div>
+              )}
             </div>
-          ))}
-        </div>
+          </article>
+        ))}
       </div>
-    </section>
+    </Section>
   );
 }
