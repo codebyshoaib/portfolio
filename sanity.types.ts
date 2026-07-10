@@ -567,6 +567,7 @@ export type Experience = {
     _type: "image";
   };
   companyWebsite?: string;
+  companyDescription?: string;
   order?: number;
 };
 
@@ -1421,7 +1422,7 @@ export type EDUCATION_QUERYResult = Array<{
 
 // Source: ./src/components/sections/ExperienceSection.tsx
 // Variable: EXPERIENCE_QUERY
-// Query: *[_type == "experience"] | order(startDate desc){  company,  position,  employmentType,  location,  startDate,  endDate,  current,  description,  responsibilities,  achievements,  technologies[]->{name, category},  companyLogo,  companyWebsite}
+// Query: *[_type == "experience"] | order(startDate desc){  company,  position,  employmentType,  location,  startDate,  endDate,  current,  description,  responsibilities,  achievements,  technologies[]->{name, category},  companyLogo,  companyWebsite,  companyDescription}
 export type EXPERIENCE_QUERYResult = Array<{
   company: string | null;
   position: string | null;
@@ -1468,6 +1469,7 @@ export type EXPERIENCE_QUERYResult = Array<{
     _type: "image";
   } | null;
   companyWebsite: string | null;
+  companyDescription: string | null;
 }>;
 
 // Source: ./src/components/sections/HeroSection.tsx
@@ -1777,7 +1779,7 @@ declare module "@sanity/client" {
     "*[_type == \"certification\"] | order(issueDate desc){\n  name,\n  issuer,\n  issueDate,\n  expiryDate,\n  credentialId,\n  credentialUrl,\n  logo,\n  description,\n  skills[]->{name, category},\n  order\n}": CERTIFICATIONS_QUERYResult;
     "*[_id == \"singleton-profile\"][0]{\n  email,\n  phone,\n  location,\n  socialLinks,\n  calLink\n}": PROFILE_QUERYResult;
     "*[_type == \"education\"] | order(endDate desc, startDate desc){\n  institution,\n  degree,\n  fieldOfStudy,\n  startDate,\n  endDate,\n  current,\n  gpa,\n  description,\n  achievements,\n  logo,\n  website,\n  order\n}": EDUCATION_QUERYResult;
-    "*[_type == \"experience\"] | order(startDate desc){\n  company,\n  position,\n  employmentType,\n  location,\n  startDate,\n  endDate,\n  current,\n  description,\n  responsibilities,\n  achievements,\n  technologies[]->{name, category},\n  companyLogo,\n  companyWebsite\n}": EXPERIENCE_QUERYResult;
+    "*[_type == \"experience\"] | order(startDate desc){\n  company,\n  position,\n  employmentType,\n  location,\n  startDate,\n  endDate,\n  current,\n  description,\n  responsibilities,\n  achievements,\n  technologies[]->{name, category},\n  companyLogo,\n  companyWebsite,\n  companyDescription\n}": EXPERIENCE_QUERYResult;
     "*[_id== \"singleton-profile\"][0] {\n  firstName,\n  lastName,\n  headline,\n  headlineStaticText,\n  headlineAnimatedWords,\n  headlineAnimationDuration,\n  shortBio,\n  fullBio,\n  email,\n  phone,\n  location,\n  availability,\n  socialLinks,\n  calLink,\n  yearsOfExperience,\n  profileImage,\n  profileImages,\n}": HERO_QUERYResult;
     "*[_type == \"resume\"] | order(isActive desc, uploadDate desc)[0] {\n  _id,\n  title,\n  resumeFile,\n  version,\n  isActive,\n  uploadDate\n}": LATEST_RESUME_QUERYResult;
     "*[_type == \"project\" && featured == true] | order(order asc)[0...6]{\n  title,\n  slug,\n  tagline,\n  category,\n  liveUrl,\n  githubUrl,\n  coverImage,\n  technologies[]->{name, category, color}\n}": PROJECTS_QUERYResult;

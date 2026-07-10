@@ -1,5 +1,4 @@
 import { PortableText } from "@portabletext/react";
-import { IconExternalLink } from "@tabler/icons-react";
 import Image from "next/image";
 import Link from "next/link";
 import { defineQuery } from "next-sanity";
@@ -21,7 +20,8 @@ const EXPERIENCE_QUERY =
   achievements,
   technologies[]->{name, category},
   companyLogo,
-  companyWebsite
+  companyWebsite,
+  companyDescription
 }`);
 
 export async function ExperienceSection() {
@@ -50,7 +50,7 @@ export async function ExperienceSection() {
         {experiences.map((exp) => (
           <article
             key={`${exp.company}-${exp.position}-${exp.startDate}`}
-            className="grid gap-3 border-t border-border py-8 md:grid-cols-[140px_1fr_auto] md:gap-8"
+            className="grid gap-3 border-t border-border py-8 md:grid-cols-[140px_1fr_13rem] md:gap-8"
           >
             {/* Date range + logo — left gutter */}
             <div className="font-mono text-[13px] tabular-nums text-muted-foreground">
@@ -91,17 +91,6 @@ export async function ExperienceSection() {
                       {exp.location}
                     </span>
                   </>
-                )}
-                {exp.companyWebsite && (
-                  <Link
-                    href={exp.companyWebsite}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`${exp.company} website`}
-                    className="text-muted-foreground hover:text-brand"
-                  >
-                    <IconExternalLink className="h-4 w-4" />
-                  </Link>
                 )}
               </div>
 
@@ -149,16 +138,53 @@ export async function ExperienceSection() {
               )}
             </div>
 
-            {/* Company logo — right rail */}
-            {exp.companyLogo && (
-              <Image
-                src={urlFor(exp.companyLogo).width(240).fit("max").url()}
-                alt={exp.companyLogo.alt || exp.company || ""}
-                width={96}
-                height={96}
-                className="order-first h-20 w-20 rounded-lg border border-border bg-white object-contain p-2.5 md:order-none md:h-24 md:w-24"
-              />
-            )}
+            {/* Company logo + blurb — right rail, links to company site */}
+            {(exp.companyLogo || exp.companyDescription) &&
+              (() => {
+                const logo = exp.companyLogo && (
+                  <Image
+                    src={urlFor(exp.companyLogo).width(240).fit("max").url()}
+                    alt={exp.companyLogo.alt || exp.company || ""}
+                    width={96}
+                    height={96}
+                    className="h-20 w-20 rounded-lg border border-border bg-white object-contain p-2.5 transition-colors md:h-24 md:w-24"
+                  />
+                );
+                const blurb = exp.companyDescription && (
+                  <>
+                    <span
+                      aria-hidden="true"
+                      className="mt-3 block font-serif text-4xl leading-none text-brand/40"
+                    >
+                      &ldquo;
+                    </span>
+                    <blockquote className="mt-1 text-balance font-serif text-base italic leading-snug text-muted-foreground">
+                      {exp.companyDescription}
+                    </blockquote>
+                  </>
+                );
+                return (
+                  <aside className="group order-first self-start md:order-none">
+                    {exp.companyWebsite ? (
+                      <Link
+                        href={exp.companyWebsite}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`${exp.company} website`}
+                        className="block [&_img]:group-hover:border-brand [&_blockquote]:group-hover:text-foreground"
+                      >
+                        {logo}
+                        {blurb}
+                      </Link>
+                    ) : (
+                      <>
+                        {logo}
+                        {blurb}
+                      </>
+                    )}
+                  </aside>
+                );
+              })()}
           </article>
         ))}
       </div>

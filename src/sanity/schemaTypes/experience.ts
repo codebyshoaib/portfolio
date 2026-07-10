@@ -103,6 +103,13 @@ export default defineType({
       type: "url",
     }),
     defineField({
+      name: "companyDescription",
+      title: "Company Blurb",
+      type: "text",
+      rows: 3,
+      description: "One-line description of the company, shown under the logo",
+    }),
+    defineField({
       name: "order",
       title: "Display Order",
       type: "number",

@@ -3725,6 +3725,13 @@
         },
         "optional": true
       },
+      "companyDescription": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
       "order": {
         "type": "objectAttribute",
         "value": {
