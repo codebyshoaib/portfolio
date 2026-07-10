@@ -142,10 +142,10 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
       const { firstName, lastName } = profileRef.current;
       const greeting = firstName
         ? `Hi! I'm ${[firstName, lastName]
-            .filter(Boolean)
-            .join(
-              " ",
-            )}. Ask me anything about my work, experience, or projects.`
+          .filter(Boolean)
+          .join(
+            " ",
+          )}. Ask me anything about my work, experience, or projects.`
         : "Hi there! Ask me anything about my work, experience, or projects.";
 
       setMessages([
@@ -447,23 +447,23 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
 
   const prompts = [
     {
-      icon: "💼",
+      icon: "",
       label: "What's your experience?",
       prompt: "Tell me about your professional experience and previous roles",
     },
     {
-      icon: "💻",
+      icon: "",
       label: "What skills do you have?",
       prompt:
         "What technologies and programming languages do you specialize in?",
     },
     {
-      icon: "🚀",
+      icon: "",
       label: "What have you built?",
       prompt: "Show me some of your most interesting projects",
     },
     {
-      icon: "👤",
+      icon: "",
       label: "Who are you?",
       prompt: "Tell me more about yourself and your background",
     },
@@ -487,7 +487,7 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b dark:border-gray-800">
         <h2 className="text-lg font-semibold">
-          Chat with {profile?.firstName || "Me"}
+          Chat with Shoaib's AI Twin
         </h2>
         <button
           type="button"
@@ -510,10 +510,10 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
                 {messages.find((m) => m.id === "greeting")?.content ||
                   (profile?.firstName
                     ? `Hi! I'm ${[profile.firstName, profile.lastName]
-                        .filter(Boolean)
-                        .join(
-                          " ",
-                        )}. Ask me anything about my work, experience, or projects.`
+                      .filter(Boolean)
+                      .join(
+                        " ",
+                      )}. Ask me anything about my work, experience, or projects.`
                     : "Hi there! Ask me anything about my work, experience, or projects.")}
               </p>
             </div>
@@ -543,16 +543,14 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
               .map((message) => (
                 <div
                   key={message.id}
-                  className={`flex ${
-                    message.role === "user" ? "justify-end" : "justify-start"
-                  }`}
+                  className={`flex ${message.role === "user" ? "justify-end" : "justify-start"
+                    }`}
                 >
                   <div
-                    className={`max-w-[80%] rounded-lg p-3 ${
-                      message.role === "user"
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                    }`}
+                    className={`max-w-[80%] rounded-lg p-3 ${message.role === "user"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      }`}
                   >
                     {message.role === "assistant" ? (
                       <MarkdownRenderer content={message.content} />
@@ -586,11 +584,10 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
                 key={model.id}
                 type="button"
                 onClick={() => setSelectedModel(model.id)}
-                className={`px-3 py-1.5 text-xs rounded-lg whitespace-nowrap transition-colors ${
-                  selectedModel === model.id
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
-                }`}
+                className={`px-3 py-1.5 text-xs rounded-lg whitespace-nowrap transition-colors ${selectedModel === model.id
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
+                  }`}
               >
                 {model.label}
               </button>
