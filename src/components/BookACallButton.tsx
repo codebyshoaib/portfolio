@@ -45,10 +45,11 @@ export function useBookACall(calLink: string | null | undefined) {
       // modal call themes the booking iframe itself.
       cal("ui", { theme });
       cal("modal", { calLink, config: { theme } });
-    } catch (err) {
-      // Embed failed to load (network, blocked script). Fall back to a new tab
-      // so booking still works rather than silently dying.
-      console.error("Cal embed failed, falling back to new tab", err);
+    } catch {
+      // Embed unreachable — ad-blockers / privacy extensions routinely block
+      // app.cal.com, and it can also be offline/CSP-blocked. This is expected
+      // degradation, not a bug, so we don't console.error it (that trips the
+      // Next dev overlay). Fall back to the public booking page in a new tab.
       window.open(calFallbackUrl(calLink), "_blank", "noopener,noreferrer");
     } finally {
       setPending(false);
