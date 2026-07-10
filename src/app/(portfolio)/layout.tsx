@@ -26,7 +26,6 @@ import { FloatingButtons } from "@/components/FloatingButtons";
 import { ScrollDepthTracker } from "@/components/ScrollDepthTracker";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { V2Banner } from "@/components/V2Banner";
 import { SanityLive } from "@/sanity/lib/live";
 
 // Source Serif 4 — editorial display face for headings (replaces Space Grotesk).
@@ -151,7 +150,6 @@ export default async function RootLayout({
               <AppSidebar side="right" />
               <FloatingDock />
               <FloatingButtons />
-              <V2Banner />
             </SidebarProvider>
 
             <SanityLive />
