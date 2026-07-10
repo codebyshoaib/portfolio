@@ -1,8 +1,10 @@
 import { PortableText } from "@portabletext/react";
 import { IconExternalLink } from "@tabler/icons-react";
+import Image from "next/image";
 import Link from "next/link";
 import { defineQuery } from "next-sanity";
 import { Section, SectionHeader } from "@/components/sections/Section";
+import { urlFor } from "@/sanity/lib/image";
 import { sanityFetch } from "@/sanity/lib/live";
 
 const EXPERIENCE_QUERY =
@@ -48,9 +50,9 @@ export async function ExperienceSection() {
         {experiences.map((exp) => (
           <article
             key={`${exp.company}-${exp.position}-${exp.startDate}`}
-            className="grid gap-3 border-t border-border py-8 md:grid-cols-[140px_1fr] md:gap-8"
+            className="grid gap-3 border-t border-border py-8 md:grid-cols-[140px_1fr_auto] md:gap-8"
           >
-            {/* Date range — mono, tabular */}
+            {/* Date range + logo — left gutter */}
             <div className="font-mono text-[13px] tabular-nums text-muted-foreground">
               <span>
                 {exp.startDate && formatDate(exp.startDate)} &ndash;{" "}
@@ -146,6 +148,17 @@ export async function ExperienceSection() {
                 </div>
               )}
             </div>
+
+            {/* Company logo — right rail */}
+            {exp.companyLogo && (
+              <Image
+                src={urlFor(exp.companyLogo).width(240).fit("max").url()}
+                alt={exp.companyLogo.alt || exp.company || ""}
+                width={96}
+                height={96}
+                className="order-first h-20 w-20 rounded-lg border border-border bg-white object-contain p-2.5 md:order-none md:h-24 md:w-24"
+              />
+            )}
           </article>
         ))}
       </div>
