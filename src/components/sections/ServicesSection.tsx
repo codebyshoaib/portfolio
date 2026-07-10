@@ -1,4 +1,3 @@
-import { PortableText } from "@portabletext/react";
 import { IconCheck } from "@tabler/icons-react";
 import Image from "next/image";
 import { defineQuery } from "next-sanity";
@@ -82,7 +81,7 @@ export async function ServicesSection() {
         description="Ways we can work together, from focused builds to end-to-end delivery."
       />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2">
         {ordered.map((service) => (
           <div
             key={service.slug?.current || service.title}
@@ -107,12 +106,6 @@ export async function ServicesSection() {
               <p className="mt-2 leading-relaxed text-muted-foreground">
                 {service.shortDescription}
               </p>
-            )}
-
-            {service.fullDescription && (
-              <div className="prose prose-sm dark:prose-invert mt-3 max-w-none text-muted-foreground">
-                <PortableText value={service.fullDescription} />
-              </div>
             )}
 
             {service.features && service.features.length > 0 && (
