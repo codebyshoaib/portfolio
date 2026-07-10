@@ -2,6 +2,7 @@ import { MailIcon, MapPinIcon, PhoneIcon } from "lucide-react";
 import Link from "next/link";
 import { defineQuery } from "next-sanity";
 import { Section, SectionHeader } from "@/components/sections/Section";
+import { urlFor } from "@/sanity/lib/image";
 import { sanityFetch } from "@/sanity/lib/live";
 import { BookACallButton } from "../BookACallButton";
 import WorldMapWrapper from "../world-map-wrapper";
@@ -12,7 +13,9 @@ const PROFILE_QUERY = defineQuery(`*[_id == "singleton-profile"][0]{
   phone,
   location,
   socialLinks,
-  calLink
+  calLink,
+  profileImage,
+  profileImages
 }`);
 
 export async function ContactSection() {
@@ -22,9 +25,14 @@ export async function ContactSection() {
     return null;
   }
 
+  const avatarSource = profile.profileImages?.[0] || profile.profileImage;
+  const avatarUrl = avatarSource
+    ? urlFor(avatarSource).width(128).height(128).fit("crop").url()
+    : undefined;
+
   return (
     <Section id="contact">
-      <WorldMapWrapper />
+      <WorldMapWrapper avatarUrl={avatarUrl} />
 
       <SectionHeader
         eyebrow="Contact"

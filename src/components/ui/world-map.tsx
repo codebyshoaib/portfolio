@@ -11,6 +11,13 @@ interface MapProps {
     end: { lat: number; lng: number; label?: string };
   }>;
   lineColor?: string;
+  /** Pin an avatar at this coordinate (e.g. home base). */
+  origin?: { lat: number; lng: number };
+  avatarUrl?: string;
+  avatarAlt?: string;
+  /** Caption card overlaid on the map. */
+  eyebrow?: string;
+  quote?: React.ReactNode;
 }
 
 // Memoize the DottedMap instance outside component to avoid recreation
@@ -25,6 +32,11 @@ const getDottedMap = () => {
 export default function WorldMap({
   dots = [],
   lineColor = "#0ea5e9",
+  origin,
+  avatarUrl,
+  avatarAlt = "Home base",
+  eyebrow,
+  quote,
 }: MapProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [mounted, setMounted] = useState(false);
@@ -261,6 +273,49 @@ export default function WorldMap({
           );
         })}
       </svg>
+
+      {origin && avatarUrl && (
+        <div
+          className="absolute z-10 -translate-x-1/2 -translate-y-1/2"
+          style={{
+            left: `${(projectPoint(origin.lat, origin.lng).x / 800) * 100}%`,
+            top: `${(projectPoint(origin.lat, origin.lng).y / 400) * 100}%`,
+          }}
+        >
+          <span
+            aria-hidden
+            className="absolute inset-0 rounded-full"
+            style={{ boxShadow: `0 0 0 2px ${lineColor}` }}
+          />
+          {!reducedMotion && (
+            <span
+              aria-hidden
+              className="absolute inset-0 animate-ping rounded-full"
+              style={{ boxShadow: `0 0 0 2px ${lineColor}` }}
+            />
+          )}
+          <Image
+            src={avatarUrl}
+            alt={avatarAlt}
+            width={112}
+            height={112}
+            className="h-14 w-14 rounded-full border-2 border-white/80 object-cover shadow-lg md:h-20 md:w-20"
+          />
+        </div>
+      )}
+
+      {quote && (
+        <figure className="absolute bottom-4 left-4 z-10 max-w-[min(22rem,72%)] rounded-lg border border-border border-l-2 border-l-brand bg-background/80 p-4 shadow-lg backdrop-blur-md md:bottom-8 md:left-8 md:p-5">
+          {eyebrow && (
+            <figcaption className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-brand md:text-[11px]">
+              {eyebrow}
+            </figcaption>
+          )}
+          <blockquote className="text-balance font-serif text-base italic leading-snug text-foreground md:text-xl">
+            {quote}
+          </blockquote>
+        </figure>
+      )}
     </div>
   );
 }

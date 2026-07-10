@@ -14,6 +14,10 @@ const WorldMapDemo = dynamic(() => import("./world-map-demo"), {
   ),
 });
 
-export default function WorldMapWrapper() {
-  return <WorldMapDemo />;
+export default function WorldMapWrapper({
+  avatarUrl,
+}: {
+  avatarUrl?: string;
+}) {
+  return <WorldMapDemo avatarUrl={avatarUrl} />;
 }
