@@ -32,15 +32,32 @@ type CalApi = ((action: string, options?: Record<string, unknown>) => void) & {
  * command function. Rejects if called server-side or if the snippet fails to
  * produce `window.Cal`.
  */
+const EMBED_JS_URL = "https://app.cal.com/embed/embed.js";
+
 export async function loadCal(): Promise<CalApi> {
   if (typeof window === "undefined") {
     throw new Error("loadCal must run in the browser");
+  }
+  // Preflight: ad-blockers / privacy extensions commonly block app.cal.com, and
+  // the snippet injects embed.js fire-and-forget — it sets window.Cal
+  // synchronously and never reports the blocked script, so "modal" would queue
+  // forever with no error and the button appears dead. Probe reachability first
+  // (no-cors: we only care that the request isn't blocked) and throw if it is,
+  // so the caller's catch falls back to the public booking page in a new tab.
+  try {
+    await fetch(EMBED_JS_URL, { mode: "no-cors", cache: "no-store" });
+  } catch {
+    throw new Error("Cal embed.js unreachable (blocked or offline)");
   }
   const { default: EmbedSnippet } = await import("@calcom/embed-snippet");
   const cal = EmbedSnippet() as CalApi | undefined;
   if (!cal) {
     throw new Error("Cal embed failed to load");
   }
+  // embed.js requires an "init" before any "ui"/"modal" action, else those
+  // commands are silently dropped and nothing opens. init is idempotent, so
+  // calling it on every load is safe.
+  cal("init", { origin: "https://cal.com" });
   return cal;
 }
 
