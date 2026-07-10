@@ -4140,6 +4140,20 @@
         },
         "optional": true
       },
+      "quote": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "quoteContext": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
       "profileImages": {
         "type": "objectAttribute",
         "value": {

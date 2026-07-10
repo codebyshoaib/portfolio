@@ -65,6 +65,22 @@ export default defineType({
       description: "Detailed about section with rich text formatting",
     }),
     defineField({
+      name: "quote",
+      title: "About Pull-Quote",
+      type: "text",
+      rows: 3,
+      description:
+        "A short personal statement shown alongside the About bio. Your own words work best.",
+      validation: (Rule) => Rule.max(240),
+    }),
+    defineField({
+      name: "quoteContext",
+      title: "Pull-Quote Label",
+      type: "string",
+      description: 'Small label above the quote, e.g. "On the craft".',
+      validation: (Rule) => Rule.max(40),
+    }),
+    defineField({
       name: "profileImages",
       title: "Profile Images (Carousel)",
       type: "array",

@@ -614,6 +614,8 @@ export type Profile = {
     _type: "block";
     _key: string;
   }>;
+  quote?: string;
+  quoteContext?: string;
   profileImages?: Array<{
     asset?: {
       _ref: string;
@@ -1189,11 +1191,13 @@ export type CHAT_PROFILE_QUERYResult = {
 
 // Source: ./src/components/sections/AboutSection.tsx
 // Variable: ABOUT_QUERY
-// Query: *[_id == "singleton-profile"][0]{  firstName,  lastName,  fullBio,  yearsOfExperience,  stats,  email,  phone,  location}
+// Query: *[_id == "singleton-profile"][0]{  firstName,  lastName,  fullBio,  quote,  quoteContext,  yearsOfExperience,  stats,  email,  phone,  location}
 export type ABOUT_QUERYResult = {
   firstName: null;
   lastName: null;
   fullBio: null;
+  quote: null;
+  quoteContext: null;
   yearsOfExperience: null;
   stats: null;
   email: null;
@@ -1203,6 +1207,8 @@ export type ABOUT_QUERYResult = {
   firstName: null;
   lastName: null;
   fullBio: null;
+  quote: null;
+  quoteContext: null;
   yearsOfExperience: number | null;
   stats: null;
   email: null;
@@ -1212,6 +1218,8 @@ export type ABOUT_QUERYResult = {
   firstName: null;
   lastName: null;
   fullBio: null;
+  quote: null;
+  quoteContext: null;
   yearsOfExperience: null;
   stats: null;
   email: null;
@@ -1221,6 +1229,8 @@ export type ABOUT_QUERYResult = {
   firstName: null;
   lastName: null;
   fullBio: null;
+  quote: null;
+  quoteContext: null;
   yearsOfExperience: null;
   stats: null;
   email: string | null;
@@ -1247,6 +1257,8 @@ export type ABOUT_QUERYResult = {
     _type: "block";
     _key: string;
   }> | null;
+  quote: string | null;
+  quoteContext: string | null;
   yearsOfExperience: number | null;
   stats: Array<{
     label?: string;
@@ -1759,7 +1771,7 @@ declare module "@sanity/client" {
     "*[_id == \"singleton-siteSettings\"][0] {\n  trustLogos[] {\n    name,\n    url,\n    \"logoAlt\": logo.alt\n  }\n}": SITE_SETTINGS_QUERYResult;
     "{\n  \"navItems\": *[_type == \"navigation\"] | order(order asc){\n    title,\n    href,\n    icon,\n    isExternal\n  },\n  \"calLink\": *[_id == \"singleton-profile\"][0].calLink\n}": DOCK_DATA_QUERYResult;
     "{\n    \"profile\": *[_id == \"singleton-profile\"][0]{\n      firstName,\n      lastName,\n      headline,\n      shortBio,\n      fullBio,\n      email,\n      phone,\n      location,\n      availability,\n      socialLinks,\n      yearsOfExperience,\n      stats\n    },\n    \"experience\": *[_type == \"experience\"] | order(startDate desc){\n      _id,\n      jobTitle,\n      company,\n      location,\n      startDate,\n      endDate,\n      current,\n      description,\n      achievements[],\n      technologies[]->{name, category}\n    },\n    \"projects\": *[_type == \"project\"] | order(order asc){\n      _id,\n      title,\n      tagline,\n      category,\n      liveUrl,\n      githubUrl,\n      technologies[]->{name, category}\n    },\n    \"skills\": *[_type == \"skill\"] | order(name asc){\n      _id,\n      name,\n      category,\n      level,\n      yearsOfExperience,\n      percentage\n    },\n    \"education\": *[_type == \"education\"] | order(endDate desc){\n      _id,\n      degree,\n      field,\n      institution,\n      location,\n      startDate,\n      endDate,\n      description,\n      gpa\n    }\n  }": CHAT_PROFILE_QUERYResult;
-    "*[_id == \"singleton-profile\"][0]{\n  firstName,\n  lastName,\n  fullBio,\n  yearsOfExperience,\n  stats,\n  email,\n  phone,\n  location\n}": ABOUT_QUERYResult;
+    "*[_id == \"singleton-profile\"][0]{\n  firstName,\n  lastName,\n  fullBio,\n  quote,\n  quoteContext,\n  yearsOfExperience,\n  stats,\n  email,\n  phone,\n  location\n}": ABOUT_QUERYResult;
     "*[_type == \"achievement\"] | order(date desc){\n  title,\n  type,\n  issuer,\n  date,\n  description,\n  image,\n  url,\n  featured,\n  order\n}": ACHIEVEMENTS_QUERYResult;
     "*[_type == \"blog\"] | order(publishedAt desc){\n  title,\n  slug,\n  excerpt,\n  category,\n  tags,\n  publishedAt,\n  readTime,\n  featuredImage\n}": BLOG_QUERYResult;
     "*[_type == \"certification\"] | order(issueDate desc){\n  name,\n  issuer,\n  issueDate,\n  expiryDate,\n  credentialId,\n  credentialUrl,\n  logo,\n  description,\n  skills[]->{name, category},\n  order\n}": CERTIFICATIONS_QUERYResult;
