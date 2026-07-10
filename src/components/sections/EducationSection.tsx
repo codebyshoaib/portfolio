@@ -100,7 +100,10 @@ export async function EducationSection() {
                     : "N/A"}
               </span>
               {edu.gpa && (
-                <span className="mt-2 block text-brand">GPA {edu.gpa}</span>
+                <span className="mt-2 block text-brand">
+                  {/* ponytail: "X/Y" with Y>10 is marks, not a GPA scale */}
+                  {/\/\s*([1-9]\d+)/.test(edu.gpa) ? "Marks" : "GPA"} {edu.gpa}
+                </span>
               )}
             </div>
           </div>
