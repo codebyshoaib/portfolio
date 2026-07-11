@@ -4,6 +4,7 @@ import { AchievementsSection } from "./sections/AchievementsSection";
 import { BlogSection } from "./sections/BlogSection";
 import { CertificationsSection } from "./sections/CertificationsSection";
 import { ContactSection } from "./sections/ContactSection";
+import { DecisionsSection } from "./sections/DecisionsSection";
 import { EducationSection } from "./sections/EducationSection";
 import { ExperienceSection } from "./sections/ExperienceSection";
 import HeroSection from "./sections/HeroSection";
@@ -57,6 +58,9 @@ function PortfolioContent() {
       </Suspense>
       <Suspense fallback={<SectionSkeleton />}>
         <ProjectsSection />
+      </Suspense>
+      <Suspense fallback={<SectionSkeleton />}>
+        <DecisionsSection />
       </Suspense>
       <Suspense fallback={<SectionSkeleton />}>
         <CertificationsSection />
