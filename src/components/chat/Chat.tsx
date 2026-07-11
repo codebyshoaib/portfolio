@@ -96,12 +96,25 @@ interface Education {
   gpa?: string | null;
 }
 
+interface Decision {
+  _id?: string;
+  title?: string | null;
+  summary?: string | null;
+  context?: string | null;
+  options?: Array<{ label?: string | null; summary?: string | null }> | null;
+  decision?: string | null;
+  tradeoffs?: string | null;
+  revisitTrigger?: string | null;
+  takeaways?: (string | null)[] | null;
+}
+
 export interface ChatData {
   profile?: Profile | null;
   experience?: Experience[] | null;
   projects?: Project[] | null;
   skills?: Skill[] | null;
   education?: Education[] | null;
+  decisions?: Decision[] | null;
 }
 
 export function Chat({ profile: chatData }: { profile: ChatData | null }) {
@@ -224,6 +237,18 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
       "qualification",
       "achievement",
       "accomplishment",
+      // Engineering decisions / trade-offs (ADR log)
+      "decision",
+      "decide",
+      "chose",
+      "choose",
+      "trade-off",
+      "tradeoff",
+      "architecture",
+      "approach",
+      "why did",
+      "challenge",
+      "hard problem",
     ],
     [],
   );
@@ -464,8 +489,9 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
     },
     {
       icon: "",
-      label: "Who are you?",
-      prompt: "Tell me more about yourself and your background",
+      label: "A hard trade-off you made?",
+      prompt:
+        "Walk me through a hard technical decision you made — the constraint, the options you rejected, and the trade-off you accepted",
     },
   ];
 

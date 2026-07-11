@@ -45,6 +45,20 @@ interface Education {
   description?: string;
 }
 
+interface Decision {
+  title?: string;
+  summary?: string;
+  context?: string;
+  options?: Array<{ label?: string; summary?: string }>;
+  decision?: string;
+  tradeoffs?: string;
+  revisitTrigger?: string;
+  takeaways?: string[];
+}
+
+// Cap how many ADRs we inline so the prompt stays within the 8b model's budget.
+const MAX_DECISIONS_IN_PROMPT = 8;
+
 const MessageSchema = z.object({
   role: z.enum(["user", "assistant", "system"]),
   content: z.string().min(1).max(500),
@@ -102,7 +116,7 @@ export async function POST(req: Request) {
 
     // Build system message with profile context
     const buildSystemMessage = () => {
-      const { profile, experience, projects, skills, education } =
+      const { profile, experience, projects, skills, education, decisions } =
         (profileData as {
           profile?: {
             firstName?: string;
@@ -116,6 +130,7 @@ export async function POST(req: Request) {
           projects?: Project[];
           skills?: Skill[];
           education?: Education[];
+          decisions?: Decision[];
         }) || {};
 
       if (!profile) {
@@ -236,6 +251,39 @@ export async function POST(req: Request) {
         });
       }
 
+      // Add engineering decisions (ADRs) — the highest-signal content for
+      // "walk me through a hard trade-off" style questions.
+      if (decisions && decisions.length > 0) {
+        systemPrompt += `\n\nYour Engineering Decisions (real ADRs — use these to answer questions about hard technical trade-offs, why you chose one approach over another, and lessons learned):\n`;
+        decisions
+          .slice(0, MAX_DECISIONS_IN_PROMPT)
+          .forEach((d: Decision, idx: number) => {
+            systemPrompt += `\n${idx + 1}. ${d.title}`;
+            if (d.summary) systemPrompt += `\n   Outcome: ${d.summary}`;
+            if (d.context) systemPrompt += `\n   Context: ${d.context}`;
+            if (d.options && d.options.length > 0) {
+              const opts = d.options
+                .filter((o) => o.label)
+                .map((o) =>
+                  o.summary ? `${o.label} (${o.summary})` : o.label,
+                )
+                .join("; ");
+              if (opts) systemPrompt += `\n   Options weighed: ${opts}`;
+            }
+            if (d.decision) systemPrompt += `\n   Chose: ${d.decision}`;
+            if (d.tradeoffs)
+              systemPrompt += `\n   Trade-off accepted: ${d.tradeoffs}`;
+            if (d.revisitTrigger)
+              systemPrompt += `\n   Would revisit if: ${d.revisitTrigger}`;
+            if (d.takeaways && d.takeaways.length > 0) {
+              systemPrompt += `\n   Takeaways: ${d.takeaways
+                .filter(Boolean)
+                .join("; ")}`;
+            }
+            systemPrompt += `\n`;
+          });
+      }
+
       systemPrompt += `\n\nIMPORTANT RESPONSE GUIDELINES:
 - Answer all questions as if you ARE this person. Use "I" and "my" when referring to your experience, projects, and skills.
 - Be conversational and authentic, but keep responses concise and impactful.
@@ -252,6 +300,7 @@ export async function POST(req: Request) {
   * Use \`code\` formatting for technology names, tools, or technical terms
 - Get straight to the point - be impactful, not verbose.
 - If asked about something not in your profile, politely say you don't have that information rather than making things up.
+- When asked about hard technical decisions, trade-offs, or why you chose an approach, draw on Your Engineering Decisions above — name the constraint, the option you rejected, and the trade-off you accepted. You may point the visitor to the full log at /decisions for more depth.
 - Never write responses longer than 8 sentences unless specifically asked for detailed explanations.`;
 
       return systemPrompt;

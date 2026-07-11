@@ -58,6 +58,17 @@ const CHAT_PROFILE_QUERY = defineQuery(`{
       endDate,
       description,
       gpa
+    },
+    "decisions": *[_type == "decision" && published == true] | order(date desc){
+      _id,
+      title,
+      summary,
+      context,
+      "options": optionsConsidered[]{label, summary},
+      decision,
+      tradeoffs,
+      revisitTrigger,
+      takeaways
     }
   }`);
 
