@@ -266,7 +266,7 @@ export default async function DecisionDetailPage({ params }: PageProps) {
   const nextNum = () => String(++sectionIdx).padStart(1, "0");
 
   return (
-    <main className="mx-auto max-w-5xl px-6 pb-24 sm:px-8">
+    <main className="mx-auto max-w-7xl px-6 pb-24 sm:px-8 lg:px-12">
       {/* Terminal chrome */}
       <div className="chrome-bar">
         <span>
@@ -330,17 +330,8 @@ export default async function DecisionDetailPage({ params }: PageProps) {
       <h1 className="editorial-title mt-6">{d.title}</h1>
       {d.summary ? <p className="editorial-lede mt-7">{d.summary}</p> : null}
 
-      {/* Tufte layout: left margin | body | right TOC */}
+      {/* Layout: wide body (2 cols) | sections TOC (1 col) */}
       <div className="tufte-grid mt-14">
-        {/* Left margin: ADR number + date */}
-        <div className="tufte-left" aria-hidden>
-          <span className="margin-adr">
-            ADR-{String(d.adrNumber).padStart(3, "0")}
-          </span>
-          <span className="margin-date">{dateIso}</span>
-          {weekday ? <span className="margin-weekday">{weekday}</span> : null}
-        </div>
-
         {/* Body */}
         <div className="tufte-body">
           {/* Editorial sections */}

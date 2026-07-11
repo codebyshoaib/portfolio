@@ -169,7 +169,7 @@ export default async function DecisionsIndexPage({ searchParams }: PageProps) {
   const recentThree = newestFirst.slice(0, 3);
 
   return (
-    <main className="mx-auto max-w-5xl px-6 pb-24 sm:px-8">
+    <main className="mx-auto max-w-7xl px-6 pb-24 sm:px-8 lg:px-12">
       {/* Terminal chrome */}
       <div className="chrome-bar">
         <span>
