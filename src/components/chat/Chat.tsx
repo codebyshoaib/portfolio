@@ -483,16 +483,21 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
   ];
 
   return (
-    <div className="flex flex-col h-full w-full bg-white dark:bg-gray-900">
+    <div className="flex flex-col h-full w-full bg-background text-foreground">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b dark:border-gray-800">
-        <h2 className="text-lg font-semibold">
-          Chat with Shoaib's AI Twin
-        </h2>
+      <div className="flex items-center justify-between p-4 border-b border-border">
+        <div>
+          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground mb-1">
+            AI Twin
+          </p>
+          <h2 className="font-serif text-lg font-medium leading-none">
+            Chat with Shoaib
+          </h2>
+        </div>
         <button
           type="button"
           onClick={toggleSidebar}
-          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          className="p-2 hover:bg-muted rounded-lg transition-colors"
           aria-label="Close chat"
         >
           <X className="w-5 h-5" />
@@ -506,7 +511,7 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
           <div className="flex flex-col h-full">
             {/* Greeting at top - bold and prominent */}
             <div className="flex-1 flex items-end  pt-8">
-              <p className="text-xl font-bold text-gray-900 dark:text-gray-100 max-w-2xl">
+              <p className="font-serif text-2xl font-medium leading-snug text-foreground max-w-2xl">
                 {messages.find((m) => m.id === "greeting")?.content ||
                   (profile?.firstName
                     ? `Hi! I'm ${[profile.firstName, profile.lastName]
@@ -525,10 +530,10 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
                   key={`prompt-${prompt.label}-${idx}`}
                   type="button"
                   onClick={() => setInput(prompt.prompt)}
-                  className="p-4 text-left border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 dark:border-gray-700 transition-colors bg-white dark:bg-gray-900"
+                  className="p-4 text-left border border-border rounded-lg bg-card hover:border-brand/50 hover:bg-muted transition-colors"
                 >
                   <div className="text-2xl mb-2">{prompt.icon}</div>
-                  <div className="font-medium text-sm text-gray-900 dark:text-gray-100">
+                  <div className="font-medium text-sm text-foreground">
                     {prompt.label}
                   </div>
                 </button>
@@ -548,8 +553,8 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
                 >
                   <div
                     className={`max-w-[80%] rounded-lg p-3 ${message.role === "user"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      ? "bg-brand text-brand-foreground"
+                      : "bg-card border border-border text-foreground"
                       }`}
                   >
                     {message.role === "assistant" ? (
@@ -565,8 +570,8 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
 
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-3">
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                <div className="bg-card border border-border rounded-lg p-3">
+                  <Loader2 className="w-5 h-5 animate-spin text-brand" />
                 </div>
               </div>
             )}
@@ -577,7 +582,7 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
 
       {/* Model Selector - only show when there are messages */}
       {messages.length > 1 && (
-        <div className="px-4 py-2 border-t dark:border-gray-800">
+        <div className="px-4 py-2 border-t border-border">
           <div className="flex gap-2 overflow-x-auto">
             {models.map((model) => (
               <button
@@ -585,8 +590,8 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
                 type="button"
                 onClick={() => setSelectedModel(model.id)}
                 className={`px-3 py-1.5 text-xs rounded-lg whitespace-nowrap transition-colors ${selectedModel === model.id
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
+                  ? "bg-brand text-brand-foreground"
+                  : "bg-card border border-border hover:border-brand/50"
                   }`}
               >
                 {model.label}
@@ -599,20 +604,20 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
       {/* Input Area */}
       <form
         onSubmit={handleSubmit}
-        className="p-4 border-t dark:border-gray-800"
+        className="p-4 border-t border-border"
       >
         <div className="flex gap-2">
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message..."
-            className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-800 dark:border-gray-700"
+            className="flex-1 px-4 py-2 rounded-lg bg-card border border-border focus:outline-none focus:ring-2 focus:ring-brand placeholder:text-muted-foreground"
             disabled={isLoading}
           />
           <button
             type="submit"
             disabled={isLoading || !input.trim()}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2 bg-brand text-brand-foreground rounded-lg hover:bg-brand/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -621,9 +626,8 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
             )}
           </button>
         </div>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
-          Disclaimer: This is my AI-powered twin. It may not be 100% accurate
-          and should be verified for accuracy.
+        <p className="text-xs text-muted-foreground mt-2 text-center">
+          Disclaimer: This is my AI-powered twin. It may not be 100% accurate.
         </p>
       </form>
     </div>
