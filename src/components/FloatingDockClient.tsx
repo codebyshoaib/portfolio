@@ -59,17 +59,32 @@ export function FloatingDockClient({
     sectionIdOf(sections[0]?.href),
   );
   const [menuOpen, setMenuOpen] = useState(false);
+  // Section ids in the order they actually appear on the page. The CMS nav
+  // `order` disagrees with the hardcoded section order in PortfolioContent, so
+  // the page is the single source of truth — measured on mount below.
+  const [domOrder, setDomOrder] = useState<string[]>([]);
 
-  // Scroll-spy: active = the topmost section currently crossing a thin band at
-  // the viewport's vertical centre. When nothing is in the band (fast scroll,
-  // gaps between sections) we KEEP the current active rather than falling back
-  // to the first item — that fallback was what snapped the rail to "Home".
+  // Scroll-spy: active = the topmost (in page order) section currently crossing
+  // a thin band at the viewport's vertical centre. When nothing is in the band
+  // (fast scroll, gaps between sections) we KEEP the current active rather than
+  // falling back to the first item — that fallback was what snapped the rail to
+  // "Home". Resolving "topmost" by measured page position (not nav order) is
+  // what stops the highlight jumping around an out-of-order rail.
   useEffect(() => {
     const ids = sections.map((s) => sectionIdOf(s.href)).filter(Boolean);
     const els = ids
       .map((id) => document.getElementById(id))
       .filter((el): el is HTMLElement => el !== null);
     if (els.length === 0) return;
+
+    const ordered = els
+      .map((el) => ({
+        id: el.id,
+        y: el.getBoundingClientRect().top + window.scrollY,
+      }))
+      .sort((a, b) => a.y - b.y)
+      .map((o) => o.id);
+    setDomOrder(ordered);
 
     const visible = new Set<string>();
     const io = new IntersectionObserver(
@@ -78,7 +93,7 @@ export function FloatingDockClient({
           if (e.isIntersecting) visible.add(e.target.id);
           else visible.delete(e.target.id);
         }
-        const next = ids.find((id) => visible.has(id));
+        const next = ordered.find((id) => visible.has(id));
         if (next) setActiveId(next);
       },
       { rootMargin: "-45% 0px -45% 0px", threshold: 0 },
@@ -86,6 +101,21 @@ export function FloatingDockClient({
     for (const el of els) io.observe(el);
     return () => io.disconnect();
   }, [sections]);
+
+  // Rail items in page order, dropping any whose section isn't on the page
+  // (dead anchors that would scroll nowhere). Falls back to CMS order until
+  // the page has been measured on mount.
+  const orderedSections = useMemo(() => {
+    if (domOrder.length === 0) return sections;
+    const rank = new Map(domOrder.map((id, i) => [id, i]));
+    return sections
+      .filter((item) => rank.has(sectionIdOf(item.href)))
+      .sort(
+        (a, b) =>
+          (rank.get(sectionIdOf(a.href)) ?? 0) -
+          (rank.get(sectionIdOf(b.href)) ?? 0),
+      );
+  }, [sections, domOrder]);
 
   // Close the mobile sheet on Escape.
   useEffect(() => {
@@ -148,7 +178,7 @@ export function FloatingDockClient({
         aria-label="Section navigation"
         className="group/rail fixed left-8 top-1/2 z-40 hidden -translate-y-1/2 flex-col items-start gap-0.5 xl:flex"
       >
-        {sections.map((item) => {
+        {orderedSections.map((item) => {
           const id = sectionIdOf(item.href);
           const active = id === activeId;
           return (
@@ -226,7 +256,7 @@ export function FloatingDockClient({
               id="rail-menu"
               className="absolute left-0 top-14 flex w-56 flex-col gap-1 rounded-2xl border border-border bg-popover p-3 shadow-xl"
             >
-              {sections.map((item) => {
+              {orderedSections.map((item) => {
                 const id = sectionIdOf(item.href);
                 const active = id === activeId;
                 return (
