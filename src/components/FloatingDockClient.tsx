@@ -2,7 +2,7 @@
 
 import { IconCalendarEvent, IconLogout, IconX } from "@tabler/icons-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSafeClerk } from "@/hooks/use-safe-clerk";
 import { cn } from "@/lib/utils";
 import { useBookACall } from "./BookACallButton";
@@ -47,15 +47,23 @@ export function FloatingDockClient({
   const { openModal: openBooking, enabled: bookingEnabled } =
     useBookACall(calLink);
 
-  const sections = navItems.filter(isSectionAnchor);
-  const socials = navItems.filter((i) => i.isExternal);
+  // Memoised so the scroll-spy effect below doesn't tear down and rebuild the
+  // observer on every render (navItems is a stable prop from the server).
+  const sections = useMemo(() => navItems.filter(isSectionAnchor), [navItems]);
+  const socials = useMemo(
+    () => navItems.filter((i) => i.isExternal),
+    [navItems],
+  );
 
   const [activeId, setActiveId] = useState(() =>
     sectionIdOf(sections[0]?.href),
   );
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Scroll-spy: the section whose middle is nearest the viewport middle wins.
+  // Scroll-spy: active = the topmost section currently crossing a thin band at
+  // the viewport's vertical centre. When nothing is in the band (fast scroll,
+  // gaps between sections) we KEEP the current active rather than falling back
+  // to the first item — that fallback was what snapped the rail to "Home".
   useEffect(() => {
     const ids = sections.map((s) => sectionIdOf(s.href)).filter(Boolean);
     const els = ids
@@ -63,24 +71,17 @@ export function FloatingDockClient({
       .filter((el): el is HTMLElement => el !== null);
     if (els.length === 0) return;
 
-    const ratios = new Map<string, number>();
+    const visible = new Set<string>();
     const io = new IntersectionObserver(
       (entries) => {
         for (const e of entries) {
-          ratios.set(e.target.id, e.isIntersecting ? e.intersectionRatio : 0);
+          if (e.isIntersecting) visible.add(e.target.id);
+          else visible.delete(e.target.id);
         }
-        let best = "";
-        let max = -1;
-        for (const id of ids) {
-          const r = ratios.get(id) ?? 0;
-          if (r > max) {
-            max = r;
-            best = id;
-          }
-        }
-        if (best) setActiveId(best);
+        const next = ids.find((id) => visible.has(id));
+        if (next) setActiveId(next);
       },
-      { rootMargin: "-45% 0px -45% 0px", threshold: [0, 0.25, 0.5, 1] },
+      { rootMargin: "-45% 0px -45% 0px", threshold: 0 },
     );
     for (const el of els) io.observe(el);
     return () => io.disconnect();
