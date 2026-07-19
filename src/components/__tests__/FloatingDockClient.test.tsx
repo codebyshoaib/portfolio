@@ -8,12 +8,7 @@ vi.mock("@/hooks/use-safe-clerk", () => ({
   useSafeClerk: () => safeClerk,
 }));
 
-// Sidebar context: closed, desktop.
-vi.mock("../ui/sidebar", () => ({
-  useSidebar: () => ({ open: false, isMobile: false, openMobile: false }),
-}));
-
-// DynamicIcon: render the icon name so we can assert on nav titles via tooltip.
+// DynamicIcon: render a marker so we can assert socials render.
 vi.mock("../DynamicIcon", () => ({
   DynamicIcon: () => <span data-testid="dyn-icon" />,
 }));
@@ -25,24 +20,35 @@ vi.mock("../BookACallButton", () => ({
   useBookACall: () => ({ openModal, enabled: bookingEnabled, pending: false }),
 }));
 
+// Section anchors (scroll-spy index) + one external social (footer).
 const NAV = [
-  { title: "Home", href: "/", icon: "IconHome", isExternal: false },
-  { title: "About", href: "/about", icon: "IconUser", isExternal: false },
+  { title: "About", href: "#about", icon: "IconUser", isExternal: false },
+  { title: "Skills", href: "#skills", icon: "IconCode", isExternal: false },
+  {
+    title: "GitHub",
+    href: "https://github.com/x",
+    icon: "IconBrandGithub",
+    isExternal: true,
+  },
 ];
 
-describe("FloatingDockClient — booking integration", () => {
+describe("FloatingDockClient — side rail", () => {
   beforeEach(() => {
     openModal.mockReset();
     bookingEnabled = true;
     safeClerk.isSignedIn = false;
   });
 
-  it("[REGRESSION] renders existing nav items when calLink is null (booking disabled)", () => {
+  it("renders section anchors as the index (desktop + mobile copies)", () => {
+    render(<FloatingDockClient navItems={NAV} calLink={null} />);
+    // Rendered in both the desktop rail and the mobile sheet.
+    expect(screen.getAllByText("About").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Skills").length).toBeGreaterThan(0);
+  });
+
+  it("[REGRESSION] omits the booking action when calLink is null", () => {
     bookingEnabled = false;
     render(<FloatingDockClient navItems={NAV} calLink={null} />);
-
-    // Nav tooltips still present; no "Book a call".
-    expect(screen.getAllByText("Home").length).toBeGreaterThan(0);
     expect(screen.getAllByText("About").length).toBeGreaterThan(0);
     expect(screen.queryByText("Book a call")).not.toBeInTheDocument();
   });
@@ -52,25 +58,27 @@ describe("FloatingDockClient — booking integration", () => {
     expect(screen.getAllByText("Book a call").length).toBeGreaterThan(0);
   });
 
-  it("[REGRESSION] keeps all nav items visible alongside the booking action (within cap)", () => {
-    render(<FloatingDockClient navItems={NAV} calLink="user/30min" />);
-    // 2 nav + 1 booking = 3 items, under the 6-item desktop cap — all visible.
-    expect(screen.getAllByText("Home").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("About").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Book a call").length).toBeGreaterThan(0);
-  });
-
-  it("invokes openModal when the booking action is clicked", async () => {
+  it("invokes openModal when a 'Book a call' action is clicked", async () => {
     const { default: userEvent } = await import("@testing-library/user-event");
     const user = userEvent.setup();
     render(<FloatingDockClient navItems={NAV} calLink="user/30min" />);
-
-    // Desktop dock renders the booking item as a button (onClick branch).
-    const bookingButtons = screen
-      .getAllByRole("button")
-      .filter((b) => b.textContent === "" || b.querySelector("svg"));
-    // Click the first dock button (booking is unshifted to front).
-    await user.click(bookingButtons[0]);
+    await user.click(screen.getAllByText("Book a call")[0]);
     expect(openModal).toHaveBeenCalled();
+  });
+
+  it("renders external items as social links, not index entries", () => {
+    render(<FloatingDockClient navItems={NAV} calLink={null} />);
+    const github = screen.getAllByLabelText("GitHub");
+    expect(github.length).toBeGreaterThan(0);
+    expect(github[0].getAttribute("href")).toBe("https://github.com/x");
+    expect(github[0].getAttribute("target")).toBe("_blank");
+  });
+
+  it("renders nothing when there is no nav and no booking", () => {
+    bookingEnabled = false;
+    const { container } = render(
+      <FloatingDockClient navItems={[]} calLink={null} />,
+    );
+    expect(container).toBeEmptyDOMElement();
   });
 });
