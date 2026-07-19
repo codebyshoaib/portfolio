@@ -24,6 +24,7 @@ const FloatingDock = dynamic(
 import { ConditionalClerkProvider } from "@/components/ConditionalClerkProvider";
 import { FloatingButtons } from "@/components/FloatingButtons";
 import { ScrollDepthTracker } from "@/components/ScrollDepthTracker";
+import { ScrollToTop } from "@/components/ScrollToTop";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { SanityLive } from "@/sanity/lib/live";
@@ -150,6 +151,7 @@ export default async function RootLayout({
               <AppSidebar side="right" />
               <FloatingDock />
               <FloatingButtons />
+              <ScrollToTop />
             </SidebarProvider>
 
             <SanityLive />
