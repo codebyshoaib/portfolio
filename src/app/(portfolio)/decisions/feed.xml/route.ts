@@ -1,4 +1,5 @@
 import { defineQuery } from "next-sanity";
+import { SITE_URL } from "@/lib/site";
 import { sanityFetch } from "@/sanity/lib/live";
 
 export const revalidate = 3600;
@@ -22,7 +23,7 @@ interface FeedItem {
   readonly status: string | null;
 }
 
-const SITE = "https://shoaib-fullstack-dev.vercel.app";
+const SITE = SITE_URL;
 
 const xmlEscape = (s: string) =>
   s

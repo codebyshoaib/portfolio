@@ -1,4 +1,5 @@
 import { defineQuery } from "next-sanity";
+import { SITE_URL } from "@/lib/site";
 import { sanityFetch } from "@/sanity/lib/live";
 
 export const revalidate = 3600;
@@ -28,7 +29,7 @@ interface FeedItem {
   readonly tags: readonly (string | null)[] | null;
 }
 
-const SITE = "https://shoaib-fullstack-dev.vercel.app";
+const SITE = SITE_URL;
 
 export async function GET() {
   const res = await sanityFetch({ query: FEED_JSON_QUERY });

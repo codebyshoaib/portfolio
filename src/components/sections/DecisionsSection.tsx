@@ -13,7 +13,7 @@ interface DecisionCard {
   tags: (string | null)[] | null;
 }
 
-const DECISIONS_QUERY = defineQuery(`
+const DECISIONS_HOME_QUERY = defineQuery(`
   *[_type == "decision" && published == true] | order(date desc)[0...3]{
     "slug": slug.current,
     title,
@@ -26,7 +26,7 @@ const DECISIONS_QUERY = defineQuery(`
 `);
 
 export async function DecisionsSection() {
-  const { data } = await sanityFetch({ query: DECISIONS_QUERY });
+  const { data } = await sanityFetch({ query: DECISIONS_HOME_QUERY });
   const decisions = (data ?? []) as DecisionCard[];
 
   if (decisions.length === 0) {

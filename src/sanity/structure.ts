@@ -4,7 +4,6 @@ import {
   CaseIcon,
   CogIcon,
   CommentIcon,
-  ComposeIcon,
   DocumentIcon,
   DocumentsIcon,
   DownloadIcon,
@@ -120,12 +119,6 @@ export const structure: StructureResolver = (S) =>
           S.list()
             .title("Content & Community")
             .items([
-              S.listItem()
-                .title("Blog Posts")
-                .icon(ComposeIcon)
-                .schemaType("blog")
-                .child(S.documentTypeList("blog").title("Blog Posts")),
-
               S.listItem()
                 .title("Testimonials")
                 .icon(CommentIcon)

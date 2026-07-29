@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import { AboutSection } from "./sections/AboutSection";
 import { AchievementsSection } from "./sections/AchievementsSection";
-import { BlogSection } from "./sections/BlogSection";
 import { CertificationsSection } from "./sections/CertificationsSection";
 import { ContactSection } from "./sections/ContactSection";
 import { DecisionsSection } from "./sections/DecisionsSection";
@@ -70,9 +69,6 @@ function PortfolioContent() {
       </Suspense>
       <Suspense fallback={<SectionSkeleton />}>
         <ServicesSection />
-      </Suspense>
-      <Suspense fallback={<SectionSkeleton />}>
-        <BlogSection />
       </Suspense>
       <Suspense fallback={<SectionSkeleton />}>
         <ContactSection />
