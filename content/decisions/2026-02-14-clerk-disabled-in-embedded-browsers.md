@@ -12,13 +12,13 @@ tradeoffs: "Visitors inside embedded browsers cannot sign in or reach the dashbo
 revisitTrigger: "If Clerk ships a WebView-safe auth flow, or if a real end-user audience ever needs to authenticate from inside a WebView, revisit the skip-entirely approach."
 options:
   - label: "Force auth everywhere"
-    summary: "Simplest, but strands every WebView visitor on a broken OAuth flow. The default visitor to a portfolio is unauthenticated — this fails them."
+    summary: "Simplest, but strands every WebView visitor on a broken OAuth flow. The default visitor to a portfolio is unauthenticated. This fails them."
   - label: "Detect embedded browser, skip Clerk"
     summary: "A ConditionalClerkProvider checks the UA and mounts Clerk only in real browsers. WebView visitors get the full public site; auth-only surfaces are hidden."
   - label: "Build custom popup-free auth"
     summary: "Solves the WebView case but is a large amount of work and attack surface for a personal site whose auth only gates my own dashboard."
 takeaways:
-  - "In-app WebViews are a hostile environment for OAuth — detect and degrade gracefully rather than fighting the platform."
+  - "In-app WebViews are a hostile environment for OAuth: detect and degrade gracefully rather than fighting the platform."
   - "A portfolio's default visitor is unauthenticated; auth should never stand between a visitor and the content."
   - "Guarding every Clerk hook behind a safe wrapper keeps the tree from crashing when the provider is intentionally absent."
 tags:
@@ -31,7 +31,7 @@ published: true
 
 ## The problem
 
-Most people who click a portfolio link are inside a social app — LinkedIn, Instagram, X. Those apps open links in an in-app WebView, not the system browser. Clerk's OAuth relies on popup and redirect flows that WebViews routinely block, so a visitor coming from social hit a broken sign-in wall before seeing a single project.
+Most people who click a portfolio link are inside a social app: LinkedIn, Instagram, X. Those apps open links in an in-app WebView, not the system browser. Clerk's OAuth relies on popup and redirect flows that WebViews routinely block, so a visitor coming from social hit a broken sign-in wall before seeing a single project.
 
 ## The call
 
@@ -39,4 +39,4 @@ Detect the embedded browser from the user-agent and never mount Clerk there. Rea
 
 ## Why not just force auth
 
-Because the default visitor to a portfolio is unauthenticated and always will be. Auth here gates exactly one thing — my own dashboard. Letting it break the experience for a large slice of real traffic to protect a page only I use is the wrong trade.
+Because the default visitor to a portfolio is unauthenticated and always will be. Auth here gates exactly one thing: my own dashboard. Letting it break the experience for a large slice of real traffic to protect a page only I use is the wrong trade.
