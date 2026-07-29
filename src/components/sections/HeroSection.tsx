@@ -67,11 +67,10 @@ export default async function HeroSection() {
     <section id="home" className="w-full">
       <div className="mx-auto max-w-6xl px-6 md:px-10 lg:px-16 pt-14 md:pt-24 pb-14 md:pb-20">
         <div
-          className={`grid items-center gap-10 lg:gap-16 ${
-            portraitUrl
-              ? "lg:grid-cols-[minmax(0,1fr)_320px]"
-              : "lg:grid-cols-1"
-          }`}
+          className={`grid items-center gap-10 lg:gap-16 ${portraitUrl
+            ? "lg:grid-cols-[minmax(0,1fr)_320px]"
+            : "lg:grid-cols-1"
+            }`}
         >
           {/* Identity */}
           <div>
@@ -127,7 +126,7 @@ export default async function HeroSection() {
               {latestResume?.resumeFile && (
                 <ResumeDownloadButton
                   resumeFile={latestResume.resumeFile}
-                  title="Résumé"
+                  title="Resume/CV"
                   className={plainLink}
                 />
               )}
