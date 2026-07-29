@@ -1,5 +1,15 @@
 /* Editorial styling scoped to /decisions
  * Design ref: Index.png / Detail.png — terminal chrome + serif editorial body.
+ *
+ * Alpha ramps read --foreground-hsl (a bare HSL triplet), never --foreground,
+ * which is oklch() and cannot be an argument to hsl(). See globals.css.
+ *
+ * Contrast budget, measured against the real tokens (sRGB, WCAG 2.1):
+ *   text ≤ 13px  → alpha ≥ 0.62 (5.2:1 light, 6.4:1 dark)
+ *   text ≥ 24px  → alpha ≥ 0.50 (3.5:1 light, 4.5:1 dark)
+ *   body copy    → 0.85–0.9, or full strength via var(--foreground)
+ *   rules, hairlines, tints — no information, so 0.08–0.18 is fine
+ * Light theme is the binding constraint: 0.576 is the floor for 4.5:1 there.
  */
 
 .decisions-root {
@@ -13,6 +23,37 @@
   --mono-meta: var(--font-mono), ui-monospace, "SF Mono", Menlo, monospace;
 
   --accent-warm: var(--brand); /* site brand — italic accent + decision rule + links */
+
+  /* Status hues are BADGE TEXT, not decoration, so they owe 4.5:1 against the
+   * ground they sit on — and a single mid-lightness ramp cannot do that on both
+   * grounds. Light theme therefore runs its own darkened set; .dark restores the
+   * luminous one below. Measured ratios (WCAG 2.1, sRGB), light ground
+   * oklch(0.995 0.002 185):
+   *   green 5.04:1 · amber 5.17:1 · red 5.12:1 · blue 5.25:1
+   * DO NOT "brighten these up" — the pre-fix values were 2.17 / 1.95 / 3.37 /
+   * 2.89, i.e. a hard AA failure. Re-measure if you touch them. */
+  --accent-status-green: 152 58% 31%;
+  --accent-status-amber: 38 88% 31%;
+  --accent-status-red: 8 70% 46%;
+  --accent-status-blue: 218 65% 49%;
+
+  /* Long-form measure. Capped on the text, never on the container — the
+   * marginalia grid needs its column geometry intact. */
+  --measure: 70ch;
+
+  /* ONE tracking value for the 11px uppercase mono meta role. It previously ran
+   * at 0.12/0.16/0.18/0.20/0.22em across identical-looking text, which is what
+   * made the surface read as assembled rather than designed. 0.18em matches the
+   * rest of the site. .hashtags keeps 0.12em as a single deliberate exception —
+   * tags are meant to sit tighter. */
+  --meta-track: 0.18em;
+}
+
+/* next-themes puts .dark on <html>, so .decisions-root is always a descendant.
+ * Measured on the dark ground oklch(0.165 0.008 200):
+ *   green 8.75:1 · amber 9.75:1 · red 5.64:1 · blue 6.57:1 — all already pass,
+ * so these are the original values, unchanged. */
+.dark .decisions-root {
   --accent-status-green: 152 55% 50%;
   --accent-status-amber: 38 85% 58%;
   --accent-status-red: 8 65% 60%;
@@ -29,16 +70,21 @@
   font-weight: 600;
 }
 
-.decisions-root .display-serif-italic {
-  font-family: var(--serif-display);
-  font-style: italic;
-  font-weight: 400;
-  color: var(--accent-warm);
-}
-
 .decisions-root .mono-meta {
   font-family: var(--mono-meta);
   font-feature-settings: "ss01", "cv11";
+}
+
+/* ──────────────────────────────────────────── focus ring
+ * Every link on this surface sets text-decoration: none, so the focus ring is
+ * the only keyboard affordance there is. One rule covers the whole surface.
+ * No ancestor here sets overflow, so the offset ring is never clipped. */
+.decisions-root a:focus-visible,
+.decisions-root button:focus-visible,
+.decisions-root [tabindex]:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 /* ──────────────────────────────────────────── chrome bar (terminal-style) */
@@ -48,19 +94,19 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 0.85rem 0;
-  border-bottom: 1px solid hsl(var(--foreground) / 0.08);
+  border-bottom: 1px solid hsl(var(--foreground-hsl) / 0.08);
   font-family: var(--mono-meta);
   font-size: 11px;
-  letter-spacing: 0.18em;
+  letter-spacing: var(--meta-track);
   text-transform: uppercase;
-  color: hsl(var(--foreground) / 0.55);
+  color: hsl(var(--foreground-hsl) / 0.62);
 }
 .decisions-root .chrome-bar a {
   color: inherit;
   transition: color 0.15s;
 }
 .decisions-root .chrome-bar a:hover {
-  color: hsl(var(--foreground));
+  color: var(--foreground);
 }
 .decisions-root .chrome-bar .chrome-right > * + * {
   margin-left: 1.1rem;
@@ -70,24 +116,26 @@
 .decisions-root .breadcrumb {
   font-family: var(--mono-meta);
   font-size: 11px;
-  letter-spacing: 0.22em;
+  letter-spacing: var(--meta-track);
   text-transform: uppercase;
-  color: hsl(var(--foreground) / 0.45);
+  color: hsl(var(--foreground-hsl) / 0.62);
 }
 .decisions-root .breadcrumb a {
   color: inherit;
 }
 .decisions-root .breadcrumb a:hover {
-  color: hsl(var(--foreground));
+  color: var(--foreground);
 }
 
 /* ──────────────────────────────────────────── headline pair */
 .decisions-root .editorial-headline {
   font-family: var(--serif-display);
-  font-weight: 600;
+  /* Weight and ceiling matched to the homepage hero (font-medium at 60px) so
+   * following the hero's own link doesn't land somewhere louder. */
+  font-weight: 500;
   line-height: 1.05;
   letter-spacing: -0.02em;
-  font-size: clamp(2.6rem, 1.6rem + 3.8vw, 4.6rem);
+  font-size: clamp(2.6rem, 1.6rem + 3.8vw, 3.75rem);
 }
 .decisions-root .editorial-headline .accent {
   font-style: italic;
@@ -101,25 +149,29 @@
   flex-wrap: wrap;
   gap: 0.65rem 0.85rem;
   padding: 1rem 1.1rem;
-  border: 1px solid hsl(var(--foreground) / 0.1);
+  border: 1px solid hsl(var(--foreground-hsl) / 0.1);
   border-radius: 3px;
-  background: hsl(var(--foreground) / 0.025);
+  background: hsl(var(--foreground-hsl) / 0.025);
   font-family: var(--mono-meta);
   font-size: 12px;
 }
 .decisions-root .filter-chip {
-  color: hsl(var(--foreground) / 0.55);
+  color: hsl(var(--foreground-hsl) / 0.62);
+  /* Negative margin absorbs the padding, so the cloud keeps its density while
+   * the hit box roughly doubles. */
+  padding: 0.35rem 0.5rem;
+  margin: -0.35rem -0.15rem;
   transition: color 0.15s;
 }
 .decisions-root .filter-chip:hover {
-  color: hsl(var(--foreground));
+  color: var(--foreground);
 }
 .decisions-root .filter-chip[data-active="true"] {
   color: var(--accent-warm);
 }
 .decisions-root .filter-label {
-  color: hsl(var(--foreground) / 0.35);
-  letter-spacing: 0.18em;
+  color: hsl(var(--foreground-hsl) / 0.62);
+  letter-spacing: var(--meta-track);
   text-transform: uppercase;
 }
 
@@ -131,45 +183,87 @@
   gap: 1rem;
   font-family: var(--mono-meta);
   font-size: 11px;
-  letter-spacing: 0.22em;
+  letter-spacing: var(--meta-track);
   text-transform: uppercase;
-  color: hsl(var(--foreground) / 0.55);
+  color: hsl(var(--foreground-hsl) / 0.62);
+}
+.decisions-root .month-label {
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 400;
+  letter-spacing: inherit;
+  color: inherit;
 }
 .decisions-root .month-divider .rule-line {
-  border-top: 1px solid hsl(var(--foreground) / 0.12);
+  border-top: 1px solid hsl(var(--foreground-hsl) / 0.12);
   height: 0;
 }
 
 /* ──────────────────────────────────────────── entry card (index) */
+/* Small screens get one column and a single baseline meta row
+ * (ADR-004 · 30 JUL); the big italic day only appears once there is a gutter to
+ * put it in. Two columns at 320px left ~144px for content. */
 .decisions-root .entry-card {
   display: grid;
-  grid-template-columns: 96px minmax(0, 1fr);
-  gap: 2rem;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
   padding-top: 0.25rem;
+}
+.decisions-root .entry-gutter {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
 }
 .decisions-root .entry-day {
   font-family: var(--serif-display);
   font-style: italic;
-  font-size: 3.6rem;
-  line-height: 0.9;
+  font-size: 1.6rem;
+  line-height: 1;
   letter-spacing: -0.02em;
-  color: hsl(var(--foreground) / 0.9);
+  color: hsl(var(--foreground-hsl) / 0.9);
 }
 .decisions-root .entry-day-mo {
   font-family: var(--mono-meta);
-  font-size: 10px;
-  letter-spacing: 0.22em;
+  font-size: 11px;
+  letter-spacing: var(--meta-track);
   text-transform: uppercase;
-  color: hsl(var(--foreground) / 0.4);
-  margin-top: 0.5rem;
+  color: hsl(var(--foreground-hsl) / 0.62);
 }
 .decisions-root .entry-adr {
   font-family: var(--mono-meta);
-  font-size: 10px;
-  letter-spacing: 0.22em;
+  font-size: 11px;
+  letter-spacing: var(--meta-track);
   text-transform: uppercase;
-  color: hsl(var(--foreground) / 0.45);
-  margin-bottom: 0.6rem;
+  color: hsl(var(--foreground-hsl) / 0.62);
+}
+/* Separator only exists in the collapsed one-line form. */
+.decisions-root .entry-adr::after {
+  content: "·";
+  margin-left: 0.6rem;
+  opacity: 0.7;
+}
+@media (min-width: 640px) {
+  .decisions-root .entry-card {
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 2rem;
+  }
+  .decisions-root .entry-gutter {
+    display: block;
+  }
+  .decisions-root .entry-adr {
+    margin-bottom: 0.6rem;
+  }
+  .decisions-root .entry-adr::after {
+    content: none;
+  }
+  .decisions-root .entry-day {
+    font-size: 3.6rem;
+    line-height: 0.9;
+  }
+  .decisions-root .entry-day-mo {
+    margin-top: 0.5rem;
+  }
 }
 .decisions-root .entry-title {
   font-family: var(--serif-display);
@@ -177,7 +271,7 @@
   font-weight: 600;
   line-height: 1.18;
   letter-spacing: -0.01em;
-  color: hsl(var(--foreground));
+  color: var(--foreground);
   transition: color 0.15s;
 }
 .decisions-root .entry-card:hover .entry-title {
@@ -187,7 +281,8 @@
   font-family: var(--serif-body);
   font-size: 0.98rem;
   line-height: 1.55;
-  color: hsl(var(--foreground) / 0.7);
+  max-width: var(--measure);
+  color: hsl(var(--foreground-hsl) / 0.75);
 }
 
 /* ──────────────────────────────────────────── badges */
@@ -195,15 +290,17 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  height: 22px;
-  padding: 0 0.55rem;
+  min-height: 22px;
+  padding: 0.15rem 0.55rem;
   font-family: var(--mono-meta);
-  font-size: 10px;
-  letter-spacing: 0.16em;
+  font-size: 11px;
+  letter-spacing: var(--meta-track);
   text-transform: uppercase;
-  border: 1px solid hsl(var(--foreground) / 0.18);
+  /* Outline is decorative: the badge always carries a text label and a
+   * coloured dot, so nothing is conveyed by the border alone. */
+  border: 1px solid hsl(var(--foreground-hsl) / 0.18);
   border-radius: 2px;
-  color: hsl(var(--foreground) / 0.78);
+  color: hsl(var(--foreground-hsl) / 0.78);
   background: transparent;
 }
 .decisions-root .badge::before {
@@ -235,12 +332,12 @@
   border-color: hsl(var(--accent-status-amber) / 0.5);
 }
 .decisions-root .badge--impact[data-impact="M"] {
-  color: hsl(var(--foreground) / 0.78);
-  border-color: hsl(var(--foreground) / 0.25);
+  color: hsl(var(--foreground-hsl) / 0.78);
+  border-color: hsl(var(--foreground-hsl) / 0.25);
 }
 .decisions-root .badge--impact[data-impact="S"] {
-  color: hsl(var(--foreground) / 0.6);
-  border-color: hsl(var(--foreground) / 0.18);
+  color: hsl(var(--foreground-hsl) / 0.62);
+  border-color: hsl(var(--foreground-hsl) / 0.18);
 }
 .decisions-root .badge--impact::before {
   background: linear-gradient(to right, currentColor 50%, transparent 50%);
@@ -251,10 +348,10 @@
 }
 .decisions-root .domain-tag {
   font-family: var(--mono-meta);
-  font-size: 10px;
-  letter-spacing: 0.22em;
+  font-size: 11px;
+  letter-spacing: var(--meta-track);
   text-transform: uppercase;
-  color: hsl(var(--foreground) / 0.45);
+  color: hsl(var(--foreground-hsl) / 0.62);
 }
 
 /* ──────────────────────────────────────────── hashtags row */
@@ -266,44 +363,54 @@
   font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: hsl(var(--foreground) / 0.4);
+  color: hsl(var(--foreground-hsl) / 0.62);
 }
 
 /* ──────────────────────────────────────────── detail page sections */
 .decisions-root .editorial-title {
   font-family: var(--serif-display);
-  font-weight: 600;
+  font-weight: 500;
   font-style: normal;
-  font-size: clamp(2.2rem, 1.4rem + 3.5vw, 4.2rem);
+  font-size: clamp(2.2rem, 1.4rem + 3.5vw, 3.5rem);
   line-height: 1.05;
   letter-spacing: -0.02em;
-  color: hsl(var(--foreground));
+  color: var(--foreground);
 }
 .decisions-root .editorial-lede {
   font-family: var(--serif-body);
   font-style: italic;
   font-size: clamp(1.05rem, 0.95rem + 0.4vw, 1.25rem);
   line-height: 1.55;
-  color: hsl(var(--foreground) / 0.85);
+  color: hsl(var(--foreground-hsl) / 0.85);
   max-width: 55ch;
+}
+
+/* Anchor targets for the marginalia TOC — keep the section header clear of the
+ * viewport edge when jumped to. */
+.decisions-root .tufte-body section[id] {
+  scroll-margin-top: 5rem;
 }
 
 .decisions-root .section-header {
   display: grid;
-  grid-template-columns: max-content max-content max-content 1fr;
+  grid-template-columns: max-content 1fr;
   align-items: baseline;
   gap: 0.85rem;
+}
+/* globals.css sets font-family/weight directly on h1–h6, and a direct element
+ * rule beats an inherited one — so the meta styling has to live on the h2
+ * itself, not on .section-header. */
+.decisions-root .section-label {
+  margin: 0;
   font-family: var(--mono-meta);
   font-size: 11px;
-  letter-spacing: 0.22em;
+  font-weight: 400;
+  letter-spacing: var(--meta-track);
   text-transform: uppercase;
-  color: hsl(var(--foreground) / 0.55);
-}
-.decisions-root .section-header .section-num {
-  color: hsl(var(--foreground) / 0.4);
+  color: hsl(var(--foreground-hsl) / 0.62);
 }
 .decisions-root .section-header .section-rule {
-  border-top: 1px solid hsl(var(--foreground) / 0.12);
+  border-top: 1px solid hsl(var(--foreground-hsl) / 0.12);
   height: 0;
   align-self: center;
   transform: translateY(-0.05em);
@@ -312,7 +419,8 @@
   font-family: var(--serif-body);
   font-size: 1.0625rem;
   line-height: 1.7;
-  color: hsl(var(--foreground) / 0.9);
+  max-width: var(--measure);
+  color: hsl(var(--foreground-hsl) / 0.9);
 }
 
 /* Options A/B/C list */
@@ -322,35 +430,45 @@
 }
 .decisions-root .option-row {
   display: grid;
-  grid-template-columns: 22px minmax(0, 1fr);
+  grid-template-columns: minmax(22px, max-content) minmax(0, 1fr);
   gap: 1.1rem;
   align-items: baseline;
 }
 .decisions-root .option-letter {
   font-family: var(--mono-meta);
   font-size: 11px;
-  letter-spacing: 0.22em;
+  letter-spacing: var(--meta-track);
   text-transform: uppercase;
-  color: hsl(var(--foreground) / 0.55);
+  color: hsl(var(--foreground-hsl) / 0.62);
   padding-top: 4px;
 }
 .decisions-root .option-body {
   font-family: var(--serif-body);
   font-size: 1.0625rem;
   line-height: 1.6;
-  color: hsl(var(--foreground) / 0.9);
+  max-width: var(--measure);
+  color: hsl(var(--foreground-hsl) / 0.9);
 }
 
-/* Decision highlight block (yellow rule) */
+/* Decision highlight block (brand rule) */
 .decisions-root .decision-block {
   border-left: 3px solid var(--accent-warm);
   padding: 0.35rem 0 0.35rem 1.1rem;
-  background: hsl(var(--foreground) / 0.04);
+  background: hsl(var(--foreground-hsl) / 0.04);
   font-family: var(--serif-body);
   font-weight: 600;
   font-size: 1.0625rem;
   line-height: 1.6;
-  color: hsl(var(--foreground));
+  max-width: var(--measure);
+  color: var(--foreground);
+}
+
+/* Portable Text write-up — same measure as the authored sections. */
+.decisions-root .body-serif p,
+.decisions-root .body-serif ul,
+.decisions-root .body-serif ol,
+.decisions-root .body-serif blockquote {
+  max-width: var(--measure);
 }
 
 /* Footer permalink */
@@ -361,67 +479,143 @@
   gap: 1rem;
   font-family: var(--mono-meta);
   font-size: 11px;
-  letter-spacing: 0.22em;
+  letter-spacing: var(--meta-track);
   text-transform: uppercase;
-  color: hsl(var(--foreground) / 0.5);
+  color: hsl(var(--foreground-hsl) / 0.62);
 }
 .decisions-root .permalink {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
+  padding: 0.25rem 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
   color: var(--accent-warm);
+  cursor: pointer;
   transition: opacity 0.15s;
 }
 .decisions-root .permalink:hover {
   opacity: 0.75;
 }
-
-/* ──────────────────────────────────────────── leftover legacy classes */
-/* Keep these working in case Portable Text content references them. */
-.decisions-root .lead-paragraph::first-letter {
-  font-family: var(--serif-display);
-  font-style: italic;
-  float: left;
-  font-size: 4.2em;
-  line-height: 0.85;
-  padding: 0.05em 0.1em 0 0;
-  color: hsl(var(--foreground));
+/* Manual-copy fallback, shown only when the Clipboard API is unavailable
+ * (insecure origin) or permission-blocked. Sized to reveal the whole slug. */
+.decisions-root .permalink-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
+.decisions-root .permalink-fallback {
+  min-width: 0;
+  width: min(100%, 22rem);
+  padding: 0.2rem 0.45rem;
+  border: 1px solid hsl(var(--foreground-hsl) / 0.18);
+  border-radius: 2px;
+  background: hsl(var(--foreground-hsl) / 0.04);
+  font-family: var(--mono-meta);
+  font-size: 11px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: hsl(var(--foreground-hsl) / 0.9);
+}
+
+/* ──────────────────────────────────────────── prev/next ADR pair */
+.decisions-root .adr-nav {
+  display: grid;
+  gap: 1.5rem;
+  border-top: 1px solid hsl(var(--foreground-hsl) / 0.08);
+  padding-top: 1.5rem;
+}
+@media (min-width: 640px) {
+  .decisions-root .adr-nav {
+    grid-template-columns: 1fr 1fr;
+  }
+  /* Pinned to column 2 so "next" stays on the right even when there is no
+   * "previous" (first entry in the log). */
+  .decisions-root .adr-nav-link[data-dir="next"] {
+    grid-column: 2;
+    text-align: right;
+  }
+}
+.decisions-root .adr-nav-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.decisions-root .adr-nav-dir {
+  font-family: var(--mono-meta);
+  font-size: 11px;
+  letter-spacing: var(--meta-track);
+  text-transform: uppercase;
+  color: hsl(var(--foreground-hsl) / 0.62);
+}
+.decisions-root .adr-nav-title {
+  font-family: var(--serif-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: hsl(var(--foreground-hsl) / 0.9);
+  transition: color 0.15s;
+}
+.decisions-root .adr-nav-link:hover .adr-nav-title {
+  color: var(--accent-warm);
+}
+
+/* ──────────────────────────────────────────── ask-the-twin CTA */
+/* The label sits in the reading voice: 11px uppercase mono is the register this
+ * surface uses exclusively for non-interactive metadata, so the page's only
+ * action was reading as a caption with a box round it. The hint line keeps the
+ * meta register, where it belongs. */
+.decisions-root .ask-twin {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+  min-height: 44px;
+  padding: 0.7rem 1.05rem;
+  border: 1px solid hsl(var(--foreground-hsl) / 0.18);
+  border-radius: 3px;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
+}
+.decisions-root .ask-twin-label {
+  font-family: var(--serif-body);
+  font-size: 0.95rem;
+  line-height: 1.3;
+  color: hsl(var(--foreground-hsl) / 0.9);
+}
+.decisions-root .ask-twin-hint {
+  font-family: var(--mono-meta);
+  font-size: 11px;
+  letter-spacing: var(--meta-track);
+  text-transform: uppercase;
+  line-height: 1.45;
+  color: hsl(var(--foreground-hsl) / 0.62);
+}
+.decisions-root .ask-twin:hover {
+  border-color: var(--accent-warm);
+}
+.decisions-root .ask-twin:hover .ask-twin-label {
+  color: var(--accent-warm);
+}
+
+/* ──────────────────────────────────────────── Portable Text extras */
 .decisions-root .pull-quote {
   font-family: var(--serif-body);
   font-style: italic;
   font-size: 1.2rem;
   line-height: 1.5;
-  border-left: 2px solid hsl(var(--foreground) / 0.18);
+  border-left: 2px solid hsl(var(--foreground-hsl) / 0.18);
   padding-left: 1.1rem;
-  color: hsl(var(--foreground) / 0.85);
-}
-.decisions-root .status-pill {
-  display: inline-block;
-  padding: 1px 8px;
-  font-family: var(--mono-meta);
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  border: 1px solid hsl(var(--foreground) / 0.22);
-  border-radius: 2px;
-  color: hsl(var(--foreground) / 0.78);
-}
-.decisions-root .status-pill[data-status="accepted"] {
-  color: hsl(var(--accent-status-green));
-  border-color: hsl(var(--accent-status-green) / 0.45);
-}
-.decisions-root .status-pill[data-status="superseded"] {
-  color: hsl(var(--accent-status-amber));
-  border-color: hsl(var(--accent-status-amber) / 0.45);
-}
-.decisions-root .status-pill[data-status="deprecated"] {
-  color: hsl(var(--accent-status-red));
-  border-color: hsl(var(--accent-status-red) / 0.45);
-}
-.decisions-root .status-pill[data-status="proposed"] {
-  color: hsl(var(--accent-status-blue));
-  border-color: hsl(var(--accent-status-blue) / 0.45);
+  color: hsl(var(--foreground-hsl) / 0.85);
 }
 
 .decisions-root pre {
@@ -453,20 +647,27 @@
   gap: 2rem;
   position: sticky;
   top: 5rem;
+  /* Once the tag cloud outgrows the viewport its bottom would never scroll into
+   * view again. Same for .tufte-right at high zoom. */
+  max-height: calc(100dvh - 7rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* overflow-y: auto also clips on the x axis, which would eat the focus ring. */
+  padding-inline: 2px;
 }
 
 .decisions-root .sidebar-label {
   font-family: var(--mono-meta);
-  font-size: 10px;
-  letter-spacing: 0.18em;
+  font-size: 11px;
+  letter-spacing: var(--meta-track);
   text-transform: uppercase;
-  color: hsl(var(--foreground) / 0.4);
+  color: hsl(var(--foreground-hsl) / 0.62);
   margin-bottom: 0.75rem;
 }
 
 .decisions-root .sidebar-block {
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid hsl(var(--foreground) / 0.07);
+  border-bottom: 1px solid hsl(var(--foreground-hsl) / 0.07);
 }
 .decisions-root .sidebar-block:last-child {
   border-bottom: none;
@@ -483,10 +684,10 @@
   justify-content: space-between;
   font-family: var(--mono-meta);
   font-size: 12px;
-  color: hsl(var(--foreground) / 0.65);
+  color: hsl(var(--foreground-hsl) / 0.75);
 }
 .decisions-root .sidebar-stat-list dt {
-  color: hsl(var(--foreground) / 0.45);
+  color: hsl(var(--foreground-hsl) / 0.62);
 }
 .decisions-root .sidebar-stat-list dd {
   font-variant-numeric: tabular-nums;
@@ -506,21 +707,21 @@
   gap: 0.15rem;
   text-decoration: none;
 }
-.decisions-root .sidebar-recent-link:hover .sidebar-recent-title {
-  color: hsl(var(--foreground));
-}
 .decisions-root .sidebar-recent-adr {
   font-family: var(--mono-meta);
-  font-size: 10px;
-  letter-spacing: 0.12em;
+  font-size: 11px;
+  letter-spacing: var(--meta-track);
   text-transform: uppercase;
-  color: hsl(var(--foreground) / 0.4);
+  color: hsl(var(--foreground-hsl) / 0.62);
 }
 .decisions-root .sidebar-recent-title {
   font-size: 13px;
   line-height: 1.4;
-  color: hsl(var(--foreground) / 0.75);
+  color: hsl(var(--foreground-hsl) / 0.75);
   transition: color 0.12s;
+}
+.decisions-root .sidebar-recent-link:hover .sidebar-recent-title {
+  color: var(--foreground);
 }
 
 /* ──────────────────────────────────────────── detail: Tufte marginalia */
@@ -543,55 +744,20 @@
   min-width: 0;
 }
 
-.decisions-root .tufte-left {
-  grid-area: left;
-  display: none;
-  position: sticky;
-  top: 5rem;
-  padding-top: 0.25rem;
-}
-@media (min-width: 1024px) {
-  .decisions-root .tufte-left {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    text-align: right;
-    gap: 0.35rem;
-  }
-}
-
 .decisions-root .tufte-right {
   grid-area: right;
   display: none;
   position: sticky;
   top: 5rem;
+  max-height: calc(100dvh - 7rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-inline: 2px;
 }
 @media (min-width: 1024px) {
   .decisions-root .tufte-right {
     display: block;
   }
-}
-
-.decisions-root .margin-adr {
-  font-family: var(--mono-meta);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: hsl(var(--foreground) / 0.35);
-}
-.decisions-root .margin-date {
-  font-family: var(--mono-meta);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  color: hsl(var(--foreground) / 0.3);
-}
-.decisions-root .margin-weekday {
-  font-family: var(--mono-meta);
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: hsl(var(--foreground) / 0.2);
-  margin-top: 0.5rem;
 }
 
 .decisions-root .margin-toc {
@@ -601,21 +767,70 @@
 }
 .decisions-root .margin-toc-label {
   font-family: var(--mono-meta);
+  padding-left: 0.75rem;
   font-size: 12px;
-  letter-spacing: 0.2em;
+  letter-spacing: var(--meta-track);
   text-transform: uppercase;
-  color: hsl(var(--foreground) / 0.4);
+  color: hsl(var(--foreground-hsl) / 0.62);
   margin-bottom: 1.35rem;
 }
 .decisions-root .margin-toc-item {
   font-family: var(--serif-display);
   font-size: 1.35rem;
   font-weight: 600;
-  color: hsl(var(--foreground) / 0.55);
+  color: hsl(var(--foreground-hsl) / 0.62);
   text-decoration: none;
   line-height: 1.25;
-  transition: color 0.12s;
+  /* Transparent rule reserved so marking active doesn't shift the text. */
+  border-left: 2px solid transparent;
+  padding-left: 0.75rem;
+  transition:
+    color 0.12s,
+    border-color 0.12s;
 }
 .decisions-root .margin-toc-item:hover {
+  color: var(--foreground);
+}
+/* Active is brand colour PLUS the rule, so "you are here" isn't signalled by
+ * colour alone and hovering something doesn't make it look current. */
+.decisions-root .margin-toc-item[data-active="true"] {
   color: var(--accent-warm);
+  border-left-color: var(--accent-warm);
+}
+
+/* ──────────────────────────────────────────── loading skeleton */
+.decisions-root .skeleton-entry {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+}
+@media (min-width: 640px) {
+  .decisions-root .skeleton-entry {
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 2rem;
+  }
+}
+.decisions-root .skeleton-bar {
+  height: 0.7rem;
+  border-radius: 2px;
+  background: hsl(var(--foreground-hsl) / 0.08);
+}
+
+/* ──────────────────────────────────────────── sidebar-open reflow
+ * SIDEBAR_WIDTH is 25rem and SidebarInset SHRINKS rather than overlays, but the
+ * grid rules below are *viewport* media queries — so opening the chat on a
+ * 1280px laptop left ~464px of body still trying to hold two columns, and
+ * 1024–1100px collapsed to ~293px (~35 characters per line). The twin button is
+ * the most prominent new action on the page; it must not wreck the article it
+ * sits in. Same :has() precedent as globals.css's mode-toggle rule.
+ * Placed last in the file deliberately: source order, not specificity, is what
+ * makes these beat the media-query rules above. */
+.group\/sidebar-wrapper:has([data-state="expanded"]) .decisions-root
+  .tufte-right {
+  display: none;
+}
+.group\/sidebar-wrapper:has([data-state="expanded"])
+  .decisions-root
+  .index-grid {
+  grid-template-columns: minmax(0, 1fr);
 }

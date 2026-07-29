@@ -75,7 +75,15 @@
   /* Neutrals carry a faint teal bias (hue ~185) so they read "chosen", not
      default shadcn grayscale. Brand teal is a dedicated token used deliberately. */
   --background: oklch(0.995 0.002 185);
+  /* --foreground and --foreground-hsl are THE SAME COLOUR in two spaces.
+     oklch() is canonical (it's what Tailwind's `text-foreground` resolves to).
+     The bare HSL triplet exists because `hsl(var(--token) / a)` cannot take an
+     oklch() value as its first argument — substituting one yields
+     `hsl(oklch(...) / a)`, which is invalid and silently dropped. /decisions
+     needs a whole alpha ramp off the foreground, so it reads the triplet.
+     CHANGE BOTH TOGETHER — nothing enforces it. */
   --foreground: oklch(0.18 0.008 200);
+  --foreground-hsl: 182.7 16.5% 6.4%;
   --card: oklch(1 0.001 185);
   --card-foreground: oklch(0.18 0.008 200);
   --popover: oklch(1 0.001 185);
@@ -115,7 +123,9 @@
   /* Near-black with a faint teal-green bias; brand teal brightens for
      attention on the dark ground. */
   --background: oklch(0.165 0.008 200);
+  /* Same colour, two spaces — see the note in :root. CHANGE BOTH TOGETHER. */
   --foreground: oklch(0.925 0.006 185);
+  --foreground-hsl: 169.8 10.4% 89.7%;
   --card: oklch(0.205 0.008 200);
   --card-foreground: oklch(0.925 0.006 185);
   --popover: oklch(0.205 0.008 200);

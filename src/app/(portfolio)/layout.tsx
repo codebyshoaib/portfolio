@@ -27,6 +27,7 @@ import { ScrollDepthTracker } from "@/components/ScrollDepthTracker";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { SITE_URL } from "@/lib/site";
 import { SanityLive } from "@/sanity/lib/live";
 
 // Source Serif 4 — editorial display face for headings (replaces Space Grotesk).
@@ -47,6 +48,14 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  // Every relative URL in metadata — above all the file-based opengraph-image
+  // routes — resolves against this. Without it Next falls back to
+  // http://localhost:3000 (or a per-deploy Vercel preview host) and shared links
+  // point at nothing.
+  // NOTE: this is the `(portfolio)` GROUP root, not the app root — there is no
+  // src/app/layout.tsx, and /v2, /dashboard and (sanity) each have their own.
+  // Anything added outside this group needs its own metadataBase.
+  metadataBase: new URL(SITE_URL),
   title: "Shoaib Ud Din - Full Stack Engineer",
   description: "Shoaib Ud Din - Full Stack Engineer",
   keywords: [
@@ -89,15 +98,13 @@ export const metadata: Metadata = {
     "Blockchain Analyst",
     "Blockchain Researcher",
   ],
-  authors: [
-    { name: "Shoaib Ud Din", url: "https://shoaib-fullstack-dev.vercel.app/" },
-  ],
+  authors: [{ name: "Shoaib Ud Din", url: SITE_URL }],
   creator: "Shoaib Ud Din",
   publisher: "Shoaib Ud Din",
   openGraph: {
     title: "Shoaib Ud Din - Full Stack Engineer",
     description: "Shoaib Ud Din - Full Stack Engineer",
-    url: "https://shoaib-fullstack-dev.vercel.app/",
+    url: SITE_URL,
   },
   icons: {
     icon: [
@@ -125,7 +132,7 @@ export const metadata: Metadata = {
   },
   manifest: "/site.webmanifest",
   alternates: {
-    canonical: "https://shoaib-fullstack-dev.vercel.app/",
+    canonical: SITE_URL,
   },
 };
 

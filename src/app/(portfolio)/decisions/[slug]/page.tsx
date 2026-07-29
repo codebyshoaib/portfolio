@@ -7,7 +7,21 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { defineQuery } from "next-sanity";
+import {
+  countAllWords,
+  countPortableTextWords,
+  readingMinutes,
+} from "@/lib/reading-time";
+import { SITE_URL } from "@/lib/site";
+import {
+  ADR_NUMBER_PROJECTION,
+  NEXT_DECISION_PROJECTION,
+  PREV_DECISION_PROJECTION,
+} from "@/sanity/lib/decisionOrder";
 import { sanityFetch } from "@/sanity/lib/live";
+import { AskTwinButton } from "./AskTwinButton";
+import { CopyPermalink } from "./CopyPermalink";
+import { MarginToc } from "./MarginToc";
 
 export const revalidate = 3600;
 
@@ -40,7 +54,9 @@ const DECISION_QUERY = defineQuery(`
       title,
       tagline
     },
-    "adrNumber": count(*[_type == "decision" && published == true && date <= ^.date])
+    ${ADR_NUMBER_PROJECTION},
+    ${PREV_DECISION_PROJECTION},
+    ${NEXT_DECISION_PROJECTION}
   }
 `);
 
@@ -56,6 +72,12 @@ interface RelatedProject {
 }
 
 interface SupersededRef {
+  readonly slug: string | null;
+  readonly title: string | null;
+}
+
+/** Adjacent entry in the chronological log. */
+interface NeighbourRef {
   readonly slug: string | null;
   readonly title: string | null;
 }
@@ -81,6 +103,8 @@ interface Decision {
   readonly supersededBy: SupersededRef | null;
   readonly relatedProjects: readonly RelatedProject[] | null;
   readonly adrNumber: number | null;
+  readonly prev: NeighbourRef | null;
+  readonly next: NeighbourRef | null;
 }
 
 interface PageProps {
@@ -128,19 +152,28 @@ function isoCompact(iso: string | null): {
   };
 }
 
-function buildVersion(iso: string | null, adrCount: number | null): string {
-  if (!iso) return "v0000.00.0";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "v0000.00.0";
-  const yyyy = d.getUTCFullYear();
-  const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
-  return `v${yyyy}.${mm}.${adrCount ?? 1}`;
-}
-
 function deriveDomain(d: Decision): string | null {
   if (d.domain) return d.domain.toUpperCase();
   const firstTag = (d.tags ?? []).find((t): t is string => Boolean(t));
   return firstTag ? firstTag.toUpperCase() : null;
+}
+
+/** Word count over every field that actually renders on the page. */
+function countDecisionWords(d: Decision): number {
+  return (
+    countAllWords([
+      d.summary,
+      d.context,
+      d.decision,
+      d.tradeoffs,
+      d.revisitTrigger,
+    ]) +
+    countAllWords(d.takeaways ?? []) +
+    countAllWords(
+      (d.optionsConsidered ?? []).flatMap((o) => [o.label, o.summary]),
+    ) +
+    countPortableTextWords(d.body)
+  );
 }
 
 const pt: PortableTextComponents = {
@@ -155,7 +188,7 @@ const pt: PortableTextComponents = {
           <code data-lang={value.language}>{value.code}</code>
         </pre>
         {value.caption ? (
-          <figcaption className="mt-2 text-center mono-meta text-[11px] uppercase tracking-[0.18em] text-foreground/45">
+          <figcaption className="mt-2 text-center mono-meta text-[11px] uppercase tracking-[0.18em] text-foreground/65">
             {value.caption}
           </figcaption>
         ) : null}
@@ -163,15 +196,17 @@ const pt: PortableTextComponents = {
     ),
   },
   block: {
+    // The section label is the h2, so authored subheads nest one level down.
+    // Portable Text's `h2`/`h3` styles are authoring intent, not literal levels.
     h2: ({ children }) => (
-      <h2 className="display-serif mt-12 scroll-m-20 text-2xl font-semibold leading-tight tracking-tight">
-        {children}
-      </h2>
-    ),
-    h3: ({ children }) => (
-      <h3 className="display-serif mt-9 scroll-m-20 text-xl font-semibold leading-tight tracking-tight">
+      <h3 className="display-serif mt-12 scroll-m-20 text-2xl font-semibold leading-tight tracking-tight">
         {children}
       </h3>
+    ),
+    h3: ({ children }) => (
+      <h4 className="display-serif mt-9 scroll-m-20 text-xl font-semibold leading-tight tracking-tight">
+        {children}
+      </h4>
     ),
     blockquote: ({ children }) => (
       <blockquote className="pull-quote my-7">{children}</blockquote>
@@ -202,7 +237,7 @@ const pt: PortableTextComponents = {
           {...(external
             ? { target: "_blank", rel: "noopener noreferrer" }
             : {})}
-          className="underline decoration-foreground/30 underline-offset-4 transition-colors hover:decoration-foreground"
+          className="underline decoration-foreground/45 underline-offset-4 transition-colors hover:decoration-foreground"
         >
           {children}
         </a>
@@ -221,21 +256,25 @@ const pt: PortableTextComponents = {
   },
 };
 
-function SectionHeader({
-  num,
-  label,
-}: {
-  readonly num: string;
+/** Screen-reader expansion for the impact badge — "L" alone decodes to nothing. */
+const IMPACT_LABEL: Record<string, string> = {
+  S: " — small",
+  M: " — medium",
+  L: " — large",
+};
+
+/**
+ * One rendered ADR section. `id` is the TOC anchor target; `label` is the real
+ * <h2> text, so the TOC and the heading can never disagree (WCAG 2.4).
+ */
+interface AdrSection {
+  readonly id: string;
   readonly label: string;
-}) {
-  return (
-    <header className="section-header">
-      <span className="section-num">#{num}</span>
-      <span>—</span>
-      <span className="section-label">{label}</span>
-      <span className="section-rule" aria-hidden />
-    </header>
-  );
+  readonly body: React.ReactNode;
+}
+
+function headingId(id: string) {
+  return `${id}-heading`;
 }
 
 export default async function DecisionDetailPage({ params }: PageProps) {
@@ -252,7 +291,6 @@ export default async function DecisionDetailPage({ params }: PageProps) {
     : null;
   const tags = (d.tags ?? []).filter((t): t is string => Boolean(t));
   const { iso: dateIso, weekday } = isoCompact(d.date);
-  const version = buildVersion(d.date, d.adrNumber);
   const domain = deriveDomain(d);
 
   // Letter-prefix the options (A, B, C, …)
@@ -262,21 +300,208 @@ export default async function DecisionDetailPage({ params }: PageProps) {
     )
     .map((o, i) => ({ letter: String.fromCharCode(65 + i), ...o }));
 
-  let sectionIdx = 0;
-  const nextNum = () => String(++sectionIdx).padStart(1, "0");
+  const words = countDecisionWords(d);
+  const minutes = readingMinutes(words);
+
+  // ONE source for the sections: the article and the TOC are both rendered from
+  // this array, so a section can never exist without a TOC entry (or vice
+  // versa) and the labels are the same strings by construction.
+  const sectionCandidates: readonly (AdrSection | null)[] = [
+    d.context
+      ? {
+          id: "context",
+          label: "Context",
+          body: (
+            <div className="section-body mt-4 whitespace-pre-line">
+              {d.context}
+            </div>
+          ),
+        }
+      : null,
+    options.length > 0
+      ? {
+          id: "options",
+          label: "Options considered",
+          body: (
+            <ol className="options-list mt-5">
+              {options.map((o) => (
+                <li key={o.letter} className="option-row">
+                  <span className="option-letter">{o.letter}</span>
+                  <p className="option-body">
+                    <strong className="font-semibold">{o.label}</strong>
+                    {o.summary ? (
+                      <span className="text-foreground/70">
+                        {" — "}
+                        {o.summary}
+                      </span>
+                    ) : null}
+                  </p>
+                </li>
+              ))}
+            </ol>
+          ),
+        }
+      : null,
+    d.decision
+      ? {
+          id: "decision",
+          label: "Decision",
+          body: (
+            <div className="decision-block mt-5 whitespace-pre-line">
+              {d.decision}
+            </div>
+          ),
+        }
+      : null,
+    d.tradeoffs
+      ? {
+          id: "tradeoffs",
+          label: "Trade-offs",
+          body: (
+            <div className="section-body mt-4 whitespace-pre-line">
+              {d.tradeoffs}
+            </div>
+          ),
+        }
+      : null,
+    d.revisitTrigger
+      ? {
+          id: "revisit",
+          label: "Revisit trigger",
+          body: (
+            <div className="section-body mt-4 whitespace-pre-line">
+              {d.revisitTrigger}
+            </div>
+          ),
+        }
+      : null,
+    (d.takeaways?.length ?? 0) > 0
+      ? {
+          id: "takeaways",
+          label: "Takeaways",
+          body: (
+            <ol className="mt-5 space-y-5">
+              {(d.takeaways ?? [])
+                .filter((t): t is string => Boolean(t))
+                .map((t, i) => (
+                  <li key={t} className="flex gap-4">
+                    <span className="mono-meta shrink-0 pt-2 text-[11px] uppercase tracking-[0.18em] text-foreground/65">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <p className="section-body">{t}</p>
+                  </li>
+                ))}
+            </ol>
+          ),
+        }
+      : null,
+    (d.body?.length ?? 0) > 0
+      ? {
+          id: "writeup",
+          label: "Full write-up",
+          body: (
+            <div className="body-serif mt-4">
+              <PortableText value={d.body as never} components={pt} />
+            </div>
+          ),
+        }
+      : null,
+    d.supersededBy?.slug
+      ? {
+          id: "superseded",
+          label: "Superseded by",
+          body: (
+            <p className="section-body mt-4">
+              <Link
+                href={`/decisions/${d.supersededBy.slug}`}
+                className="underline decoration-foreground/45 underline-offset-4 hover:decoration-foreground"
+              >
+                {d.supersededBy.title ?? "View successor →"}
+              </Link>
+            </p>
+          ),
+        }
+      : null,
+    (d.relatedProjects?.length ?? 0) > 0
+      ? {
+          id: "related",
+          label: "Related projects",
+          body: (
+            <ul className="mt-4 space-y-2 section-body">
+              {(d.relatedProjects ?? [])
+                .filter(
+                  (
+                    rp,
+                  ): rp is RelatedProject & { slug: string; title: string } =>
+                    Boolean(rp.slug && rp.title),
+                )
+                .map((rp) => (
+                  <li key={rp.slug}>
+                    <Link
+                      href={`/projects/${rp.slug}`}
+                      className="underline decoration-foreground/45 underline-offset-4 hover:decoration-foreground"
+                    >
+                      {rp.title}
+                    </Link>
+                  </li>
+                ))}
+            </ul>
+          ),
+        }
+      : null,
+  ];
+  const sections = sectionCandidates.filter(
+    (section): section is AdrSection => section !== null,
+  );
+
+  // Below 3 entries a sticky TOC reads as broken rather than useful, and with a
+  // minimal decision (only title/date/status/summary are schema-required) it
+  // would be empty entirely.
+  const showToc = sections.length > 2;
+
+  // ADR numbers are positions in DECISION_ORDER and prev/next are the immediate
+  // neighbours in that same total order, so ±1 names them exactly. Both sides
+  // come from src/sanity/lib/decisionOrder.ts — see the note there about why the
+  // _id tie-break is load-bearing.
+  const prevAdr = d.adrNumber ? d.adrNumber - 1 : null;
+  const nextAdr = d.adrNumber ? d.adrNumber + 1 : null;
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    headline: d.title,
+    description: d.summary ?? undefined,
+    datePublished: d.date ?? undefined,
+    dateModified: d.date ?? undefined,
+    wordCount: words,
+    keywords: tags.length ? tags.join(", ") : undefined,
+    url: `${SITE_URL}/decisions/${d.slug}`,
+    author: {
+      "@type": "Person",
+      name: "Shoaib Ud Din",
+      url: SITE_URL,
+    },
+    publisher: { "@type": "Person", name: "Shoaib Ud Din" },
+  };
 
   return (
-    <main className="mx-auto max-w-7xl px-6 pb-24 sm:px-8 lg:px-12">
+    <main className="mx-auto max-w-6xl px-6 pt-14 pb-24 md:px-10 md:pt-20 lg:px-16">
+      <script
+        type="application/ld+json"
+        // React escapes text children, which would corrupt the JSON, so the
+        // payload goes in raw with `<` escaped — it can never open a tag.
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: server-built JSON-LD, no user HTML
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
+
       {/* Terminal chrome */}
       <div className="chrome-bar">
-        <span>
-          shoaib
-          <span className="opacity-50"> /decisions</span>
-        </span>
+        <span>shoaib /decisions</span>
         <span className="chrome-right">
           <Link href="/decisions/feed.xml">RSS</Link>
           <Link href="/decisions/feed.json">JSON</Link>
-          <span>{version}</span>
         </span>
       </div>
 
@@ -289,7 +514,7 @@ export default async function DecisionDetailPage({ params }: PageProps) {
           </Link>
           {adr ? (
             <>
-              <span className="mx-2 opacity-40">/</span>
+              <span className="mx-2 opacity-70">/</span>
               <span>{adr}</span>
             </>
           ) : null}
@@ -298,10 +523,12 @@ export default async function DecisionDetailPage({ params }: PageProps) {
           {dateIso}
           {weekday ? (
             <>
-              <span className="mx-2 opacity-40">·</span>
+              <span className="mx-2 opacity-70">·</span>
               <span>{weekday}</span>
             </>
           ) : null}
+          <span className="mx-2 opacity-70">·</span>
+          <span>{minutes} min read</span>
         </p>
       </nav>
 
@@ -316,13 +543,11 @@ export default async function DecisionDetailPage({ params }: PageProps) {
         {d.impact ? (
           <span className="badge badge--impact" data-impact={d.impact}>
             Impact · {d.impact}
+            <span className="sr-only">{IMPACT_LABEL[d.impact] ?? ""}</span>
           </span>
         ) : null}
         {domain ? (
-          <span className="domain-tag ml-auto">
-            <span className="opacity-60">Domain · </span>
-            {domain}
-          </span>
+          <span className="domain-tag ml-auto">Domain · {domain}</span>
         ) : null}
       </div>
 
@@ -332,136 +557,40 @@ export default async function DecisionDetailPage({ params }: PageProps) {
 
       {/* Layout: wide body (2 cols) | sections TOC (1 col) */}
       <div className="tufte-grid mt-14">
+        {/* Right margin: TOC. Placed before the body in source order so keyboard
+            users reach it first; grid-template-areas pins it visually right. */}
+        {showToc ? (
+          <nav className="tufte-right" aria-labelledby="toc-label">
+            <div className="margin-toc">
+              <p className="margin-toc-label" id="toc-label">
+                Sections
+              </p>
+              <MarginToc
+                items={sections.map(({ id, label }) => ({ id, label }))}
+              />
+            </div>
+          </nav>
+        ) : null}
+
         {/* Body */}
         <div className="tufte-body">
-          {/* Editorial sections */}
+          {/* Editorial sections — rendered from `sections`, see above */}
           <article className="space-y-12">
-            {d.context ? (
-              <section>
-                <SectionHeader num={nextNum()} label="Context" />
-                <div className="section-body mt-4 whitespace-pre-line">
-                  {d.context}
-                </div>
+            {sections.map((section) => (
+              <section
+                key={section.id}
+                id={section.id}
+                aria-labelledby={headingId(section.id)}
+              >
+                <header className="section-header">
+                  <h2 id={headingId(section.id)} className="section-label">
+                    {section.label}
+                  </h2>
+                  <span className="section-rule" aria-hidden />
+                </header>
+                {section.body}
               </section>
-            ) : null}
-
-            {options.length ? (
-              <section>
-                <SectionHeader num={nextNum()} label="Options considered" />
-                <ol className="options-list mt-5">
-                  {options.map((o) => (
-                    <li key={o.letter} className="option-row">
-                      <span className="option-letter">{o.letter}</span>
-                      <p className="option-body">
-                        <strong className="font-semibold">{o.label}</strong>
-                        {o.summary ? (
-                          <span className="text-foreground/70">
-                            {" — "}
-                            {o.summary}
-                          </span>
-                        ) : null}
-                      </p>
-                    </li>
-                  ))}
-                </ol>
-              </section>
-            ) : null}
-
-            {d.decision ? (
-              <section>
-                <SectionHeader num={nextNum()} label="Decision" />
-                <div className="decision-block mt-5 whitespace-pre-line">
-                  {d.decision}
-                </div>
-              </section>
-            ) : null}
-
-            {d.tradeoffs ? (
-              <section>
-                <SectionHeader num={nextNum()} label="Trade-offs" />
-                <div className="section-body mt-4 whitespace-pre-line">
-                  {d.tradeoffs}
-                </div>
-              </section>
-            ) : null}
-
-            {d.revisitTrigger ? (
-              <section>
-                <SectionHeader num={nextNum()} label="Revisit trigger" />
-                <div className="section-body mt-4 whitespace-pre-line">
-                  {d.revisitTrigger}
-                </div>
-              </section>
-            ) : null}
-
-            {d.takeaways?.length ? (
-              <section>
-                <SectionHeader num={nextNum()} label="Takeaways" />
-                <ol className="mt-5 space-y-5">
-                  {d.takeaways
-                    .filter((t): t is string => Boolean(t))
-                    .map((t, i) => (
-                      <li key={t} className="flex gap-4">
-                        <span className="mono-meta shrink-0 pt-2 text-[11px] uppercase tracking-[0.18em] text-foreground/50">
-                          {String(i + 1).padStart(2, "0")}
-                        </span>
-                        <p className="section-body">{t}</p>
-                      </li>
-                    ))}
-                </ol>
-              </section>
-            ) : null}
-
-            {d.body?.length ? (
-              <section>
-                <SectionHeader num={nextNum()} label="Full write-up" />
-                <div className="body-serif mt-4">
-                  <PortableText value={d.body as never} components={pt} />
-                </div>
-              </section>
-            ) : null}
-
-            {d.supersededBy?.slug ? (
-              <section>
-                <SectionHeader num={nextNum()} label="Superseded by" />
-                <p className="section-body mt-4">
-                  <Link
-                    href={`/decisions/${d.supersededBy.slug}`}
-                    className="underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
-                  >
-                    {d.supersededBy.title ?? "View successor →"}
-                  </Link>
-                </p>
-              </section>
-            ) : null}
-
-            {d.relatedProjects?.length ? (
-              <section>
-                <SectionHeader num={nextNum()} label="Related projects" />
-                <ul className="mt-4 space-y-2 section-body">
-                  {d.relatedProjects
-                    .filter(
-                      (
-                        p,
-                      ): p is {
-                        slug: string;
-                        title: string;
-                        tagline: string;
-                      } => Boolean(p.slug && p.title),
-                    )
-                    .map((p) => (
-                      <li key={p.slug}>
-                        <Link
-                          href={`/projects/${p.slug}`}
-                          className="underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
-                        >
-                          {p.title}
-                        </Link>
-                      </li>
-                    ))}
-                </ul>
-              </section>
-            ) : null}
+            ))}
           </article>
 
           {/* Tags */}
@@ -473,65 +602,67 @@ export default async function DecisionDetailPage({ params }: PageProps) {
             </div>
           ) : null}
 
+          {/* Hand this decision to the AI twin */}
+          <div className="mt-12">
+            <AskTwinButton title={d.title} />
+          </div>
+
           {/* Footer */}
           <footer className="mt-16 border-t border-foreground/10 pt-6">
             <div className="signed-off-row">
               <span>
                 Signed off
-                <span className="mx-2 opacity-40">·</span>
+                <span className="mx-2 opacity-70">·</span>
                 Shoaib
-                <span className="mx-2 opacity-40">·</span>
+                <span className="mx-2 opacity-70">·</span>
                 {dateIso}
               </span>
-              <Link
-                href={`/decisions/${d.slug}`}
-                className="permalink"
-                aria-label="Permalink to this decision"
-              >
-                Permalink
-                <span aria-hidden>↗</span>
-              </Link>
+              <CopyPermalink url={`${SITE_URL}/decisions/${d.slug}`} />
             </div>
+
+            {d.prev?.slug || d.next?.slug ? (
+              <nav className="adr-nav mt-8" aria-label="Adjacent decisions">
+                {d.prev?.slug ? (
+                  <Link
+                    href={`/decisions/${d.prev.slug}`}
+                    className="adr-nav-link"
+                    data-dir="prev"
+                  >
+                    <span className="adr-nav-dir">
+                      <span aria-hidden>←</span> Older
+                      {prevAdr ? (
+                        <>
+                          <span className="mx-2 opacity-70">·</span>
+                          {`ADR-${String(prevAdr).padStart(3, "0")}`}
+                        </>
+                      ) : null}
+                    </span>
+                    <span className="adr-nav-title">{d.prev.title}</span>
+                  </Link>
+                ) : null}
+                {d.next?.slug ? (
+                  <Link
+                    href={`/decisions/${d.next.slug}`}
+                    className="adr-nav-link"
+                    data-dir="next"
+                  >
+                    <span className="adr-nav-dir">
+                      Newer <span aria-hidden>→</span>
+                      {nextAdr ? (
+                        <>
+                          <span className="mx-2 opacity-70">·</span>
+                          {`ADR-${String(nextAdr).padStart(3, "0")}`}
+                        </>
+                      ) : null}
+                    </span>
+                    <span className="adr-nav-title">{d.next.title}</span>
+                  </Link>
+                ) : null}
+              </nav>
+            ) : null}
           </footer>
         </div>
         {/* /tufte-body */}
-
-        {/* Right margin: TOC */}
-        <nav className="tufte-right" aria-label="Sections">
-          <div className="margin-toc">
-            <p className="margin-toc-label">Sections</p>
-            {d.context ? (
-              <a href="#" className="margin-toc-item">
-                Context
-              </a>
-            ) : null}
-            {options.length ? (
-              <a href="#" className="margin-toc-item">
-                Options
-              </a>
-            ) : null}
-            {d.decision ? (
-              <a href="#" className="margin-toc-item">
-                Decision
-              </a>
-            ) : null}
-            {d.tradeoffs ? (
-              <a href="#" className="margin-toc-item">
-                Trade-offs
-              </a>
-            ) : null}
-            {d.revisitTrigger ? (
-              <a href="#" className="margin-toc-item">
-                Revisit trigger
-              </a>
-            ) : null}
-            {d.relatedProjects?.length ? (
-              <a href="#" className="margin-toc-item">
-                Related
-              </a>
-            ) : null}
-          </div>
-        </nav>
       </div>
       {/* /tufte-grid */}
     </main>

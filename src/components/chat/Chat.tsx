@@ -2,6 +2,7 @@
 
 import { Loader2, Send, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { ASK_TWIN_EVENT, takePendingPrompt } from "@/lib/ask-twin";
 import { useSidebar } from "../ui/sidebar";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 
@@ -131,6 +132,7 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const greetingSetRef = useRef(false);
   const profileRef = useRef({
     firstName: profile?.firstName,
@@ -171,10 +173,43 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
     }
   }, []); // Empty deps - only run once on mount, ref prevents re-setting
 
-  // Scroll to bottom when messages change
+  // Seeded questions from elsewhere on the site (e.g. the /decisions detail
+  // page's "ask my AI twin" button). We only fill the input and focus it —
+  // sending stays the visitor's call. See src/lib/ask-twin.ts.
+  useEffect(() => {
+    // Never clobber something the visitor is already typing.
+    const seed = (prompt: string) => {
+      setInput((current) => (current.trim() ? current : prompt));
+      inputRef.current?.focus();
+    };
+    // Pull: on mobile this component mounts AFTER the click that dispatched, so
+    // the prompt is waiting in module scope rather than on an event.
+    const parked = takePendingPrompt();
+    if (parked) seed(parked);
+    // Push: on desktop we are already mounted when the click happens. We drain
+    // the parked copy rather than reading event.detail — dispatchAskTwin always
+    // parks before dispatching, so this is the same value, and taking it here is
+    // what keeps "applied at most once" true. Reading detail instead would leave
+    // the parked prompt behind to be re-seeded on a later remount, on a page
+    // that has nothing to do with the decision it came from.
+    const onSeed = () => {
+      const pending = takePendingPrompt();
+      if (pending) seed(pending);
+    };
+    window.addEventListener(ASK_TWIN_EVENT, onSeed);
+    return () => window.removeEventListener(ASK_TWIN_EVENT, onSeed);
+  }, []);
+
+  // Scroll to bottom when messages change. A CSS media query cannot stop a
+  // JS-driven smooth scroll, so gate the behavior here.
   useEffect(() => {
     if (messages.length > 0) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      const reduced = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      messagesEndRef.current?.scrollIntoView({
+        behavior: reduced ? "auto" : "smooth",
+      });
     }
   }, [messages]);
 
@@ -634,9 +669,13 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
       >
         <div className="flex gap-2">
           <input
+            ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message..."
+            // /api/chat validates content with z.string().max(500); without
+            // this the 501st character gets an unexplained 400.
+            maxLength={500}
             className="flex-1 px-4 py-2 rounded-lg bg-card border border-border focus:outline-none focus:ring-2 focus:ring-brand placeholder:text-muted-foreground"
             disabled={isLoading}
           />

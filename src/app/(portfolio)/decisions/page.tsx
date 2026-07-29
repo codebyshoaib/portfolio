@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { defineQuery } from "next-sanity";
+import { DECISION_ORDER } from "@/sanity/lib/decisionOrder";
 import { sanityFetch } from "@/sanity/lib/live";
+import { IndexBreadcrumb, IndexHeadline, IndexLede } from "./masthead";
 
 export const revalidate = 3600;
 
@@ -22,7 +24,7 @@ export const metadata: Metadata = {
 };
 
 const DECISIONS_QUERY = defineQuery(`
-  *[_type == "decision" && published == true] | order(date asc) {
+  *[_type == "decision" && published == true] | ${DECISION_ORDER} {
     "slug": slug.current,
     title,
     date,
@@ -78,6 +80,13 @@ const MONTH_SHORT = [
   "NOV",
   "DEC",
 ];
+
+/** Screen-reader expansion for the impact badge — "L" alone decodes to nothing. */
+const IMPACT_LABEL: Record<string, string> = {
+  S: " — small",
+  M: " — medium",
+  L: " — large",
+};
 
 interface ParsedDate {
   readonly year: number;
@@ -136,7 +145,10 @@ export default async function DecisionsIndexPage({ searchParams }: PageProps) {
   const ascending = ((res.data ?? []) as readonly ListItem[]).filter(
     (d) => d.slug && d.title,
   );
-  // Stable ADR numbers in chronological order (oldest = ADR-001)
+  // ADR number = position in DECISION_ORDER (oldest = ADR-001). The query's sort
+  // and the detail page's count() share that order via decisionOrder.ts, so the
+  // badge here and the number on the page can't disagree — including for two
+  // decisions dated the same day.
   const numbered: NumberedItem[] = ascending.map((d, i) => ({
     ...d,
     adrNumber: i + 1,
@@ -156,6 +168,10 @@ export default async function DecisionsIndexPage({ searchParams }: PageProps) {
     for (const t of d.tags ?? []) if (t) tagSet.add(t);
   }
   const allTags = [...tagSet].sort();
+  // A hand-typed ?tag=foo that matches nothing should still show #all as current
+  // rather than leaving every chip unmarked.
+  const knownActiveTag =
+    activeTag !== null && allTags.some((t) => t.toLowerCase() === activeTag);
 
   const latest = newestFirst[0];
   const version = buildVersion(latest, newestFirst.length);
@@ -169,13 +185,10 @@ export default async function DecisionsIndexPage({ searchParams }: PageProps) {
   const recentThree = newestFirst.slice(0, 3);
 
   return (
-    <main className="mx-auto max-w-7xl px-6 pb-24 sm:px-8 lg:px-12">
+    <main className="mx-auto max-w-6xl px-6 pt-14 pb-24 md:px-10 md:pt-20 lg:px-16">
       {/* Terminal chrome */}
       <div className="chrome-bar">
-        <span>
-          shoaib
-          <span className="opacity-50"> /decisions</span>
-        </span>
+        <span>shoaib /decisions</span>
         <span className="chrome-right">
           <Link href="/decisions/feed.xml">RSS</Link>
           <Link href="/decisions/feed.json">JSON</Link>
@@ -183,23 +196,11 @@ export default async function DecisionsIndexPage({ searchParams }: PageProps) {
         </span>
       </div>
 
-      {/* Breadcrumb */}
-      <p className="breadcrumb mt-10">
-        /DECISIONS <span className="opacity-40">·</span> CHANGELOG
-      </p>
-
-      {/* Headline */}
-      <h1 className="editorial-headline mt-5">
-        <span>What I chose,</span>
-        <span className="accent">and the bill it ran up.</span>
-      </h1>
-
-      <p className="body-serif mt-7 max-w-prose text-[17px] leading-[1.55] text-foreground/70">
-        A public log of engineering decisions made under real constraints. Each
-        one names the call, the alternatives, the trade I made, and the trigger
-        that would force me to revisit. Nothing here is a pattern. All of it is
-        contingent.
-      </p>
+      {/* Breadcrumb / headline / lede — shared with loading.tsx so the skeleton
+          can't drift out of geometric step with the real page. */}
+      <IndexBreadcrumb />
+      <IndexHeadline />
+      <IndexLede />
 
       {/* Two-column layout: entries (2/3) + sidebar (1/3) */}
       <div className="index-grid mt-14">
@@ -207,21 +208,28 @@ export default async function DecisionsIndexPage({ searchParams }: PageProps) {
         <div className="index-col-main">
           {/* Entries */}
           {filtered.length === 0 ? (
-            <p className="body-serif mt-16 italic text-foreground/55">
-              {activeTag
-                ? `No decisions tagged #${activeTag}. `
-                : "No decisions published yet. "}
-              <Link href="/decisions" className="underline underline-offset-4">
-                Show all
-              </Link>
-              .
+            <p className="body-serif mt-16 italic text-foreground/70">
+              {activeTag ? (
+                <>
+                  {`No decisions tagged #${activeTag}. `}
+                  <Link
+                    href="/decisions"
+                    className="underline underline-offset-4"
+                  >
+                    Show all
+                  </Link>
+                  .
+                </>
+              ) : (
+                "No decisions published yet."
+              )}
             </p>
           ) : (
             <div className="mt-14 space-y-14">
               {grouped.map((g) => (
                 <section key={g.label}>
                   <header className="month-divider">
-                    <span>{g.label}</span>
+                    <h2 className="month-label">{g.label}</h2>
                     <span className="rule-line" aria-hidden />
                     <span>
                       {g.entries.length}{" "}
@@ -238,8 +246,9 @@ export default async function DecisionsIndexPage({ searchParams }: PageProps) {
                           <Link
                             href={`/decisions/${d.slug}`}
                             className="entry-card group block"
+                            aria-labelledby={`adr-${d.adrNumber}-title`}
                           >
-                            <div>
+                            <div className="entry-gutter">
                               <div className="entry-adr">
                                 ADR-{String(d.adrNumber).padStart(3, "0")}
                               </div>
@@ -267,6 +276,9 @@ export default async function DecisionsIndexPage({ searchParams }: PageProps) {
                                     data-impact={d.impact}
                                   >
                                     Impact · {d.impact}
+                                    <span className="sr-only">
+                                      {IMPACT_LABEL[d.impact] ?? ""}
+                                    </span>
                                   </span>
                                 ) : null}
                                 {domain ? (
@@ -276,7 +288,12 @@ export default async function DecisionsIndexPage({ searchParams }: PageProps) {
                                 ) : null}
                               </div>
 
-                              <h2 className="entry-title mt-4">{d.title}</h2>
+                              <h3
+                                className="entry-title mt-4"
+                                id={`adr-${d.adrNumber}-title`}
+                              >
+                                {d.title}
+                              </h3>
 
                               {d.summary ? (
                                 <p className="entry-summary mt-3">
@@ -315,7 +332,7 @@ export default async function DecisionsIndexPage({ searchParams }: PageProps) {
                 <Link
                   href="/decisions"
                   className="filter-chip filter-label"
-                  data-active={activeTag === null}
+                  data-active={activeTag === null || !knownActiveTag}
                 >
                   #all
                 </Link>
@@ -362,6 +379,25 @@ export default async function DecisionsIndexPage({ searchParams }: PageProps) {
             </dl>
           </div>
 
+          {/* Impact legend — the badges say "S"/"M"/"L" and nothing else does */}
+          <div className="sidebar-block">
+            <p className="sidebar-label">Impact</p>
+            <dl className="sidebar-stat-list">
+              <div>
+                <dt>S</dt>
+                <dd>Small</dd>
+              </div>
+              <div>
+                <dt>M</dt>
+                <dd>Medium</dd>
+              </div>
+              <div>
+                <dt>L</dt>
+                <dd>Large</dd>
+              </div>
+            </dl>
+          </div>
+
           {/* Recent */}
           {recentThree.length > 0 && (
             <div className="sidebar-block">
@@ -386,7 +422,7 @@ export default async function DecisionsIndexPage({ searchParams }: PageProps) {
         </aside>
       </div>
 
-      <footer className="mt-24 border-t border-foreground/10 pt-8 mono-meta text-[11px] uppercase tracking-[0.18em] text-foreground/45">
+      <footer className="mt-24 border-t border-foreground/10 pt-8 mono-meta text-[11px] uppercase tracking-[0.18em] text-foreground/65">
         <p>
           Inspired by{" "}
           <a
@@ -396,8 +432,7 @@ export default async function DecisionsIndexPage({ searchParams }: PageProps) {
             className="hover:text-foreground"
           >
             adr.github.io
-          </a>{" "}
-          · authored by Shoaib Ud Din
+          </a>
         </p>
       </footer>
     </main>
