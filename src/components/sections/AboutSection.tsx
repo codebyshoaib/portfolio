@@ -119,26 +119,6 @@ export async function AboutSection() {
           </blockquote>
         </aside>
       </div>
-
-      {/* Stats from CMS */}
-      {profile.stats && profile.stats.length > 0 && (
-        <div className="@container mt-10 border-t border-border pt-10">
-          <div className="grid grid-cols-2 @lg:grid-cols-4 gap-8">
-            {profile.stats
-              .filter((stat) => stat.label && stat.value)
-              .map((stat, idx) => (
-                <div key={`${stat.label}-${idx}`} className="@container/stat">
-                  <div className="font-serif text-3xl @md/stat:text-4xl font-semibold tracking-tight text-brand">
-                    {stat.value}
-                  </div>
-                  <div className="mt-2 font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                    {stat.label}
-                  </div>
-                </div>
-              ))}
-          </div>
-        </div>
-      )}
     </Section>
   );
 }
