@@ -54,18 +54,19 @@ summary level rather than showing an error.
 ## Setup
 
 Groq serves the chat model but has **no embeddings endpoint**, so this needs a
-second provider. Currently OpenAI `text-embedding-3-small` at 256 dimensions.
+second provider. Currently Jina `jina-embeddings-v3` at 512 dimensions, whose
+free tier is ~1000x this corpus.
 
 1. Add the key to `.env.local` and to the Vercel project env:
 
    ```
-   OPENAI_API_KEY=sk-...
+   JINA_API_KEY=jina_...
    ```
 
 2. Build the index:
 
    ```bash
-   pnpm rag:index              # ~7k tokens to embed, about $0.0002
+   pnpm rag:index              # ~7k tokens to embed, free tier
    pnpm rag:index --dry-run    # chunk and report only, no API calls
    ```
 
@@ -97,8 +98,25 @@ index rather than scoring against incompatible vectors.
 | --- | --- | --- |
 | `RETRIEVE_K` | `api/chat/route.ts` | Chunks injected per question (6). |
 | `MAX_CHUNKS_PER_DOC` | `api/chat/route.ts` | Caps how much one document can dominate (2). |
-| `MIN_SCORE` | `retrieve.ts` | Relevance floor (0.18). Below it, a chunk is noise — injecting it invites the model to answer a question the corpus doesn't cover. |
-| `EMBEDDING_DIMENSIONS` | `embed.ts` | 256. Changing it requires a rebuild. |
+| `MIN_SCORE` | `retrieve.ts` | Relevance floor (0.30). Below it, a chunk is noise — injecting it invites the model to answer a question the corpus doesn't cover. |
+| `EMBEDDING_DIMENSIONS` | `embed.ts` | 512. Changing it requires a rebuild. |
+
+`MIN_SCORE` belongs to the **model**, not the corpus, and does not survive a
+model swap — cosine scores are only comparable inside one vector space. The same
+78 chunks wanted 0.30 under jina-v3, 0.50 under bge-small, and 0.25 under
+MiniLM. Carried over unchanged, a floor stops rejecting anything and every
+off-topic question quietly gets a chunk injected.
+
+Re-derive it with `pnpm rag:query`, which prints scores with the floor disabled
+so you can see what it *would* reject:
+
+```bash
+pnpm rag:query "how do I bake sourdough bread?"   # noise — read where it tops out
+pnpm rag:query "have you worked with django?"     # signal — read where it starts
+```
+
+Put the floor in the gap. It is also the tool for "why did the twin answer that?"
+— a bad answer is almost always retrieval, not the model.
 
 Watch the server logs for `RAG fell back to the static prompt: <reason>` —
 `no-key`, `no-index`, `no-match`, or `error`.

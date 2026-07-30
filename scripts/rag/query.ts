@@ -40,10 +40,10 @@ async function main() {
     `${index.chunks.length} chunks · ${index.model} · built ${index.builtAt}\n`,
   );
 
-  // First call loads the model; time it separately from the per-query cost.
+  // First call pays TLS setup; time it separately from the steady-state cost.
   const cold = performance.now();
   await embedQuery("warmup");
-  console.log(`model load: ${Math.round(performance.now() - cold)}ms\n`);
+  console.log(`first call: ${Math.round(performance.now() - cold)}ms\n`);
 
   for (const question of asked) {
     const start = performance.now();

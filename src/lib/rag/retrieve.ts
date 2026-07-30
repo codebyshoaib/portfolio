@@ -12,7 +12,7 @@
  */
 
 import type { Chunk } from "./chunk";
-import { embedQuery } from "./embed";
+import { embedQuery, MissingEmbeddingKeyError } from "./embed";
 
 export interface IndexedChunk extends Chunk {
   readonly vector: readonly number[];
@@ -52,13 +52,17 @@ export function score(a: readonly number[], b: readonly number[]): number {
  * `pnpm rag:query` with questions the corpus cannot answer and reading where
  * the noise tops out.
  *
- * Measured for bge-small-en-v1.5 over this corpus:
- *   noise  — capital of France 0.363, pizza 0.421, sourdough 0.441, Tokyo 0.460
- *   signal — django 0.656, 8b tradeoffs 0.670, embedded-browser auth 0.702
- * 0.50 sits in the gap. (The same corpus under all-MiniLM-L6-v2 wanted ~0.25;
- * carrying a floor across models silently disables it.)
+ * Measured for jina-embeddings-v3 over this corpus:
+ *   noise  — capital of France 0.073, sourdough 0.089, pizza 0.108, Tokyo 0.205
+ *   signal — 8b tradeoffs 0.441, embedded-browser auth 0.502, django 0.511
+ * 0.30 sits in the gap, with roughly 2x margin over the worst noise.
+ *
+ * The same corpus wanted ~0.50 under bge-small-en-v1.5 and ~0.25 under
+ * all-MiniLM-L6-v2 — carrying a floor across models silently disables it. bge
+ * also separated far worse (0.460 noise against 0.518 signal); the wide gap
+ * here is v3's task adapters doing their job.
  */
-export const MIN_SCORE = 0.5;
+export const MIN_SCORE = 0.3;
 
 /** Ranks chunks against an already-embedded query. Pure — tests drive it directly. */
 export function topK(
@@ -130,7 +134,7 @@ export async function loadIndex(
 export interface RetrieveResult {
   readonly chunks: readonly Retrieved[];
   /** Why retrieval produced nothing, when it produced nothing. */
-  readonly reason?: "no-index" | "no-match" | "error";
+  readonly reason?: "no-index" | "no-key" | "no-match" | "error";
 }
 
 /**
@@ -156,6 +160,9 @@ export async function retrieve(
     const chunks = hits.slice(0, k);
     return chunks.length > 0 ? { chunks } : { chunks: [], reason: "no-match" };
   } catch (error) {
+    if (error instanceof MissingEmbeddingKeyError) {
+      return { chunks: [], reason: "no-key" };
+    }
     console.error("RAG retrieval failed:", error);
     return { chunks: [], reason: "error" };
   }

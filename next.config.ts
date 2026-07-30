@@ -8,10 +8,6 @@ const withBundleAnalyzer = bundleAnalyzer({
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
-  // onnxruntime-node ships a native .node binary that cannot be bundled. The
-  // RAG query embedding runs in-process on the server, so the package has to be
-  // left as a real runtime require rather than traced into the server chunk.
-  serverExternalPackages: ["@huggingface/transformers"],
   images: {
     remotePatterns: [
       {
