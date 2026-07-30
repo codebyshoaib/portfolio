@@ -7,7 +7,7 @@ import Link from "next/link";
  */
 export default function NoteNotFound() {
   return (
-    <main className="mx-auto max-w-6xl px-6 pt-14 pb-24 md:px-10 md:pt-20 lg:px-16">
+    <main className="mx-auto max-w-3xl px-6 pt-14 pb-24 md:px-10 md:pt-20">
       <div className="chrome-bar">
         <span>shoaib /notes</span>
         <span className="chrome-right">

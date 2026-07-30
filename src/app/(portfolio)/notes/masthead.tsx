@@ -28,7 +28,7 @@ export function IndexHeadline({
 export function IndexLede() {
   return (
     <p className="body-serif mt-7 max-w-prose text-[17px] leading-[1.55] text-foreground/70">
-      Things worth writing down that aren&rsquo;t binding on a codebase — how
+      Things worth writing down that aren&rsquo;t binding on a codebase: how
       something works, what bit me, what I&rsquo;d do next time. No status, no
       rejected alternatives, no revisit trigger. When a note has those, it
       belongs in the{" "}

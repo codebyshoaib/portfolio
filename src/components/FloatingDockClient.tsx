@@ -2,6 +2,7 @@
 
 import { IconCalendarEvent, IconLogout, IconX } from "@tabler/icons-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useSafeClerk } from "@/hooks/use-safe-clerk";
 import { cn } from "@/lib/utils";
@@ -43,6 +44,8 @@ export function FloatingDockClient({
   navItems,
   calLink,
 }: FloatingDockClientProps) {
+  const pathname = usePathname();
+  const onHomepage = pathname === "/";
   const { isSignedIn, signOut } = useSafeClerk();
   const { openModal: openBooking, enabled: bookingEnabled } =
     useBookACall(calLink);
@@ -125,6 +128,14 @@ export function FloatingDockClient({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [menuOpen]);
+
+  // The rail indexes the homepage's sections and the CMS stores them as bare
+  // fragments ("#about"), so off the homepage every tick is a dead link that
+  // scrolls nowhere — /decisions and /notes were rendering a column of blank
+  // ticks plus a stale "Home" label. Gate on the route, not on measuring the
+  // DOM: the sections stream inside Suspense, so "not in the document yet" and
+  // "not on this page" are indistinguishable at mount.
+  if (!onHomepage) return null;
 
   if (sections.length === 0 && socials.length === 0 && !bookingEnabled) {
     return null;

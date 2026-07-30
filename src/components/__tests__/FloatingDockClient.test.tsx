@@ -2,6 +2,13 @@ import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { FloatingDockClient } from "../FloatingDockClient";
 
+// Route: the rail only renders on the homepage, so tests run there unless a
+// case overrides it.
+let pathname = "/";
+vi.mock("next/navigation", () => ({
+  usePathname: () => pathname,
+}));
+
 // Clerk: signed out (no Sign Out item) by default.
 const safeClerk = { isSignedIn: false, signOut: vi.fn() };
 vi.mock("@/hooks/use-safe-clerk", () => ({
@@ -37,6 +44,7 @@ describe("FloatingDockClient — side rail", () => {
     openModal.mockReset();
     bookingEnabled = true;
     safeClerk.isSignedIn = false;
+    pathname = "/";
   });
 
   it("renders section anchors as the index (desktop + mobile copies)", () => {
@@ -72,6 +80,17 @@ describe("FloatingDockClient — side rail", () => {
     expect(github.length).toBeGreaterThan(0);
     expect(github[0].getAttribute("href")).toBe("https://github.com/x");
     expect(github[0].getAttribute("target")).toBe("_blank");
+  });
+
+  it("[REGRESSION] renders nothing off the homepage", () => {
+    // The anchors are bare fragments ("#about"), so on /notes or /decisions
+    // every tick is a dead link. The rail used to render them all as blank
+    // ticks with a stale active label.
+    pathname = "/notes/functional-programming-was-there-all-along";
+    const { container } = render(
+      <FloatingDockClient navItems={NAV} calLink="user/30min" />,
+    );
+    expect(container).toBeEmptyDOMElement();
   });
 
   it("renders nothing when there is no nav and no booking", () => {

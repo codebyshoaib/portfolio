@@ -128,7 +128,11 @@ export default async function NoteDetailPage({ params }: PageProps) {
   };
 
   return (
-    <main className="mx-auto max-w-6xl px-6 pt-14 pb-24 md:px-10 md:pt-20 lg:px-16">
+    // max-w-3xl, not the decisions page's max-w-6xl: that width exists to hold
+    // the section TOC in the right margin, and a note has no sections to index.
+    // Keeping it here left the reading measure hugging the left edge with a
+    // third of the page empty.
+    <main className="mx-auto max-w-3xl px-6 pt-14 pb-24 md:px-10 md:pt-20">
       <script
         type="application/ld+json"
         // React escapes text children, which would corrupt the JSON, so the
@@ -179,9 +183,7 @@ export default async function NoteDetailPage({ params }: PageProps) {
       <h1 className="editorial-title mt-6">{n.title}</h1>
       {n.summary ? <p className="editorial-lede mt-7">{n.summary}</p> : null}
 
-      {/* A note has no sections to index, so it gets the single-column reading
-          measure rather than the decisions page's TOC grid. */}
-      <div className="note-column mt-14">
+      <div className="mt-14">
         <article className="body-serif">
           <PortableText
             value={(n.body ?? []) as never}

@@ -834,13 +834,3 @@
   .index-grid {
   grid-template-columns: minmax(0, 1fr);
 }
-
-/* ── Notes ─────────────────────────────────────────────────────────────────
- * A note has no section labels to index, so it drops the decisions page's
- * two-column TOC grid for a single measured column. 68ch is the same reading
- * measure .tufte-body lands on at the 2fr/1fr split, so the two surfaces set
- * prose at the same width even though only one of them has a margin. */
-.editorial-root .note-column {
-  max-width: 68ch;
-  min-width: 0;
-}
