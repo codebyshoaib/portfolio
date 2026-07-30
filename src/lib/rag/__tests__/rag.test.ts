@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { chunkContentDoc, chunkProfile, splitMarkdownSections } from "../chunk";
+import {
+  chunkContentDoc,
+  chunkContextDoc,
+  chunkProfile,
+  splitMarkdownSections,
+} from "../chunk";
 import { diversify, type IndexedChunk, score, topK } from "../retrieve";
 
 const DECISION = {
@@ -86,6 +91,29 @@ describe("splitMarkdownSections", () => {
     const withFm = `---\ntitle: "x"\n---\n\n## H\n\nbody text\n`;
     const sections = splitMarkdownSections(withFm);
     expect(sections.some((s) => s.text.includes("title:"))).toBe(false);
+  });
+});
+
+describe("chunkContextDoc", () => {
+  const DOC = { title: "Day to day at Taleemabad" };
+
+  it("carries no url, because context documents have no page to link to", () => {
+    const chunks = chunkContextDoc(DOC, BODY, "2026-07-31-day-to-day");
+    expect(chunks.length).toBeGreaterThan(0);
+    for (const chunk of chunks) expect(chunk.url).toBeUndefined();
+  });
+
+  it("keeps the title on every chunk so a bare section stays attributable", () => {
+    const [first] = chunkContextDoc(DOC, BODY, "slug");
+    expect(first.text).toContain("Day to day at Taleemabad");
+  });
+
+  it("drops a document with no title rather than indexing junk", () => {
+    expect(chunkContextDoc({}, BODY, "slug")).toEqual([]);
+  });
+
+  it("drops a document with no body, since the title alone retrieves nothing", () => {
+    expect(chunkContextDoc(DOC, "", "slug")).toEqual([]);
   });
 });
 

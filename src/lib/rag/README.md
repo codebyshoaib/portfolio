@@ -78,15 +78,48 @@ free tier is ~1000x this corpus.
 
 Without step 1 the site still works; it just falls back to the static prompt.
 
+## What the twin can know
+
+Three sources, and they are updated differently:
+
+| Source | Lives in | Published at | How to update |
+| --- | --- | --- | --- |
+| decisions | `content/decisions/*.md` | `/decisions/<slug>` | `/decision`, then `pnpm decisions:import` |
+| notes | `content/notes/*.md` | `/notes/<slug>` | `/note`, then `pnpm notes:import` |
+| profile | Sanity only | the portfolio sections | edit in `/studio`, then `pnpm rag:index` |
+| context | `content/context/*.md` | **nowhere** | write the file, then `pnpm rag:index` |
+
+**Context documents** are the answer to "the twin should know this, but it isn't
+a decision, a note, or a CV line" — day-to-day work, how a team operates, what
+you reach for by default. They are indexed and quotable but have no route, so
+their chunks carry no `url` and the twin cites them without a link. Copy
+`content/context/_template.md` to start one; every `##` heading becomes one
+chunk, so each heading should answer a question.
+
+Nothing in the corpus is private. Every chunk is a candidate for being quoted
+verbatim to a stranger, and this repo is public. `published: false` in
+frontmatter keeps a file out of the index entirely.
+
 ## Rebuilding
 
-The index is derived data and goes stale silently. Rebuild it after any content
-change:
+The index is derived data and goes stale silently — nothing errors, the twin
+just keeps answering from the old corpus.
+
+The imports rebuild it for you:
 
 ```bash
-pnpm decisions:import && pnpm rag:index
-pnpm notes:import && pnpm rag:index
+pnpm decisions:import   # imports, then re-embeds
+pnpm notes:import       # same
 ```
+
+`prebuild` also rebuilds it on every `pnpm build`, which is what covers Sanity
+edits — those change the corpus without touching the repo, so nothing local
+would otherwise know to re-embed. It is deliberately non-fatal: if Jina or
+Sanity is down, the build keeps the committed index and warns loudly rather
+than failing the deploy. `builtAt` in `index.json` is the staleness check.
+
+Everything else is a manual `pnpm rag:index` plus a commit of `index.json` —
+the lambda imports it from the repo.
 
 Changing the embedding model is also a rebuild — `retrieve.ts` compares the
 index's recorded model against the configured one and ignores a mismatched

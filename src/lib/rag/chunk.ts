@@ -16,7 +16,8 @@ export type ChunkSource =
   | "skills"
   | "education"
   | "decision"
-  | "note";
+  | "note"
+  | "context";
 
 export interface Chunk {
   /** Stable id, so a rebuild produces a diffable index rather than churn. */
@@ -129,6 +130,35 @@ export function chunkContentDoc(
   }
 
   return chunks;
+}
+
+/**
+ * Context documents: things the twin should know that never become a page.
+ * Day-to-day work, what a team actually does, tools used daily — true and worth
+ * saying, but not worth publishing as a decision or a note.
+ *
+ * Unlike a decision or a note there is no route, so chunks carry no `url` and
+ * the twin cites them without a link. The id is keyed on the filename, which is
+ * the only stable handle these have.
+ *
+ * Nothing here is private. Every chunk is a candidate for injection into an
+ * answer given to a stranger, and the file itself sits in a public repo.
+ */
+export function chunkContextDoc(
+  doc: { title?: string },
+  body: string,
+  slug: string,
+): Chunk[] {
+  const title = clean(doc.title);
+  if (!title || !slug) return [];
+
+  return splitMarkdownSections(body).map((section) => ({
+    id: `context:${slug}:${section.heading}`,
+    source: "context" as const,
+    title,
+    section: section.heading,
+    text: withTitle(title, section.heading, section.text),
+  }));
 }
 
 export interface ProfileSources {

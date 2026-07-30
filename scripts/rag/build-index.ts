@@ -31,6 +31,7 @@ import {
   type Chunk,
   type ContentDoc,
   chunkContentDoc,
+  chunkContextDoc,
   chunkProfile,
 } from "../../src/lib/rag/chunk";
 import {
@@ -46,6 +47,8 @@ const OUT_FILE = path.join(REPO_ROOT, "src", "lib", "rag", "index.json");
 const CONTENT_DIRS = [
   { dir: path.join(REPO_ROOT, "content", "decisions"), source: "decision" },
   { dir: path.join(REPO_ROOT, "content", "notes"), source: "note" },
+  // Indexed for the twin, never imported to Sanity and never routed.
+  { dir: path.join(REPO_ROOT, "content", "context"), source: "context" },
 ] as const;
 
 /** Jina accepts far more per call, but small batches give clearer failures. */
@@ -76,9 +79,12 @@ async function readContentChunks(): Promise<Chunk[]> {
         continue;
       }
 
-      const docChunks = chunkContentDoc(data as ContentDoc, content, source);
+      const docChunks =
+        source === "context"
+          ? chunkContextDoc(data, content, file.replace(/\.md$/, ""))
+          : chunkContentDoc(data as ContentDoc, content, source);
       if (docChunks.length === 0) {
-        console.warn(`  skip ${file} (no title/slug in frontmatter)`);
+        console.warn(`  skip ${file} (no title, or no body sections)`);
         continue;
       }
       chunks.push(...docChunks);
@@ -144,6 +150,19 @@ async function main() {
   if (chunks.length === 0) {
     console.error("No chunks produced — refusing to write an empty index.");
     process.exit(1);
+  }
+
+  // A CMS-less index is never correct for this site: it silently drops every
+  // job, project and skill and leaves a twin that can discuss its own
+  // architecture but not where its author has worked. Missing Sanity
+  // credentials degrade to a warning inside readProfileChunks, which is exactly
+  // the kind of quiet half-success that shipped an empty index once already.
+  if (!dryRun && profileChunks.length === 0) {
+    console.error(
+      "No Sanity chunks — refusing to write a CMS-less index. Check the Sanity env vars.\n" +
+        "Pass --no-cms if you genuinely mean to index content/ alone.",
+    );
+    if (!process.argv.includes("--no-cms")) process.exit(1);
   }
 
   const duplicates = chunks.length - new Set(chunks.map((c) => c.id)).size;

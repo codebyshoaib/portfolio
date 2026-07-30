@@ -10,12 +10,13 @@
     "format": "biome format --write",
     "typegen": "sanity schema extract && sanity typegen generate",
     "analyze": "ANALYZE=true pnpm build",
-    "decisions:import": "tsx --env-file=.env.local scripts/content/import.ts --type=decision",
+    "decisions:import": "tsx --env-file=.env.local scripts/content/import.ts --type=decision && pnpm rag:index",
     "test": "vitest run",
     "test:watch": "vitest",
-    "notes:import": "tsx --env-file=.env.local scripts/content/import.ts --type=note",
+    "notes:import": "tsx --env-file=.env.local scripts/content/import.ts --type=note && pnpm rag:index",
     "rag:index": "tsx --env-file=.env.local scripts/rag/build-index.ts",
-    "rag:query": "tsx --env-file=.env.local scripts/rag/query.ts"
+    "rag:query": "tsx --env-file=.env.local scripts/rag/query.ts",
+    "prebuild": "bash scripts/rag/prebuild.sh"
   },
   "dependencies": {
     "@ai-sdk/groq": "^3.0.1",
