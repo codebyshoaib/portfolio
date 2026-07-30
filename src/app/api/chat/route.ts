@@ -59,10 +59,21 @@ interface Decision {
 // Cap how many ADRs we inline so the prompt stays within the 8b model's budget.
 const MAX_DECISIONS_IN_PROMPT = 8;
 
-const MessageSchema = z.object({
-  role: z.enum(["user", "assistant", "system"]),
-  content: z.string().min(1).max(500),
-});
+// The client replays the whole history each turn, so this schema sees our own
+// prior replies too. The 500-char cap is an abuse guard on what a visitor can
+// type — applying it to assistant turns 400s the second message in any
+// conversation where the first answer ran long.
+const MAX_USER_CHARS = 500;
+
+const MessageSchema = z
+  .object({
+    role: z.enum(["user", "assistant", "system"]),
+    content: z.string().min(1).max(4000),
+  })
+  .refine((m) => m.role !== "user" || m.content.length <= MAX_USER_CHARS, {
+    message: `User messages must be ${MAX_USER_CHARS} characters or fewer`,
+    path: ["content"],
+  });
 
 const ChatRequestSchema = z.object({
   messages: z.array(MessageSchema).min(1).max(50),
