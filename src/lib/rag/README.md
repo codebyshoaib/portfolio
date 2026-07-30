@@ -19,8 +19,9 @@ of the whole corpus, and stay flat as the corpus grows.
 
 ```
 content/decisions/*.md ─┐
-content/notes/*.md      ├─> pnpm rag:index ─> src/lib/rag/index.json (committed)
-Sanity (jobs, projects, │      chunk + embed
+content/notes/*.md      │
+content/context/*.md    ├─> pnpm rag:index ─> src/lib/rag/index.json (committed)
+Sanity (jobs, projects, │   chunk + embed (Jina)
 skills, education)     ─┘
                                     │
 question ─> embed ─> cosine top-k ──┴─> ~6 chunks ─> system prompt ─> Groq
@@ -33,6 +34,8 @@ question ─> embed ─> cosine top-k ──┴─> ~6 chunks ─> system prompt
 | `retrieve.ts` | Loads the index, scores, ranks, filters. |
 | `index.json` | The vector store. Generated, committed. |
 | `../../scripts/rag/build-index.ts` | `pnpm rag:index` |
+| `../../scripts/rag/query.ts` | `pnpm rag:query` — what would be retrieved, and at what score. |
+| `../../scripts/rag/prebuild.sh` | Rebuilds the index on every `pnpm build`. |
 
 Three decisions worth knowing:
 
