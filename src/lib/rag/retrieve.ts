@@ -12,7 +12,7 @@
  */
 
 import type { Chunk } from "./chunk";
-import { embed, MissingEmbeddingKeyError } from "./embed";
+import { embedQuery } from "./embed";
 
 export interface IndexedChunk extends Chunk {
   readonly vector: readonly number[];
@@ -45,8 +45,20 @@ export function score(a: readonly number[], b: readonly number[]): number {
  * Below this, a chunk is noise. Injecting the nearest-but-irrelevant chunk is
  * worse than injecting nothing: it invites the model to answer a question the
  * corpus does not actually cover.
+ *
+ * This number is a property of the embedding model, not of the corpus, and it
+ * does not survive a model swap — cosine scores are only comparable within one
+ * vector space. Re-derive it after any change to EMBEDDING_MODEL by running
+ * `pnpm rag:query` with questions the corpus cannot answer and reading where
+ * the noise tops out.
+ *
+ * Measured for bge-small-en-v1.5 over this corpus:
+ *   noise  — capital of France 0.363, pizza 0.421, sourdough 0.441, Tokyo 0.460
+ *   signal — django 0.656, 8b tradeoffs 0.670, embedded-browser auth 0.702
+ * 0.50 sits in the gap. (The same corpus under all-MiniLM-L6-v2 wanted ~0.25;
+ * carrying a floor across models silently disables it.)
  */
-export const MIN_SCORE = 0.18;
+export const MIN_SCORE = 0.5;
 
 /** Ranks chunks against an already-embedded query. Pure — tests drive it directly. */
 export function topK(
@@ -118,7 +130,7 @@ export async function loadIndex(
 export interface RetrieveResult {
   readonly chunks: readonly Retrieved[];
   /** Why retrieval produced nothing, when it produced nothing. */
-  readonly reason?: "no-index" | "no-key" | "no-match" | "error";
+  readonly reason?: "no-index" | "no-match" | "error";
 }
 
 /**
@@ -137,16 +149,13 @@ export async function retrieve(
   if (!index) return { chunks: [], reason: "no-index" };
 
   try {
-    const [queryVector] = await embed([question]);
+    const queryVector = await embedQuery(question);
     if (!queryVector) return { chunks: [], reason: "error" };
 
     const hits = diversify(topK(queryVector, index.chunks, k * 2), maxPerTitle);
     const chunks = hits.slice(0, k);
     return chunks.length > 0 ? { chunks } : { chunks: [], reason: "no-match" };
   } catch (error) {
-    if (error instanceof MissingEmbeddingKeyError) {
-      return { chunks: [], reason: "no-key" };
-    }
     console.error("RAG retrieval failed:", error);
     return { chunks: [], reason: "error" };
   }

@@ -8,9 +8,9 @@
  * projects, skills, education), chunks all of it, embeds each chunk once, and
  * writes src/lib/rag/index.json.
  *
- * The index is committed. It is derived data, but it is small, it needs an API
- * key to regenerate, and committing it means a deploy can never ship a site
- * whose twin has no memory. Rebuild it in the same breath as an import:
+ * The index is committed. It is derived data, but it is small, regenerating it
+ * needs the Sanity half of the corpus, and committing it means a deploy can
+ * never ship a site whose twin has no memory. Rebuild it alongside an import:
  *
  *   pnpm decisions:import && pnpm rag:index
  *
@@ -18,8 +18,9 @@
  *   pnpm rag:index              # rebuild from content/ + Sanity
  *   pnpm rag:index --dry-run    # chunk and report, no embedding calls, no write
  *
- * Required env: OPENAI_API_KEY (embeddings), plus the Sanity vars already in
- * .env.local for the CMS half of the corpus.
+ * Required env: only the Sanity vars already in .env.local, for the CMS half of
+ * the corpus. The embedding model runs locally — no key, no per-token cost.
+ * First run downloads ~34MB of weights to the Hugging Face cache.
  */
 
 import { readdir, readFile, writeFile } from "node:fs/promises";
@@ -48,7 +49,7 @@ const CONTENT_DIRS = [
   { dir: path.join(REPO_ROOT, "content", "notes"), source: "note" },
 ] as const;
 
-/** OpenAI accepts far more per call, but small batches give clearer failures. */
+/** Bounds peak memory in the ONNX runtime and gives clearer failures. */
 const BATCH_SIZE = 64;
 
 /** Vectors are noise past 5 decimals and it halves the committed file. */
