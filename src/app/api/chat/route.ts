@@ -56,8 +56,19 @@ interface Decision {
   takeaways?: string[];
 }
 
-// Cap how many ADRs we inline so the prompt stays within the 8b model's budget.
-const MAX_DECISIONS_IN_PROMPT = 8;
+// The whole system prompt is re-sent on every turn and Groq's free tier allows
+// 6000 tokens/min, so these caps are a rate-limit budget, not a style choice.
+const MAX_DECISIONS_IN_PROMPT = 5;
+const MAX_EXPERIENCE_IN_PROMPT = 5;
+const MAX_PROJECTS_IN_PROMPT = 6;
+// Only the last few turns are worth re-sending; older context is not worth its tokens.
+const MAX_HISTORY_MESSAGES = 6;
+
+const clip = (s: string, max: number) =>
+  s.length > max ? `${s.slice(0, max).trimEnd()}…` : s;
+
+const techNames = (tech?: Technology[]) =>
+  (tech || []).map((t) => t.name).filter(Boolean);
 
 // The client replays the whole history each turn, so this schema sees our own
 // prior replies too. The 500-char cap is an abuse guard on what a visitor can
@@ -168,131 +179,78 @@ export async function POST(req: Request) {
         systemPrompt += `You are located in ${profile.location}. `;
       }
 
-      // Add experience
+      // Everything below is re-sent on every turn, so it is kept deliberately
+      // lean: Groq's free tier allows 6000 tokens/min and a fat profile dump
+      // burned the whole budget in two messages (429 on the user's 2nd question).
+      // Depth lives on the site — the twin's job is to point at it, not recite it.
       if (experience && experience.length > 0) {
-        systemPrompt += `\n\nYour Professional Experience:\n`;
-        experience.forEach((exp: Experience, idx: number) => {
-          systemPrompt += `${idx + 1}. ${exp.jobTitle} at ${exp.company}`;
-          if (exp.location) systemPrompt += ` (${exp.location})`;
-          if (exp.startDate) {
-            systemPrompt += ` from ${exp.startDate}`;
-            if (exp.endDate) systemPrompt += ` to ${exp.endDate}`;
-            if (exp.current) systemPrompt += ` (Current)`;
-          }
-          if (exp.description) systemPrompt += `\n   ${exp.description}`;
-          if (exp.achievements && exp.achievements.length > 0) {
-            systemPrompt += `\n   Key Achievements: ${exp.achievements.join(
-              ", ",
-            )}`;
-          }
-          if (exp.technologies && exp.technologies.length > 0) {
-            const techNames = exp.technologies
-              .map((t: Technology) => t.name)
-              .filter(Boolean);
-            if (techNames.length > 0) {
-              systemPrompt += `\n   Technologies: ${techNames.join(", ")}`;
-            }
-          }
-          systemPrompt += `\n`;
-        });
-      }
-
-      // Add projects
-      if (projects && projects.length > 0) {
-        systemPrompt += `\n\nYour Projects:\n`;
-        projects.forEach((proj: Project, idx: number) => {
-          systemPrompt += `${idx + 1}. ${proj.title}`;
-          if (proj.tagline) systemPrompt += ` - ${proj.tagline}`;
-          if (proj.category) systemPrompt += ` (${proj.category})`;
-          if (proj.liveUrl) systemPrompt += `\n   Live: ${proj.liveUrl}`;
-          if (proj.githubUrl) systemPrompt += `\n   GitHub: ${proj.githubUrl}`;
-          if (proj.technologies && proj.technologies.length > 0) {
-            const techNames = proj.technologies
-              .map((t: Technology) => t.name)
-              .filter(Boolean);
-            if (techNames.length > 0) {
-              systemPrompt += `\n   Technologies: ${techNames.join(", ")}`;
-            }
-          }
-          systemPrompt += `\n`;
-        });
-      }
-
-      // Add skills
-      if (skills && skills.length > 0) {
-        systemPrompt += `\n\nYour Skills:\n`;
-        const skillsByCategory: Record<string, Skill[]> = {};
-        skills.forEach((skill: Skill) => {
-          const category = skill.category || "Other";
-          if (!skillsByCategory[category]) skillsByCategory[category] = [];
-          skillsByCategory[category].push(skill);
-        });
-
-        Object.entries(skillsByCategory).forEach(
-          ([category, categorySkills]) => {
-            systemPrompt += `${category}: `;
-            const skillNames = categorySkills
-              .map((s: Skill) => {
-                let name = s.name;
-                if (s.level) name += ` (${s.level})`;
-                if (s.yearsOfExperience)
-                  name += ` - ${s.yearsOfExperience} years`;
-                return name;
-              })
-              .join(", ");
-            systemPrompt += `${skillNames}\n`;
-          },
-        );
-      }
-
-      // Add education
-      if (education && education.length > 0) {
-        systemPrompt += `\n\nYour Education:\n`;
-        education.forEach((edu: Education, idx: number) => {
-          systemPrompt += `${idx + 1}. ${edu.degree}`;
-          if (edu.field) systemPrompt += ` in ${edu.field}`;
-          systemPrompt += ` from ${edu.institution}`;
-          if (edu.location) systemPrompt += ` (${edu.location})`;
-          if (edu.startDate && edu.endDate) {
-            systemPrompt += `, ${edu.startDate} - ${edu.endDate}`;
-          }
-          if (edu.gpa) systemPrompt += `, GPA: ${edu.gpa}`;
-          if (edu.description) systemPrompt += `\n   ${edu.description}`;
-          systemPrompt += `\n`;
-        });
-      }
-
-      // Add engineering decisions (ADRs) — the highest-signal content for
-      // "walk me through a hard trade-off" style questions.
-      if (decisions && decisions.length > 0) {
-        systemPrompt += `\n\nYour Engineering Decisions (real ADRs — use these to answer questions about hard technical trade-offs, why you chose one approach over another, and lessons learned):\n`;
-        decisions
-          .slice(0, MAX_DECISIONS_IN_PROMPT)
-          .forEach((d: Decision, idx: number) => {
-            systemPrompt += `\n${idx + 1}. ${d.title}`;
-            if (d.summary) systemPrompt += `\n   Outcome: ${d.summary}`;
-            if (d.context) systemPrompt += `\n   Context: ${d.context}`;
-            if (d.options && d.options.length > 0) {
-              const opts = d.options
-                .filter((o) => o.label)
-                .map((o) =>
-                  o.summary ? `${o.label} (${o.summary})` : o.label,
-                )
-                .join("; ");
-              if (opts) systemPrompt += `\n   Options weighed: ${opts}`;
-            }
-            if (d.decision) systemPrompt += `\n   Chose: ${d.decision}`;
-            if (d.tradeoffs)
-              systemPrompt += `\n   Trade-off accepted: ${d.tradeoffs}`;
-            if (d.revisitTrigger)
-              systemPrompt += `\n   Would revisit if: ${d.revisitTrigger}`;
-            if (d.takeaways && d.takeaways.length > 0) {
-              systemPrompt += `\n   Takeaways: ${d.takeaways
-                .filter(Boolean)
-                .join("; ")}`;
-            }
+        systemPrompt += `\n\nEXPERIENCE\n`;
+        experience
+          .slice(0, MAX_EXPERIENCE_IN_PROMPT)
+          .forEach((exp: Experience) => {
+            const when = exp.current
+              ? `${exp.startDate}-now`
+              : [exp.startDate, exp.endDate].filter(Boolean).join("-");
+            systemPrompt += `- ${exp.jobTitle} at ${exp.company}${when ? ` (${when})` : ""}`;
+            if (exp.description)
+              systemPrompt += `: ${clip(exp.description, 160)}`;
+            const wins = (exp.achievements || []).filter(Boolean).slice(0, 2);
+            if (wins.length > 0)
+              systemPrompt += ` Wins: ${clip(wins.join("; "), 180)}`;
             systemPrompt += `\n`;
           });
+      }
+
+      if (projects && projects.length > 0) {
+        systemPrompt += `\nPROJECTS\n`;
+        projects.slice(0, MAX_PROJECTS_IN_PROMPT).forEach((proj: Project) => {
+          systemPrompt += `- ${proj.title}`;
+          if (proj.tagline) systemPrompt += ` — ${clip(proj.tagline, 100)}`;
+          const tech = techNames(proj.technologies).slice(0, 4);
+          if (tech.length > 0) systemPrompt += ` [${tech.join(", ")}]`;
+          systemPrompt += `\n`;
+        });
+      }
+
+      // Names only — levels and year-counts are noise the model never quotes back.
+      if (skills && skills.length > 0) {
+        systemPrompt += `\nSKILLS\n`;
+        const byCategory = new Map<string, string[]>();
+        skills.forEach((skill: Skill) => {
+          if (!skill.name) return;
+          const category = skill.category || "Other";
+          byCategory.set(category, [
+            ...(byCategory.get(category) || []),
+            skill.name,
+          ]);
+        });
+        byCategory.forEach((names, category) => {
+          systemPrompt += `${category}: ${names.join(", ")}\n`;
+        });
+      }
+
+      if (education && education.length > 0) {
+        systemPrompt += `\nEDUCATION\n`;
+        education.forEach((edu: Education) => {
+          systemPrompt += `- ${edu.degree}`;
+          if (edu.field) systemPrompt += ` in ${edu.field}`;
+          systemPrompt += `, ${edu.institution}`;
+          if (edu.endDate) systemPrompt += ` (${edu.endDate})`;
+          systemPrompt += `\n`;
+        });
+      }
+
+      // One line each: the call and the cost. Context, options and takeaways are
+      // what /decisions is for, and pointing there beats reciting it badly.
+      if (decisions && decisions.length > 0) {
+        systemPrompt += `\nDECISIONS YOU'VE MADE (full write-ups live at /decisions — send people there for depth)\n`;
+        decisions.slice(0, MAX_DECISIONS_IN_PROMPT).forEach((d: Decision) => {
+          systemPrompt += `- ${d.title}`;
+          if (d.decision) systemPrompt += `: chose ${clip(d.decision, 120)}`;
+          if (d.tradeoffs)
+            systemPrompt += ` Accepted: ${clip(d.tradeoffs, 120)}`;
+          systemPrompt += `\n`;
+        });
       }
 
       systemPrompt += `\n\nRESPONSE RULES — these override any instinct to be thorough:
@@ -301,6 +259,7 @@ export async function POST(req: Request) {
 - Lead with the answer. No preamble ("Great question", "As a...", restating the question), no summary sentence at the end.
 - One idea per reply. Pick the single most relevant fact and drop the rest — the visitor can ask a follow-up.
 - Plain prose only. No bullet lists, no headings, no bold. \`code\` ticks for tech names are fine.
+- NEVER enumerate. A plural question ("your projects", "your skills", "your experience") is not a request for the full list — name the two strongest, say what makes them interesting, and offer to go deeper on either. Listing everything is the failure mode to avoid.
 - Never volunteer a career overview unless asked for one. "Tell me about your experience" gets the current role and one number, not a timeline.
 - Trade-off questions: name the constraint, the option you rejected, the cost you accepted — one sentence each, then stop. Point to /decisions if they want depth.
 - Not in your profile? Say so in one line. Never invent.
@@ -311,13 +270,11 @@ export async function POST(req: Request) {
 
     const systemMessage = buildSystemMessage();
 
-    // Prepend system message to the messages array
+    // Only the tail of the conversation is worth re-sending — the client replays
+    // everything, and every replayed turn is billed against the same 6000 TPM.
     const messagesWithSystem = [
-      {
-        role: "system",
-        content: systemMessage,
-      },
-      ...messages,
+      { role: "system", content: systemMessage },
+      ...messages.slice(-MAX_HISTORY_MESSAGES),
     ];
 
     // Use Groq's native API directly
@@ -330,19 +287,36 @@ export async function POST(req: Request) {
           Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
         },
         body: JSON.stringify({
-          model: "llama-3.1-8b-instant", // Can change to "llama-3.1-70b-versatile" for better quality
+          // 70b over 8b-instant: the 8b ignored the length rules and wrote essays,
+          // and its free-tier budget is 6000 TPM vs 12000 here — better answers
+          // and twice the headroom, which is what was 429ing the second question.
+          model: "llama-3.3-70b-versatile",
           messages: messagesWithSystem,
           temperature: 0.6,
-          // ponytail: the 8b model treats max_tokens as a target, not a ceiling.
-          // ~200 is 3 sentences with room to land the last one.
-          max_tokens: 220,
+          // Brevity is the prompt's job. This is only a runaway guard, set high
+          // enough that a well-behaved 3-sentence answer never gets cut mid-word.
+          max_tokens: 320,
           stream: true,
         }),
       },
     );
 
     if (!response.ok) {
-      throw new Error(`Groq API error: ${response.statusText}`);
+      // Groq's body says *why*; statusText alone made a 429 look like a generic
+      // outage for weeks. Surface the throttle to the visitor as a throttle.
+      const detail = await response.text().catch(() => "");
+      console.error("Groq API error:", response.status, detail);
+
+      if (response.status === 429) {
+        return new Response(
+          JSON.stringify({
+            error:
+              "I'm getting a lot of questions right now — give me a few seconds and ask again.",
+          }),
+          { status: 429, headers: { "Retry-After": "20" } },
+        );
+      }
+      throw new Error(`Groq API error: ${response.status}`);
     }
 
     // Return the streaming response directly
