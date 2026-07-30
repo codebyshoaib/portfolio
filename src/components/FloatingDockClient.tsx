@@ -47,8 +47,7 @@ export function FloatingDockClient({
   const pathname = usePathname();
   const onHomepage = pathname === "/";
   const { isSignedIn, signOut } = useSafeClerk();
-  const { openModal: openBooking, enabled: bookingEnabled } =
-    useBookACall(calLink);
+  const { openBooking, enabled: bookingEnabled } = useBookACall(calLink);
 
   // Memoised so the scroll-spy effect below doesn't tear down and rebuild the
   // observer on every render (navItems is a stable prop from the server).

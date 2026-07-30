@@ -1,70 +1,27 @@
 /**
- * Cal.com embed loader.
+ * Cal.com booking link.
  *
- * @calcom/embed-snippet injects embed.js idempotently (it guards on `Cal.loaded`
- * internally) and returns the global `window.Cal` function. We wrap it so callers
- * get a typed handle without each component re-declaring the global.
+ * There is deliberately no embed here. The Cal modal embed is broken by Cal's
+ * own infrastructure: Cloudflare bot management on app.cal.com challenges every
+ * request made from the embedded third-party iframe. Verified 2026-07-31 against
+ * the live site over CDP, from inside the embed frame:
  *
- *   await loadCal()                 // dynamic-imports snippet, injects embed.js once
- *     ├── Cal("ui", { theme })      // theme sync (light/dark)
- *     └── Cal("modal", { calLink }) // open the booking modal
+ *   GET  https://app.cal.com/api/logo         -> 403, cf-mitigated: challenge
+ *   GET  .../app-store/googlevideo/logo.webp  -> 403, cf-mitigated: challenge
+ *   POST https://app.cal.com/api/book/event   -> never resolves
  *
- * The snippet is dynamic-imported INSIDE loadCal (not at module top) so neither
- * the snippet nor embed.js ships in the initial bundle — both load only when a
- * user first clicks "Book a call". embed.js itself is fetched from app.cal.com
- * at runtime by the snippet, never bundled.
+ * which is exactly what a visitor sees: broken avatar and app icons, then "Could
+ * not book the meeting. Something went wrong while booking." The same URLs in the
+ * same browser at top level return 200, and earning cf_clearance by visiting
+ * app.cal.com top-level first does NOT fix the framed context — a Cloudflare
+ * challenge cannot be solved inside a third-party iframe. No embed config
+ * (origin, theme, namespace) can influence this.
  *
- * We deliberately use the vanilla snippet, NOT @calcom/embed-react, because the
- * React package pins peer deps to React 18.2 and this app is on React 19 — the
- * SDK would force --legacy-peer-deps and risk CI build failures. The snippet is
- * framework-agnostic with zero React peer deps.
+ * A top-level navigation passes the challenge normally, so "Book a call" opens
+ * the public booking page in a new tab. No embed.js, no snippet dependency.
  */
 
-// Minimal shape of the global Cal function. @calcom/embed-core ships no types,
-// so we declare only what we call. Cal is a variadic command dispatcher:
-// Cal("modal", { calLink }), Cal("ui", { theme }), etc.
-type CalApi = ((action: string, options?: Record<string, unknown>) => void) & {
-  loaded?: boolean;
-};
-
-/**
- * Dynamic-import the snippet, inject embed.js (once), and return the global Cal
- * command function. Rejects if called server-side or if the snippet fails to
- * produce `window.Cal`.
- */
-const EMBED_JS_URL = "https://app.cal.com/embed/embed.js";
-
-export async function loadCal(): Promise<CalApi> {
-  if (typeof window === "undefined") {
-    throw new Error("loadCal must run in the browser");
-  }
-  // Preflight: ad-blockers / privacy extensions commonly block app.cal.com, and
-  // the snippet injects embed.js fire-and-forget — it sets window.Cal
-  // synchronously and never reports the blocked script, so "modal" would queue
-  // forever with no error and the button appears dead. Probe reachability first
-  // (no-cors: we only care that the request isn't blocked) and throw if it is,
-  // so the caller's catch falls back to the public booking page in a new tab.
-  try {
-    await fetch(EMBED_JS_URL, { mode: "no-cors", cache: "no-store" });
-  } catch {
-    throw new Error("Cal embed.js unreachable (blocked or offline)");
-  }
-  const { default: EmbedSnippet } = await import("@calcom/embed-snippet");
-  const cal = EmbedSnippet() as CalApi | undefined;
-  if (!cal) {
-    throw new Error("Cal embed failed to load");
-  }
-  // embed.js requires an "init" before any "ui"/"modal" action, else those
-  // commands are silently dropped and nothing opens. init is idempotent, so
-  // calling it on every load is safe.
-  cal("init", { origin: "https://cal.com" });
-  return cal;
-}
-
-/**
- * Build the public fallback URL for a Cal link (path form, e.g. "user/30min").
- * Used when the embed fails to load — booking still works in a new tab.
- */
-export function calFallbackUrl(calLink: string): string {
+/** Build the public booking URL for a Cal link (path form, e.g. "user/30min"). */
+export function calBookingUrl(calLink: string): string {
   return `https://cal.com/${calLink}`;
 }

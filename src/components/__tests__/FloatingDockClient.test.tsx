@@ -20,11 +20,11 @@ vi.mock("../DynamicIcon", () => ({
   DynamicIcon: () => <span data-testid="dyn-icon" />,
 }));
 
-// Booking hook: control enabled/openModal per test.
-const openModal = vi.fn();
+// Booking hook: control enabled/openBooking per test.
+const openBooking = vi.fn();
 let bookingEnabled = true;
 vi.mock("../BookACallButton", () => ({
-  useBookACall: () => ({ openModal, enabled: bookingEnabled, pending: false }),
+  useBookACall: () => ({ openBooking, enabled: bookingEnabled }),
 }));
 
 // Section anchors (scroll-spy index) + one external social (footer).
@@ -41,7 +41,7 @@ const NAV = [
 
 describe("FloatingDockClient — side rail", () => {
   beforeEach(() => {
-    openModal.mockReset();
+    openBooking.mockReset();
     bookingEnabled = true;
     safeClerk.isSignedIn = false;
     pathname = "/";
@@ -66,12 +66,12 @@ describe("FloatingDockClient — side rail", () => {
     expect(screen.getAllByText("Book a call").length).toBeGreaterThan(0);
   });
 
-  it("invokes openModal when a 'Book a call' action is clicked", async () => {
+  it("invokes openBooking when a 'Book a call' action is clicked", async () => {
     const { default: userEvent } = await import("@testing-library/user-event");
     const user = userEvent.setup();
     render(<FloatingDockClient navItems={NAV} calLink="user/30min" />);
     await user.click(screen.getAllByText("Book a call")[0]);
-    expect(openModal).toHaveBeenCalled();
+    expect(openBooking).toHaveBeenCalled();
   });
 
   it("renders external items as social links, not index entries", () => {

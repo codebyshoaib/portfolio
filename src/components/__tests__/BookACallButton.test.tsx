@@ -1,27 +1,20 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { BookACallButton } from "../BookACallButton";
 
-// Mock next-themes so the hook resolves a theme without a provider.
-vi.mock("next-themes", () => ({
-  useTheme: () => ({ resolvedTheme: "light" }),
-}));
-
-// Mock the Cal loader so no real embed.js is injected during tests.
-// loadCal is async (dynamic-imports the snippet), so the mock returns a promise.
-const calSpy = vi.fn();
-const loadCalMock = vi.fn(async () => calSpy);
-vi.mock("@/lib/cal", () => ({
-  loadCal: () => loadCalMock(),
-  calFallbackUrl: (link: string) => `https://cal.com/${link}`,
-}));
+// The button is a top-level new-tab open, not the Cal modal embed (Cloudflare
+// blocks that from inside an iframe — see src/lib/cal.ts). So the only thing
+// worth asserting is the URL it opens.
+let openSpy: ReturnType<typeof vi.spyOn>;
 
 describe("BookACallButton", () => {
   beforeEach(() => {
-    calSpy.mockReset();
-    loadCalMock.mockReset();
-    loadCalMock.mockImplementation(async () => calSpy);
+    openSpy = vi.spyOn(window, "open").mockImplementation(() => null);
+  });
+
+  afterEach(() => {
+    openSpy.mockRestore();
   });
 
   it("renders nothing when calLink is empty", () => {
@@ -41,6 +34,19 @@ describe("BookACallButton", () => {
     ).toBeInTheDocument();
   });
 
+  it("opens the public booking page in a new tab on click", async () => {
+    const user = userEvent.setup();
+    render(<BookACallButton calLink="user/30min" />);
+
+    await user.click(screen.getByRole("button", { name: /book a call/i }));
+
+    expect(openSpy).toHaveBeenCalledWith(
+      "https://cal.com/user/30min",
+      "_blank",
+      "noopener,noreferrer",
+    );
+  });
+
   it("bare variant renders a plain button with the passed className and still opens", async () => {
     const user = userEvent.setup();
     render(
@@ -54,12 +60,11 @@ describe("BookACallButton", () => {
     expect(btn).toHaveClass("my-hero-btn");
 
     await user.click(btn);
-    await waitFor(() => {
-      expect(calSpy).toHaveBeenCalledWith("modal", {
-        calLink: "user/30min",
-        config: { theme: "light" },
-      });
-    });
+    expect(openSpy).toHaveBeenCalledWith(
+      "https://cal.com/user/30min",
+      "_blank",
+      "noopener,noreferrer",
+    );
   });
 
   it("bare variant renders nothing when calLink is empty", () => {
@@ -67,43 +72,5 @@ describe("BookACallButton", () => {
       <BookACallButton calLink={null} variant="bare" />,
     );
     expect(container).toBeEmptyDOMElement();
-  });
-
-  it("opens the Cal modal on click with the calLink and theme", async () => {
-    const user = userEvent.setup();
-    render(<BookACallButton calLink="user/30min" />);
-
-    await user.click(screen.getByRole("button", { name: /book a call/i }));
-
-    await waitFor(() => {
-      expect(calSpy).toHaveBeenCalledWith("modal", {
-        calLink: "user/30min",
-        config: { theme: "light" },
-      });
-    });
-    expect(loadCalMock).toHaveBeenCalledTimes(1);
-    expect(calSpy).toHaveBeenCalledWith("ui", { theme: "light" });
-  });
-
-  it("falls back to opening a new tab when the embed fails to load", async () => {
-    const user = userEvent.setup();
-    const openSpy = vi.spyOn(window, "open").mockImplementation(() => null);
-    loadCalMock.mockImplementation(async () => {
-      throw new Error("embed.js blocked");
-    });
-    const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-
-    render(<BookACallButton calLink="user/30min" />);
-    await user.click(screen.getByRole("button", { name: /book a call/i }));
-
-    await waitFor(() => {
-      expect(openSpy).toHaveBeenCalledWith(
-        "https://cal.com/user/30min",
-        "_blank",
-        "noopener,noreferrer",
-      );
-    });
-    openSpy.mockRestore();
-    errSpy.mockRestore();
   });
 });

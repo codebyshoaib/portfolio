@@ -126,7 +126,7 @@ export const commands: Record<string, Command> = {
         `  ${accent("now")}                 what I'm working on this week`,
         `  ${accent("uses")}                hardware + software setup`,
         `  ${accent("contact")}             email · linkedin · github`,
-        `  ${accent("book")}                schedule a 15-min call`,
+        `  ${accent("book")}                schedule a 30-min call`,
         `  ${accent("download cv")}         resume.pdf`,
         `  ${accent("recruiter")}           static, scan-friendly view`,
         `  ${accent("clear")}               clear the screen ${dim("(Ctrl+L)")}`,
@@ -402,7 +402,7 @@ export const commands: Record<string, Command> = {
         `${dim("linkedin")}     ${profile.socialLinks?.linkedin ? link(profile.socialLinks.linkedin, profile.socialLinks.linkedin.replace(/^https?:\/\//, "")) : dim("—")}`,
         `${dim("twitter")}      ${profile.socialLinks?.twitter ? link(profile.socialLinks.twitter, profile.socialLinks.twitter.replace(/^https?:\/\//, "")) : dim("—")}`,
         "",
-        `${dim("Prefer a meeting?")} ${accent("book")} to grab a 15-min slot.`,
+        `${dim("Prefer a meeting?")} ${accent("book")} to grab a 30-min slot.`,
         `${dim("Need the resume?")} ${accent("download cv")}`,
       ].join("\n"),
     }),
@@ -414,15 +414,18 @@ export const commands: Record<string, Command> = {
     run: () => ({
       kind: "html",
       value: [
-        serif("Schedule a 15-minute call"),
+        serif("Schedule a 30-minute call"),
         "",
         dim(
           "Best for: senior+ roles, technical co-founder conversations, infra/AI work.",
         ),
         "",
+        // Must match the calLink on the Sanity profile. The old
+        // cal.com/shoaibuddin/intro link was dead — that event type does not
+        // exist (Cal's public event API returns null for it).
         link(
-          "https://cal.com/shoaibuddin/intro",
-          "→ cal.com/shoaibuddin/intro",
+          "https://cal.com/shoaib-uddin-wszyfy/30min",
+          "→ cal.com/shoaib-uddin-wszyfy/30min",
         ),
         "",
         dim("Reply SLA: 24h on weekdays."),

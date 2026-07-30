@@ -1,63 +1,30 @@
 "use client";
 
 import { IconCalendarEvent } from "@tabler/icons-react";
-import { useTheme } from "next-themes";
-import { useCallback, useRef, useState } from "react";
+import { useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { calFallbackUrl, loadCal } from "@/lib/cal";
+import { calBookingUrl } from "@/lib/cal";
 
 /**
  * Cal.com "Book a call" entry points.
  *
- * One hook (useBookACall) owns the open-modal logic so the dock action and the
- * contact-section button share it (DRY). The embed snippet is imported at module
- * top, but embed.js itself is only injected on the FIRST click (loadCal), so the
- * heavy Cal core stays out of the initial render path.
+ * One hook (useBookACall) owns the open logic so the dock action and the
+ * contact-section button share it (DRY).
  *
- *   click ──> loadCal() [injects embed.js once, idempotent]
- *              ├── Cal("ui", { theme })      sync to active light/dark theme
- *              └── Cal("modal", { calLink }) open booking modal in-place
- *            └── on failure ──> window.open(https://cal.com/<calLink>)  [new tab]
+ *   click ──> window.open(https://cal.com/<calLink>)  [new tab]
+ *
+ * Not the Cal modal embed: Cloudflare blocks it from inside a third-party
+ * iframe, which broke booking outright. See src/lib/cal.ts for the evidence.
  */
 
 export function useBookACall(calLink: string | null | undefined) {
-  const { resolvedTheme } = useTheme();
-  const [pending, setPending] = useState(false);
-  // Guard against double-injection races if a user double-clicks before the
-  // first load resolves. loadCal is itself idempotent, but this avoids two
-  // concurrent in-flight opens.
-  const openingRef = useRef(false);
-
-  const openModal = useCallback(async () => {
-    if (!calLink || openingRef.current) {
-      return;
+  const openBooking = useCallback(() => {
+    if (calLink) {
+      window.open(calBookingUrl(calLink), "_blank", "noopener,noreferrer");
     }
-    openingRef.current = true;
-    setPending(true);
-    try {
-      // loadCal dynamic-imports the snippet (kept out of the initial bundle) and
-      // injects embed.js on first call. Awaited so a slow chunk fetch shows the
-      // pending state rather than appearing to do nothing.
-      const cal = await loadCal();
-      const theme = resolvedTheme === "dark" ? "dark" : "light";
-      // Re-applying ui on each open keeps the modal themed to the CURRENT theme,
-      // so toggling light/dark between opens is reflected. config.theme on the
-      // modal call themes the booking iframe itself.
-      cal("ui", { theme });
-      cal("modal", { calLink, config: { theme } });
-    } catch {
-      // Embed unreachable — ad-blockers / privacy extensions routinely block
-      // app.cal.com, and it can also be offline/CSP-blocked. This is expected
-      // degradation, not a bug, so we don't console.error it (that trips the
-      // Next dev overlay). Fall back to the public booking page in a new tab.
-      window.open(calFallbackUrl(calLink), "_blank", "noopener,noreferrer");
-    } finally {
-      setPending(false);
-      openingRef.current = false;
-    }
-  }, [calLink, resolvedTheme]);
+  }, [calLink]);
 
-  return { openModal, pending, enabled: Boolean(calLink) };
+  return { openBooking, enabled: Boolean(calLink) };
 }
 
 interface BookACallButtonProps {
@@ -82,26 +49,20 @@ export function BookACallButton({
   variant = "default",
   showIcon = variant === "default",
 }: BookACallButtonProps) {
-  const { openModal, pending, enabled } = useBookACall(calLink);
+  const { openBooking, enabled } = useBookACall(calLink);
 
   if (!enabled) {
     return null;
   }
 
-  const label = pending ? "Opening…" : "Book a call";
+  const label = "Book a call";
   const icon = showIcon ? (
     <IconCalendarEvent className="size-4" aria-hidden="true" />
   ) : null;
 
   if (variant === "bare") {
     return (
-      <button
-        type="button"
-        onClick={openModal}
-        disabled={pending}
-        aria-busy={pending}
-        className={className}
-      >
+      <button type="button" onClick={openBooking} className={className}>
         {icon}
         {label}
       </button>
@@ -109,13 +70,7 @@ export function BookACallButton({
   }
 
   return (
-    <Button
-      type="button"
-      onClick={openModal}
-      disabled={pending}
-      aria-busy={pending}
-      className={className}
-    >
+    <Button type="button" onClick={openBooking} className={className}>
       {icon}
       {label}
     </Button>
