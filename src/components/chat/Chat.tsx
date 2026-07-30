@@ -121,7 +121,6 @@ export interface ChatData {
 export function Chat({ profile: chatData }: { profile: ChatData | null }) {
   const profile = chatData?.profile;
   const { toggleSidebar } = useSidebar();
-  const [selectedModel, setSelectedModel] = useState("crisp");
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "greeting",
@@ -530,19 +529,6 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
     },
   ];
 
-  const models = [
-    {
-      id: "crisp",
-      label: "Crisp",
-      description: "Concise and factual",
-    },
-    {
-      id: "clear",
-      label: "Clear",
-      description: "Focused and helpful",
-    },
-  ];
-
   return (
     <div className="flex flex-col h-full w-full bg-background text-foreground">
       {/* Header */}
@@ -640,27 +626,6 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
           </>
         )}
       </div>
-
-      {/* Model Selector - only show when there are messages */}
-      {messages.length > 1 && (
-        <div className="px-4 py-2 border-t border-border">
-          <div className="flex gap-2 overflow-x-auto">
-            {models.map((model) => (
-              <button
-                key={model.id}
-                type="button"
-                onClick={() => setSelectedModel(model.id)}
-                className={`px-3 py-1.5 text-xs rounded-lg whitespace-nowrap transition-colors ${selectedModel === model.id
-                  ? "bg-brand text-brand-foreground"
-                  : "bg-card border border-border hover:border-brand/50"
-                  }`}
-              >
-                {model.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Input Area */}
       <form
