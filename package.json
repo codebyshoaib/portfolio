@@ -13,7 +13,8 @@
     "decisions:import": "tsx --env-file=.env.local scripts/content/import.ts --type=decision",
     "test": "vitest run",
     "test:watch": "vitest",
-    "notes:import": "tsx --env-file=.env.local scripts/content/import.ts --type=note"
+    "notes:import": "tsx --env-file=.env.local scripts/content/import.ts --type=note",
+    "rag:index": "tsx --env-file=.env.local scripts/rag/build-index.ts"
   },
   "dependencies": {
     "@ai-sdk/groq": "^3.0.1",

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { retrieve } from "@/lib/rag/retrieve";
 import { chatRateLimiter } from "@/lib/rate-limit";
 
 interface Technology {
@@ -63,6 +64,22 @@ const MAX_EXPERIENCE_IN_PROMPT = 5;
 const MAX_PROJECTS_IN_PROMPT = 6;
 // Only the last few turns are worth re-sending; older context is not worth its tokens.
 const MAX_HISTORY_MESSAGES = 6;
+
+// How many chunks reach the prompt, and how much of one document may dominate.
+const RETRIEVE_K = 6;
+const MAX_CHUNKS_PER_DOC = 2;
+
+const RESPONSE_RULES = `\n\nRESPONSE RULES — these override any instinct to be thorough:
+- You ARE this person. Use "I" and "my". Talk like a senior engineer in a hallway chat, not a cover letter.
+- HARD CAP: 3 sentences. Most answers should be 1-2. A one-line answer is a good answer.
+- Lead with the answer. No preamble ("Great question", "As a...", restating the question), no summary sentence at the end.
+- One idea per reply. Pick the single most relevant fact and drop the rest — the visitor can ask a follow-up.
+- Plain prose only. No bullet lists, no headings, no bold. \`code\` ticks for tech names are fine.
+- NEVER enumerate. A plural question ("your projects", "your skills", "your experience") is not a request for the full list — name the two strongest, say what makes them interesting, and offer to go deeper on either. Listing everything is the failure mode to avoid.
+- Never volunteer a career overview unless asked for one. "Tell me about your experience" gets the current role and one number, not a timeline.
+- Trade-off questions: name the constraint, the option you rejected, the cost you accepted — one sentence each, then stop. Point to /decisions if they want depth.
+- Not in your profile? Say so in one line. Never invent.
+- Finish the sentence you start.`;
 
 const clip = (s: string, max: number) =>
   s.length > max ? `${s.slice(0, max).trimEnd()}…` : s;
@@ -135,6 +152,33 @@ export async function POST(req: Request) {
         { status: 500 },
       );
     }
+
+    // Identity always ships; it is ~60 tokens and relevant to every question.
+    // Everything else is retrieved.
+    const buildIdentity = () => {
+      const profile = (profileData as { profile?: Record<string, unknown> })
+        ?.profile as
+        | {
+            firstName?: string;
+            lastName?: string;
+            headline?: string;
+            shortBio?: string;
+            yearsOfExperience?: number;
+            location?: string;
+          }
+        | undefined;
+      if (!profile) return "";
+      return [
+        `You are ${[profile.firstName, profile.lastName].filter(Boolean).join(" ")}.`,
+        profile.headline && `Headline: ${profile.headline}.`,
+        profile.shortBio && `About: ${profile.shortBio}`,
+        profile.yearsOfExperience &&
+          `${profile.yearsOfExperience} years of professional experience.`,
+        profile.location && `Based in ${profile.location}.`,
+      ]
+        .filter(Boolean)
+        .join(" ");
+    };
 
     // Build system message with profile context
     const buildSystemMessage = () => {
@@ -253,22 +297,37 @@ export async function POST(req: Request) {
         });
       }
 
-      systemPrompt += `\n\nRESPONSE RULES — these override any instinct to be thorough:
-- You ARE this person. Use "I" and "my". Talk like a senior engineer in a hallway chat, not a cover letter.
-- HARD CAP: 3 sentences. Most answers should be 1-2. A one-line answer is a good answer.
-- Lead with the answer. No preamble ("Great question", "As a...", restating the question), no summary sentence at the end.
-- One idea per reply. Pick the single most relevant fact and drop the rest — the visitor can ask a follow-up.
-- Plain prose only. No bullet lists, no headings, no bold. \`code\` ticks for tech names are fine.
-- NEVER enumerate. A plural question ("your projects", "your skills", "your experience") is not a request for the full list — name the two strongest, say what makes them interesting, and offer to go deeper on either. Listing everything is the failure mode to avoid.
-- Never volunteer a career overview unless asked for one. "Tell me about your experience" gets the current role and one number, not a timeline.
-- Trade-off questions: name the constraint, the option you rejected, the cost you accepted — one sentence each, then stop. Point to /decisions if they want depth.
-- Not in your profile? Say so in one line. Never invent.
-- Finish the sentence you start.`;
+      systemPrompt += RESPONSE_RULES;
 
       return systemPrompt;
     };
 
-    const systemMessage = buildSystemMessage();
+    // Retrieval, with the static profile as the floor. The twin degrades to a
+    // summary-level answer rather than an error whenever the index is missing,
+    // the embedding key is absent, or nothing clears the relevance threshold.
+    const lastUserMessage =
+      [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
+    const { chunks: retrieved, reason } = await retrieve(
+      lastUserMessage,
+      RETRIEVE_K,
+      MAX_CHUNKS_PER_DOC,
+    );
+
+    const systemMessage =
+      retrieved.length > 0
+        ? [
+            buildIdentity(),
+            "\n\nRELEVANT BACKGROUND (retrieved for this question — answer from it; if it doesn't cover the question, say so rather than guessing):",
+            ...retrieved.map(
+              (c) => `- ${c.text}${c.url ? ` (read more: ${c.url})` : ""}`,
+            ),
+            RESPONSE_RULES,
+          ].join("\n")
+        : buildSystemMessage();
+
+    if (retrieved.length === 0 && reason) {
+      console.warn(`RAG fell back to the static prompt: ${reason}`);
+    }
 
     // Only the tail of the conversation is worth re-sending — the client replays
     // everything, and every replayed turn is billed against the same 6000 TPM.
