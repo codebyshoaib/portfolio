@@ -15,6 +15,7 @@ export default function DecisionsLoading() {
       <div className="chrome-bar">
         <span>shoaib /decisions</span>
         <span className="chrome-right">
+          <span>HOME</span>
           <span>NOTES</span>
           <span>RSS</span>
           <span>JSON</span>

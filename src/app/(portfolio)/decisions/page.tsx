@@ -190,6 +190,7 @@ export default async function DecisionsIndexPage({ searchParams }: PageProps) {
       <div className="chrome-bar">
         <span>shoaib /decisions</span>
         <span className="chrome-right">
+          <Link href="/">HOME</Link>
           <Link href="/notes">NOTES</Link>
           <Link href="/decisions/feed.xml">RSS</Link>
           <Link href="/decisions/feed.json">JSON</Link>

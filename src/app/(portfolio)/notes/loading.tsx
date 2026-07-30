@@ -11,6 +11,7 @@ export default function NotesLoading() {
       <div className="chrome-bar">
         <span>shoaib /notes</span>
         <span className="chrome-right">
+          <span>HOME</span>
           <span>DECISIONS</span>
           <span>RSS</span>
           <span>JSON</span>

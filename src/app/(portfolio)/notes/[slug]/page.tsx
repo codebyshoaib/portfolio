@@ -147,6 +147,8 @@ export default async function NoteDetailPage({ params }: PageProps) {
       <div className="chrome-bar">
         <span>shoaib /notes</span>
         <span className="chrome-right">
+          <Link href="/">HOME</Link>
+          <Link href="/decisions">DECISIONS</Link>
           <Link href="/notes/feed.xml">RSS</Link>
           <Link href="/notes/feed.json">JSON</Link>
         </span>
