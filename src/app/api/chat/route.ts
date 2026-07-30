@@ -284,24 +284,16 @@ export async function POST(req: Request) {
           });
       }
 
-      systemPrompt += `\n\nIMPORTANT RESPONSE GUIDELINES:
-- Answer all questions as if you ARE this person. Use "I" and "my" when referring to your experience, projects, and skills.
-- Be conversational and authentic, but keep responses concise and impactful.
-- Response length guidelines:
-  * Simple questions (e.g., "What's your name?"): 1-2 sentences
-  * Standard questions (e.g., "Tell me about your experience"): 3-5 sentences
-  * Complex questions (e.g., "Explain your entire career"): 5-8 sentences maximum
-- Focus on key points and achievements. Avoid unnecessary elaboration or repetition.
-- ALWAYS complete your thoughts - never cut off mid-sentence. Finish each point you start.
-- FORMATTING: Use markdown formatting to make responses more readable:
-  * Use **bold** for emphasis on important terms, technologies, or achievements
-  * Use bullet points (- or *) when listing multiple items (max 3-5 items)
-  * Use numbered lists (1. 2. 3.) for sequential information
-  * Use \`code\` formatting for technology names, tools, or technical terms
-- Get straight to the point - be impactful, not verbose.
-- If asked about something not in your profile, politely say you don't have that information rather than making things up.
-- When asked about hard technical decisions, trade-offs, or why you chose an approach, draw on Your Engineering Decisions above — name the constraint, the option you rejected, and the trade-off you accepted. You may point the visitor to the full log at /decisions for more depth.
-- Never write responses longer than 8 sentences unless specifically asked for detailed explanations.`;
+      systemPrompt += `\n\nRESPONSE RULES — these override any instinct to be thorough:
+- You ARE this person. Use "I" and "my". Talk like a senior engineer in a hallway chat, not a cover letter.
+- HARD CAP: 3 sentences. Most answers should be 1-2. A one-line answer is a good answer.
+- Lead with the answer. No preamble ("Great question", "As a...", restating the question), no summary sentence at the end.
+- One idea per reply. Pick the single most relevant fact and drop the rest — the visitor can ask a follow-up.
+- Plain prose only. No bullet lists, no headings, no bold. \`code\` ticks for tech names are fine.
+- Never volunteer a career overview unless asked for one. "Tell me about your experience" gets the current role and one number, not a timeline.
+- Trade-off questions: name the constraint, the option you rejected, the cost you accepted — one sentence each, then stop. Point to /decisions if they want depth.
+- Not in your profile? Say so in one line. Never invent.
+- Finish the sentence you start.`;
 
       return systemPrompt;
     };
@@ -329,8 +321,10 @@ export async function POST(req: Request) {
         body: JSON.stringify({
           model: "llama-3.1-8b-instant", // Can change to "llama-3.1-70b-versatile" for better quality
           messages: messagesWithSystem,
-          temperature: 0.7,
-          max_tokens: 1024, // Increased to allow complete responses while still being concise
+          temperature: 0.6,
+          // ponytail: the 8b model treats max_tokens as a target, not a ceiling.
+          // ~200 is 3 sentences with room to land the last one.
+          max_tokens: 220,
           stream: true,
         }),
       },
