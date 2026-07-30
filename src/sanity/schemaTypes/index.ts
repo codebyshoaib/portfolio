@@ -6,6 +6,7 @@ import decision from "./decision";
 import education from "./education";
 import experience from "./experience";
 import navigation from "./navigation";
+import note from "./note";
 import now from "./now";
 import profile from "./profile";
 import project from "./project";
@@ -29,6 +30,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     service,
     contact,
     decision,
+    note,
     now,
     uses,
     siteSettings,

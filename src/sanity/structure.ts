@@ -7,6 +7,7 @@ import {
   DocumentIcon,
   DocumentsIcon,
   DownloadIcon,
+  EditIcon,
   InlineIcon,
   ProjectsIcon,
   RocketIcon,
@@ -181,6 +182,12 @@ export const structure: StructureResolver = (S) =>
                 .icon(DocumentIcon)
                 .schemaType("decision")
                 .child(S.documentTypeList("decision").title("Decisions")),
+
+              S.listItem()
+                .title("Notes")
+                .icon(EditIcon)
+                .schemaType("note")
+                .child(S.documentTypeList("note").title("Notes")),
 
               S.listItem()
                 .title("Now (monthly focus)")

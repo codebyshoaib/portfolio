@@ -1,4 +1,4 @@
-import "./decisions.css";
+import "../editorial.css";
 
 // metadataBase lives on the root layout — it is a site-wide concern, and scoping
 // it here would mean the next OG image added anywhere else silently ships
@@ -12,5 +12,5 @@ export default function DecisionsLayout({
 }: {
   readonly children: React.ReactNode;
 }) {
-  return <div className="decisions-root">{children}</div>;
+  return <div className="editorial-root">{children}</div>;
 }

@@ -205,6 +205,50 @@ export type Now = {
   reading?: string;
 };
 
+export type Note = {
+  _id: string;
+  _type: "note";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title?: string;
+  slug?: Slug;
+  date?: string;
+  summary?: string;
+  body?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal" | "h2" | "h3" | "blockquote";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  } | {
+    language?: "ts" | "tsx" | "js" | "jsx" | "go" | "rust" | "py" | "sh" | "sql" | "json" | "yaml" | "java" | "kotlin" | "swift" | "text";
+    code?: string;
+    caption?: string;
+    _type: "codeBlock";
+    _key: string;
+  }>;
+  tags?: Array<string>;
+  published?: boolean;
+};
+
+export type Slug = {
+  _type: "slug";
+  current?: string;
+  source?: string;
+};
+
 export type Decision = {
   _id: string;
   _type: "decision";
@@ -268,12 +312,6 @@ export type Decision = {
   }>;
   tags?: Array<string>;
   published?: boolean;
-};
-
-export type Slug = {
-  _type: "slug";
-  current?: string;
-  source?: string;
 };
 
 export type Contact = {
@@ -759,11 +797,21 @@ export type Geopoint = {
   alt?: number;
 };
 
-export type AllSanitySchemaTypes = Resume | SanityImageCrop | SanityImageHotspot | Navigation | SiteSettings | Uses | Now | Decision | Slug | Contact | Service | Achievement | Certification | Testimonial | Education | Experience | Skill | Profile | Project | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset | Geopoint;
+export type AllSanitySchemaTypes = Resume | SanityImageCrop | SanityImageHotspot | Navigation | SiteSettings | Uses | Now | Note | Slug | Decision | Contact | Service | Achievement | Certification | Testimonial | Education | Experience | Skill | Profile | Project | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset | Geopoint;
 export declare const internalGroqTypeReferenceTo: unique symbol;
+// Source: ./src/app/(portfolio)/decisions/[slug]/opengraph-image.tsx
+// Variable: OG_QUERY
+// Query: *[_type == "decision" && slug.current == $slug && published == true][0] {    title,    date,    status,    "adrNumber": count(*[_type == "decision" && published == true && (date < ^.date || (date == ^.date && _id <= ^._id))])  }
+export type OG_QUERYResult = {
+  title: string | null;
+  date: string | null;
+  status: "accepted" | "deprecated" | "proposed" | "superseded" | null;
+  adrNumber: number;
+} | null;
+
 // Source: ./src/app/(portfolio)/decisions/[slug]/page.tsx
 // Variable: DECISION_QUERY
-// Query: *[_type == "decision" && slug.current == $slug && published == true][0] {    "slug": slug.current,    title,    date,    status,    impact,    domain,    summary,    context,    optionsConsidered[] {      label,      summary    },    decision,    tradeoffs,    revisitTrigger,    takeaways,    body,    tags,    "supersededBy": supersededBy->{      "slug": slug.current,      title    },    "relatedProjects": relatedProjects[]->{      "slug": slug.current,      title,      tagline    },    "adrNumber": count(*[_type == "decision" && published == true && date <= ^.date])  }
+// Query: *[_type == "decision" && slug.current == $slug && published == true][0] {    "slug": slug.current,    title,    date,    status,    impact,    domain,    summary,    context,    optionsConsidered[] {      label,      summary    },    decision,    tradeoffs,    revisitTrigger,    takeaways,    body,    tags,    "supersededBy": supersededBy->{      "slug": slug.current,      title    },    "relatedProjects": relatedProjects[]->{      "slug": slug.current,      title,      tagline    },    "adrNumber": count(*[_type == "decision" && published == true && (date < ^.date || (date == ^.date && _id <= ^._id))]),    "prev": *[_type == "decision" && published == true && (date < ^.date || (date == ^.date && _id < ^._id))] | order(date desc, _id desc)[0] {      "slug": slug.current,      title    },    "next": *[_type == "decision" && published == true && (date > ^.date || (date == ^.date && _id > ^._id))] | order(date asc, _id asc)[0] {      "slug": slug.current,      title    }  }
 export type DECISION_QUERYResult = {
   slug: string | null;
   title: string | null;
@@ -816,6 +864,14 @@ export type DECISION_QUERYResult = {
     tagline: string | null;
   }> | null;
   adrNumber: number;
+  prev: {
+    slug: string | null;
+    title: string | null;
+  } | null;
+  next: {
+    slug: string | null;
+    title: string | null;
+  } | null;
 } | null;
 
 // Source: ./src/app/(portfolio)/decisions/feed.json/route.ts
@@ -843,9 +899,14 @@ export type FEED_QUERYResult = Array<{
   status: "accepted" | "deprecated" | "proposed" | "superseded" | null;
 }>;
 
+// Source: ./src/app/(portfolio)/decisions/opengraph-image.tsx
+// Variable: COUNT_QUERY
+// Query: count(*[_type == "decision" && published == true])
+export type COUNT_QUERYResult = number;
+
 // Source: ./src/app/(portfolio)/decisions/page.tsx
 // Variable: DECISIONS_QUERY
-// Query: *[_type == "decision" && published == true] | order(date asc) {    "slug": slug.current,    title,    date,    summary,    status,    impact,    domain,    tags  }
+// Query: *[_type == "decision" && published == true] | order(date asc, _id asc) {    "slug": slug.current,    title,    date,    summary,    status,    impact,    domain,    tags  }
 export type DECISIONS_QUERYResult = Array<{
   slug: string | null;
   title: string | null;
@@ -857,14 +918,96 @@ export type DECISIONS_QUERYResult = Array<{
   tags: Array<string> | null;
 }>;
 
+// Source: ./src/app/(portfolio)/notes/[slug]/page.tsx
+// Variable: NOTE_QUERY
+// Query: *[_type == "note" && slug.current == $slug && published == true][0] {    "slug": slug.current,    title,    date,    summary,    body,    tags,    "newer": *[      _type == "note" && published == true &&      (date > ^.date || (date == ^.date && _id < ^._id))    ] | order(date asc, _id desc)[0] { "slug": slug.current, title },    "older": *[      _type == "note" && published == true &&      (date < ^.date || (date == ^.date && _id > ^._id))    ] | order(date desc, _id asc)[0] { "slug": slug.current, title }  }
+export type NOTE_QUERYResult = {
+  slug: string | null;
+  title: string | null;
+  date: string | null;
+  summary: string | null;
+  body: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "blockquote" | "h2" | "h3" | "normal";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  } | {
+    language?: "go" | "java" | "js" | "json" | "jsx" | "kotlin" | "py" | "rust" | "sh" | "sql" | "swift" | "text" | "ts" | "tsx" | "yaml";
+    code?: string;
+    caption?: string;
+    _type: "codeBlock";
+    _key: string;
+  }> | null;
+  tags: Array<string> | null;
+  newer: {
+    slug: string | null;
+    title: string | null;
+  } | null;
+  older: {
+    slug: string | null;
+    title: string | null;
+  } | null;
+} | null;
+
+// Source: ./src/app/(portfolio)/notes/feed.json/route.ts
+// Variable: NOTES_FEED_JSON_QUERY
+// Query: *[_type == "note" && published == true] | order(date desc)[0...50] {    "slug": slug.current,    title,    date,    summary,    tags  }
+export type NOTES_FEED_JSON_QUERYResult = Array<{
+  slug: string | null;
+  title: string | null;
+  date: string | null;
+  summary: string | null;
+  tags: Array<string> | null;
+}>;
+
+// Source: ./src/app/(portfolio)/notes/feed.xml/route.ts
+// Variable: NOTES_FEED_QUERY
+// Query: *[_type == "note" && published == true] | order(date desc)[0...30] {    "slug": slug.current,    title,    date,    summary  }
+export type NOTES_FEED_QUERYResult = Array<{
+  slug: string | null;
+  title: string | null;
+  date: string | null;
+  summary: string | null;
+}>;
+
+// Source: ./src/app/(portfolio)/notes/page.tsx
+// Variable: NOTES_QUERY
+// Query: *[_type == "note" && published == true] | order(date desc, _id asc) {    "slug": slug.current,    title,    date,    summary,    tags  }
+export type NOTES_QUERYResult = Array<{
+  slug: string | null;
+  title: string | null;
+  date: string | null;
+  summary: string | null;
+  tags: Array<string> | null;
+}>;
+
 // Source: ./src/app/sitemap.ts
 // Variable: SITEMAP_QUERY
-// Query: *[_type == "decision" && published == true] | order(date desc) {    "slug": slug.current,    date,    _updatedAt  }
-export type SITEMAP_QUERYResult = Array<{
-  slug: string | null;
-  date: string | null;
-  _updatedAt: string;
-}>;
+// Query: {    "decisions": *[_type == "decision" && published == true] | order(date desc) {      "slug": slug.current,      date,      _updatedAt    },    "notes": *[_type == "note" && published == true] | order(date desc) {      "slug": slug.current,      date,      _updatedAt    }  }
+export type SITEMAP_QUERYResult = {
+  decisions: Array<{
+    slug: string | null;
+    date: string | null;
+    _updatedAt: string;
+  }>;
+  notes: Array<{
+    slug: string | null;
+    date: string | null;
+    _updatedAt: string;
+  }>;
+};
 
 // Source: ./src/app/v2/page.tsx
 // Variable: V2_PROFILE_QUERY
@@ -1763,11 +1906,17 @@ export type TESTIMONIALS_QUERYResult = Array<{
 import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
-    "\n  *[_type == \"decision\" && slug.current == $slug && published == true][0] {\n    \"slug\": slug.current,\n    title,\n    date,\n    status,\n    impact,\n    domain,\n    summary,\n    context,\n    optionsConsidered[] {\n      label,\n      summary\n    },\n    decision,\n    tradeoffs,\n    revisitTrigger,\n    takeaways,\n    body,\n    tags,\n    \"supersededBy\": supersededBy->{\n      \"slug\": slug.current,\n      title\n    },\n    \"relatedProjects\": relatedProjects[]->{\n      \"slug\": slug.current,\n      title,\n      tagline\n    },\n    \"adrNumber\": count(*[_type == \"decision\" && published == true && date <= ^.date])\n  }\n": DECISION_QUERYResult;
+    "\n  *[_type == \"decision\" && slug.current == $slug && published == true][0] {\n    title,\n    date,\n    status,\n    \"adrNumber\": count(*[_type == \"decision\" && published == true && (date < ^.date || (date == ^.date && _id <= ^._id))])\n  }\n": OG_QUERYResult;
+    "\n  *[_type == \"decision\" && slug.current == $slug && published == true][0] {\n    \"slug\": slug.current,\n    title,\n    date,\n    status,\n    impact,\n    domain,\n    summary,\n    context,\n    optionsConsidered[] {\n      label,\n      summary\n    },\n    decision,\n    tradeoffs,\n    revisitTrigger,\n    takeaways,\n    body,\n    tags,\n    \"supersededBy\": supersededBy->{\n      \"slug\": slug.current,\n      title\n    },\n    \"relatedProjects\": relatedProjects[]->{\n      \"slug\": slug.current,\n      title,\n      tagline\n    },\n    \"adrNumber\": count(*[_type == \"decision\" && published == true && (date < ^.date || (date == ^.date && _id <= ^._id))]),\n    \"prev\": *[_type == \"decision\" && published == true && (date < ^.date || (date == ^.date && _id < ^._id))] | order(date desc, _id desc)[0] {\n      \"slug\": slug.current,\n      title\n    },\n    \"next\": *[_type == \"decision\" && published == true && (date > ^.date || (date == ^.date && _id > ^._id))] | order(date asc, _id asc)[0] {\n      \"slug\": slug.current,\n      title\n    }\n  }\n": DECISION_QUERYResult;
     "\n  *[_type == \"decision\" && published == true] | order(date desc)[0...50] {\n    \"slug\": slug.current,\n    title,\n    date,\n    summary,\n    status,\n    impact,\n    domain,\n    tags\n  }\n": FEED_JSON_QUERYResult;
     "\n  *[_type == \"decision\" && published == true] | order(date desc)[0...30] {\n    \"slug\": slug.current,\n    title,\n    date,\n    summary,\n    status\n  }\n": FEED_QUERYResult;
-    "\n  *[_type == \"decision\" && published == true] | order(date asc) {\n    \"slug\": slug.current,\n    title,\n    date,\n    summary,\n    status,\n    impact,\n    domain,\n    tags\n  }\n": DECISIONS_QUERYResult;
-    "\n  *[_type == \"decision\" && published == true] | order(date desc) {\n    \"slug\": slug.current,\n    date,\n    _updatedAt\n  }\n": SITEMAP_QUERYResult;
+    "count(*[_type == \"decision\" && published == true])": COUNT_QUERYResult;
+    "\n  *[_type == \"decision\" && published == true] | order(date asc, _id asc) {\n    \"slug\": slug.current,\n    title,\n    date,\n    summary,\n    status,\n    impact,\n    domain,\n    tags\n  }\n": DECISIONS_QUERYResult;
+    "\n  *[_type == \"note\" && slug.current == $slug && published == true][0] {\n    \"slug\": slug.current,\n    title,\n    date,\n    summary,\n    body,\n    tags,\n    \"newer\": *[\n      _type == \"note\" && published == true &&\n      (date > ^.date || (date == ^.date && _id < ^._id))\n    ] | order(date asc, _id desc)[0] { \"slug\": slug.current, title },\n    \"older\": *[\n      _type == \"note\" && published == true &&\n      (date < ^.date || (date == ^.date && _id > ^._id))\n    ] | order(date desc, _id asc)[0] { \"slug\": slug.current, title }\n  }\n": NOTE_QUERYResult;
+    "\n  *[_type == \"note\" && published == true] | order(date desc)[0...50] {\n    \"slug\": slug.current,\n    title,\n    date,\n    summary,\n    tags\n  }\n": NOTES_FEED_JSON_QUERYResult;
+    "\n  *[_type == \"note\" && published == true] | order(date desc)[0...30] {\n    \"slug\": slug.current,\n    title,\n    date,\n    summary\n  }\n": NOTES_FEED_QUERYResult;
+    "\n  *[_type == \"note\" && published == true] | order(date desc, _id asc) {\n    \"slug\": slug.current,\n    title,\n    date,\n    summary,\n    tags\n  }\n": NOTES_QUERYResult;
+    "\n  {\n    \"decisions\": *[_type == \"decision\" && published == true] | order(date desc) {\n      \"slug\": slug.current,\n      date,\n      _updatedAt\n    },\n    \"notes\": *[_type == \"note\" && published == true] | order(date desc) {\n      \"slug\": slug.current,\n      date,\n      _updatedAt\n    }\n  }\n": SITEMAP_QUERYResult;
     "*[_id == \"singleton-profile\"][0] {\n  firstName,\n  lastName,\n  headline,\n  shortBio,\n  location,\n  yearsOfExperience,\n  email,\n  availability,\n  socialLinks,\n}": V2_PROFILE_QUERYResult;
     "*[_type == \"project\"] | order(featured desc, _createdAt desc)[0...8] {\n  title,\n  tagline,\n  metrics,\n  liveUrl,\n  githubUrl,\n  \"stack\": technologies[]->name\n}": V2_PROJECTS_QUERYResult;
     "*[_type == \"experience\"] | order(startDate desc)[0...5] {\n  jobTitle,\n  company,\n  startDate,\n  endDate,\n  current,\n  achievements\n}": V2_EXPERIENCE_QUERYResult;

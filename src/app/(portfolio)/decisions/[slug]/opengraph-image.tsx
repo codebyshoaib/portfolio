@@ -27,7 +27,7 @@ interface OgDecision {
 
 /* Flattened from the site's oklch tokens — satori has no oklch() or CSS
  * custom-property support, so the dark-theme palette is inlined here.
- * Keep in sync with globals.css / decisions.css if the brand moves. */
+ * Keep in sync with globals.css / editorial.css if the brand moves. */
 const GROUND = "#0A0F10"; // --background (dark)
 const INK = "#E2E8E7"; // --foreground (dark)
 const BRAND = "#71C6BA"; // --brand (dark)

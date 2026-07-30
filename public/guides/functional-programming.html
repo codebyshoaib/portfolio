@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Functional Programming — What I Learned</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#132220;
+    --bg2:#0f1a19;
+    --surface:#1a2c29;
+    --surface2:#213734;
+    --ink:#e9efe9;
+    --muted:#8ea69d;
+    --faint:#5f7671;
+    --pure:#7fc9a0;      /* pure functions */
+    --effect:#e6a256;    /* side effects / edges */
+    --accent:#b7a2f0;    /* composition / structure */
+    --line:rgba(143,166,157,.16);
+    --grid:rgba(143,166,157,.05);
+    --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:"Inter",system-ui,-apple-system,sans-serif;
+    --disp:"Space Grotesk","Inter",sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{
+    margin:0;
+    background:
+      linear-gradient(var(--grid) 1px,transparent 1px) 0 0/28px 28px,
+      linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/28px 28px,
+      radial-gradient(120% 80% at 50% -10%,var(--surface) 0%,var(--bg) 55%,var(--bg2) 100%);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.65;
+    font-size:17px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:860px;margin:0 auto;padding:0 24px}
+
+  /* ---------- gutter numbering ---------- */
+  .sec{position:relative;padding:64px 0;border-top:1px solid var(--line)}
+  .sec:first-of-type{border-top:none}
+  .eyebrow{
+    font-family:var(--mono);font-size:12.5px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--faint);margin:0 0 14px
+  }
+  h1,h2,h3{font-family:var(--disp);font-weight:700;line-height:1.08;margin:0}
+  h2{font-size:clamp(26px,4.5vw,38px);letter-spacing:-.01em}
+  h3{font-size:20px;font-weight:600;margin:0 0 8px}
+  p{margin:0 0 16px;color:#d4ddd6}
+  strong{color:var(--ink);font-weight:600}
+  a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(183,162,240,.35)}
+  a:hover{border-color:var(--accent)}
+
+  /* ---------- hero ---------- */
+  .hero{padding:96px 0 72px;position:relative}
+  .kicker{
+    display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);
+    font-size:12.5px;letter-spacing:.1em;color:var(--pure);
+    border:1px solid rgba(127,201,160,.3);border-radius:100px;
+    padding:6px 14px;margin-bottom:28px;text-transform:uppercase
+  }
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--pure);box-shadow:0 0 12px var(--pure)}
+  .hero h1{font-size:clamp(38px,8vw,68px);letter-spacing:-.03em;margin-bottom:10px}
+  .hero h1 .em{color:var(--pure)}
+  .hero .sub{font-size:clamp(18px,2.6vw,22px);color:var(--muted);max-width:600px;font-family:var(--disp);font-weight:400;line-height:1.4}
+  .thesis{
+    margin-top:36px;font-family:var(--mono);font-size:15px;color:var(--ink);
+    background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--pure);
+    border-radius:10px;padding:20px 22px
+  }
+  .thesis .c{color:var(--faint)}
+
+  /* pipeline svg */
+  .pipe{margin:44px 0 0;width:100%;height:auto;overflow:visible}
+  .flow{stroke-dasharray:5 5;animation:dash 1.2s linear infinite}
+  @keyframes dash{to{stroke-dashoffset:-20}}
+  @media (prefers-reduced-motion:reduce){.flow{animation:none}}
+
+  /* ---------- code ---------- */
+  pre{
+    margin:0 0 18px;background:#0e1817;border:1px solid var(--line);
+    border-radius:11px;padding:18px 20px 18px 22px;overflow-x:auto;
+    font-family:var(--mono);font-size:13.5px;line-height:1.7;position:relative
+  }
+  pre.pure{border-left:3px solid var(--pure)}
+  pre.impure{border-left:3px solid var(--effect)}
+  pre .tag{
+    position:absolute;top:0;right:0;font-size:10.5px;letter-spacing:.1em;
+    text-transform:uppercase;padding:4px 10px;border-bottom-left-radius:9px;font-weight:700
+  }
+  pre.pure .tag{background:rgba(127,201,160,.15);color:var(--pure)}
+  pre.impure .tag{background:rgba(230,162,86,.15);color:var(--effect)}
+  code{font-family:var(--mono)}
+  .cm{color:var(--faint)}          /* comment */
+  .kw{color:var(--accent)}         /* keyword */
+  .fn{color:var(--pure)}           /* function name */
+  .st{color:#e6c07b}               /* string/number */
+  .ef{color:var(--effect)}         /* effect / danger */
+
+  /* ---------- pillar grid ---------- */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:8px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px}
+  .card .n{font-family:var(--mono);font-size:12px;color:var(--pure);letter-spacing:.1em}
+  .card p{font-size:15px;margin:6px 0 0;color:var(--muted)}
+
+  /* ---------- compare table ---------- */
+  .cmp{width:100%;border-collapse:collapse;margin-top:10px;font-size:14.5px}
+  .cmp th{
+    text-align:left;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--faint);padding:12px 14px;border-bottom:1px solid var(--line);font-weight:500
+  }
+  .cmp td{padding:13px 14px;border-bottom:1px solid var(--line);vertical-align:top;color:#cdd7d0}
+  .cmp td:first-child{font-family:var(--mono);font-size:13px;color:var(--ink);white-space:nowrap}
+  .cmp .imp{color:var(--effect)}
+  .cmp .fp{color:var(--pure)}
+
+  /* ---------- interactive demo ---------- */
+  .demo{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:6px;margin-top:8px}
+  .toggle{display:flex;gap:6px;padding:8px}
+  .toggle button{
+    flex:1;font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:.04em;
+    padding:11px;border-radius:9px;border:1px solid var(--line);background:transparent;
+    color:var(--muted);cursor:pointer;transition:all .18s
+  }
+  .toggle button[aria-pressed="true"][data-k="impure"]{background:rgba(230,162,86,.14);color:var(--effect);border-color:rgba(230,162,86,.4)}
+  .toggle button[aria-pressed="true"][data-k="pure"]{background:rgba(127,201,160,.14);color:var(--pure);border-color:rgba(127,201,160,.4)}
+  .demo pre{margin:0 6px 6px;border-radius:9px}
+  .verdict{font-family:var(--mono);font-size:13px;padding:12px 20px;color:var(--muted)}
+  .verdict b{color:var(--ink)}
+
+  /* ---------- reasons ---------- */
+  .reasons{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:8px}
+  .reason{border-top:2px solid var(--accent);padding-top:16px}
+  .reason h3{font-size:16px;margin-bottom:6px}
+  .reason p{font-size:14px;color:var(--muted);margin:0}
+
+  /* ---------- languages ---------- */
+  .lang{
+    display:grid;grid-template-columns:130px 1fr auto;gap:18px;align-items:start;
+    padding:18px 0;border-bottom:1px solid var(--line)
+  }
+  .lang .name{font-family:var(--disp);font-weight:700;font-size:18px}
+  .lang .name span{display:block;font-family:var(--mono);font-size:11px;color:var(--faint);font-weight:400;margin-top:3px}
+  .lang .desc{font-size:14.5px;color:var(--muted)}
+  .lang .desc b{color:#d4ddd6;font-weight:600}
+  .badge{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:6px;white-space:nowrap;text-align:center}
+  .b-learn{background:rgba(127,201,160,.14);color:var(--pure)}
+  .b-maybe{background:rgba(183,162,240,.14);color:var(--accent)}
+  .b-skip{background:rgba(230,162,86,.12);color:var(--effect)}
+
+  /* ---------- roadmap ---------- */
+  .road{position:relative;margin-top:8px;padding-left:30px}
+  .road::before{content:"";position:absolute;left:8px;top:6px;bottom:24px;width:2px;background:var(--line)}
+  .step{position:relative;padding-bottom:28px}
+  .step::before{
+    content:"";position:absolute;left:-30px;top:5px;width:16px;height:16px;border-radius:50%;
+    background:var(--bg);border:2px solid var(--pure)
+  }
+  .step.p2::before{border-color:var(--accent)}
+  .step.p3::before{border-color:var(--effect)}
+  .step.stop::before{background:var(--effect);border-color:var(--effect)}
+  .step .lbl{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+  .step h3{margin:2px 0 6px}
+  .step p{font-size:14.5px;color:var(--muted);margin:0}
+
+  /* ---------- takeaway ---------- */
+  .takeaway{background:linear-gradient(135deg,var(--surface),var(--surface2));border:1px solid var(--line);border-radius:16px;padding:36px 32px;margin-top:8px}
+  .takeaway h2{margin-bottom:14px}
+  .takeaway p{color:#d9e2db}
+  .foot{padding:48px 0 72px;text-align:center;color:var(--faint);font-family:var(--mono);font-size:12.5px}
+
+  .reveal{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+
+  @media(max-width:680px){
+    body{font-size:16px}
+    .grid2,.reasons{grid-template-columns:1fr}
+    .lang{grid-template-columns:1fr;gap:6px}
+    .lang .badge{justify-self:start}
+    .cmp thead{display:none}
+    .cmp td:first-child{color:var(--pure);padding-bottom:2px;border:none}
+    .cmp td{display:block;border:none;padding:2px 0}
+    .cmp tr{display:block;padding:14px 0;border-bottom:1px solid var(--line)}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <header class="hero">
+    <span class="kicker"><span class="dot"></span>Study notes · full-stack edition</span>
+    <h1>Functional<br>Programming, <span class="em">demystified</span>.</h1>
+    <p class="sub">A paradigm built on one stubborn idea: build programs by composing functions that transform data — and change nothing else.</p>
+
+    <div class="thesis">
+      <span class="c">// the whole thing in one line</span><br>
+      OOP organizes code around <b>objects that hold and change state</b>.<br>
+      FP organizes it around <span style="color:var(--pure)">functions that transform data without changing anything</span>.
+    </div>
+
+    <!-- signature: the pipeline -->
+    <svg class="pipe" viewBox="0 0 820 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Data flowing through a pipeline of pure functions">
+      <defs>
+        <marker id="ah" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6" fill="none" stroke="#7fc9a0" stroke-width="1.4"/>
+        </marker>
+      </defs>
+      <!-- flow line -->
+      <line x1="20" y1="60" x2="800" y2="60" stroke="#2c4440" stroke-width="2"/>
+      <line class="flow" x1="20" y1="60" x2="800" y2="60" stroke="#7fc9a0" stroke-width="2" marker-end="url(#ah)"/>
+      <!-- input -->
+      <g font-family="JetBrains Mono, monospace">
+        <text x="20" y="35" fill="#8ea69d" font-size="12">input</text>
+        <rect x="14" y="47" width="56" height="26" rx="6" fill="#213734" stroke="#3a5551"/>
+        <text x="42" y="64" fill="#e9efe9" font-size="13" text-anchor="middle">data</text>
+        <!-- f -->
+        <rect x="250" y="42" width="70" height="36" rx="8" fill="#1a2c29" stroke="#7fc9a0"/>
+        <text x="285" y="65" fill="#7fc9a0" font-size="15" text-anchor="middle">f()</text>
+        <text x="285" y="98" fill="#5f7671" font-size="11" text-anchor="middle">pure</text>
+        <!-- g -->
+        <rect x="410" y="42" width="70" height="36" rx="8" fill="#1a2c29" stroke="#7fc9a0"/>
+        <text x="445" y="65" fill="#7fc9a0" font-size="15" text-anchor="middle">g()</text>
+        <text x="445" y="98" fill="#5f7671" font-size="11" text-anchor="middle">pure</text>
+        <!-- h -->
+        <rect x="570" y="42" width="70" height="36" rx="8" fill="#1a2c29" stroke="#7fc9a0"/>
+        <text x="605" y="65" fill="#7fc9a0" font-size="15" text-anchor="middle">h()</text>
+        <text x="605" y="98" fill="#5f7671" font-size="11" text-anchor="middle">pure</text>
+        <!-- output -->
+        <text x="748" y="35" fill="#8ea69d" font-size="12">output</text>
+        <rect x="744" y="47" width="62" height="26" rx="6" fill="#213734" stroke="#3a5551"/>
+        <text x="775" y="64" fill="#e9efe9" font-size="13" text-anchor="middle">data'</text>
+      </g>
+    </svg>
+  </header>
+
+  <!-- 01 CORE IDEA -->
+  <section class="sec reveal">
+    <p class="eyebrow">// 01 · the core idea</p>
+    <h2>What it actually is</h2>
+    <p>Functional programming treats computation as <strong>evaluating functions that transform data</strong>, instead of running a sequence of statements that change things in memory. You feed data in, get new data out, and nothing on the outside is touched.</p>
+    <p>That's the entire philosophy. Everything else — purity, immutability, composition — is just the discipline that keeps that promise true.</p>
+    <p>The good news: you already write half of this. React's pure components, immutable state updates, and <code>useEffect</code> quarantining side effects are all FP ideas wearing a UI costume. This guide is about getting <em>deliberate</em> with patterns you half-know.</p>
+  </section>
+
+  <!-- 02 VS YOUR STACK -->
+  <section class="sec reveal">
+    <p class="eyebrow">// 02 · vs. how you write today</p>
+    <h2>How it differs from your stack</h2>
+    <p>Most of what you ship is imperative (step-by-step statements that mutate state) or OOP (objects bundling data with methods that change their own internals). FP refuses both moves.</p>
+    <table class="cmp">
+      <thead><tr><th>Axis</th><th>Imperative / OOP</th><th>Functional</th></tr></thead>
+      <tbody>
+        <tr><td>state</td><td class="imp">mutated in place, often shared</td><td class="fp">immutable — new values, originals untouched</td></tr>
+        <tr><td>side effects</td><td class="imp">scattered throughout logic</td><td class="fp">pushed to the edges, core stays pure</td></tr>
+        <tr><td>building blocks</td><td class="imp">loops, statements, objects</td><td class="fp">functions composed together</td></tr>
+        <tr><td>same input →</td><td class="imp">maybe different output (hidden state)</td><td class="fp">always the same output</td></tr>
+        <tr><td>testing</td><td class="imp">mock the DB, the request, the world</td><td class="fp">pass data, assert on data</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 03 INTERACTIVE -->
+  <section class="sec reveal">
+    <p class="eyebrow">// 03 · see it · tap to compare</p>
+    <h2>Pure vs. impure, live</h2>
+    <p>Same cart-total job, two ways. Watch what leaves the function's own body.</p>
+    <div class="demo">
+      <div class="toggle" role="group" aria-label="Toggle between impure and pure versions">
+        <button data-k="impure" aria-pressed="true">impure</button>
+        <button data-k="pure" aria-pressed="false">pure</button>
+      </div>
+      <pre class="impure" id="demoImpure"><span class="tag">reaches outside</span><code><span class="cm">// leans on shared state + does IO mid-calculation</span>
+<span class="kw">let</span> total = <span class="st">0</span>;
+<span class="kw">function</span> <span class="fn">addToCart</span>(item) {
+  total <span class="ef">+=</span> item.price;   <span class="cm">// mutates outer state</span>
+  <span class="ef">db.save</span>(item);        <span class="cm">// side effect, hidden inside</span>
+  <span class="ef">log</span>(<span class="st">`added ${item.name}`</span>);
+  <span class="kw">return</span> total;         <span class="cm">// depends on call history</span>
+}</code></pre>
+      <pre class="pure" id="demoPure" hidden><span class="tag">data in · data out</span><code><span class="cm">// computes only. no mutation, no IO, no surprises</span>
+<span class="kw">const</span> <span class="fn">cartTotal</span> = (items) =>
+  items.<span class="fn">reduce</span>((sum, i) => sum + i.price, <span class="st">0</span>);
+
+<span class="cm">// call it twice with the same list → same answer, every time.</span>
+<span class="cm">// the db.save() still happens — just at the edge, not in here.</span></code></pre>
+      <div class="verdict" id="verdict">Called twice with the same item, this returns <b>different numbers</b> and quietly writes to the database. Good luck testing it.</div>
+    </div>
+  </section>
+
+  <!-- 04 PILLARS -->
+  <section class="sec reveal">
+    <p class="eyebrow">// 04 · the four pillars</p>
+    <h2>What you actually practice</h2>
+    <p>Eighty percent of the day-to-day value lives here. No new language required.</p>
+    <div class="grid2">
+      <div class="card"><div class="n">01 — purity</div><h3>Pure functions</h3><p>Same input, same output, no reach outside the function. Separate the <em>calculation</em> from the <em>effect</em>.</p></div>
+      <div class="card"><div class="n">02 — immutability</div><h3>Don't mutate</h3><p>Return new values; leave originals alone. You already do this so React re-renders correctly.</p></div>
+      <div class="card"><div class="n">03 — first-class fns</div><h3>Functions as data</h3><p>Pass them, return them, store them. <code>arr.map(fn)</code> is this — FP just makes it the primary tool.</p></div>
+      <div class="card"><div class="n">04 — composition</div><h3>Compose small parts</h3><p>Build behavior by piping small functions together instead of one big procedural block.</p></div>
+    </div>
+    <div style="margin-top:22px">
+      <pre class="pure"><span class="tag">immutability</span><code><span class="cm">// mutate nothing — produce a new array</span>
+<span class="kw">const</span> xs = [<span class="st">1</span>, <span class="st">2</span>, <span class="st">3</span>];
+<span class="kw">const</span> ys = [...xs, <span class="st">4</span>];   <span class="cm">// xs is still [1,2,3]</span></code></pre>
+      <pre class="pure"><span class="tag">composition</span><code><span class="kw">const</span> <span class="fn">pipe</span> = (...fns) => x => fns.<span class="fn">reduce</span>((v, f) => <span class="fn">f</span>(v), x);
+
+<span class="kw">const</span> <span class="fn">cleanText</span> = <span class="fn">pipe</span>(normalizeWhitespace, trim, capitalize);
+<span class="fn">cleanText</span>(raw);   <span class="cm">// data → f → g → h, reads like a recipe</span></code></pre>
+    </div>
+  </section>
+
+  <!-- 05 SCARY WORDS -->
+  <section class="sec reveal">
+    <p class="eyebrow">// 05 · the words that sound scarier than they are</p>
+    <h2>Jargon, deflated</h2>
+    <div class="grid2">
+      <div class="card"><h3>Currying</h3><p>Bake in the stable argument, get back a specialized function. You've met it in Redux middleware: <code>store =&gt; next =&gt; action</code>.</p></div>
+      <div class="card"><h3>Higher-order function</h3><p>A function that takes or returns a function. <code>map</code>, <code>filter</code>, every HOC. You do this hourly.</p></div>
+      <div class="card"><h3>Functor / Monad</h3><p>A much dumber idea than the internet claims. <code>Promise</code> is basically a monad; <code>Array.map</code> is functor behavior. It's just a pattern for chaining computation that carries context.</p></div>
+      <div class="card"><h3>Option / Result</h3><p>The one fancy idea that pays rent. Make "might be missing" or "might fail" explicit in the type so the compiler forces you to handle it.</p></div>
+    </div>
+    <div style="margin-top:22px">
+      <pre class="pure"><span class="tag">Result — no more magic -1</span><code><span class="kw">type</span> Result&lt;T&gt; = { ok: <span class="kw">true</span>; value: T }
+                | { ok: <span class="kw">false</span>; error: <span class="kw">string</span> };
+
+<span class="kw">function</span> <span class="fn">parseScore</span>(raw: <span class="kw">unknown</span>): Result&lt;<span class="kw">number</span>&gt; {
+  <span class="kw">if</span> (<span class="kw">typeof</span> raw !== <span class="st">"number"</span>) <span class="kw">return</span> { ok: <span class="kw">false</span>, error: <span class="st">"not a number"</span> };
+  <span class="kw">return</span> { ok: <span class="kw">true</span>, value: Math.<span class="fn">round</span>(raw * <span class="st">100</span>) };
+}
+<span class="cm">// the caller literally cannot forget the failure case</span></code></pre>
+    </div>
+  </section>
+
+  <!-- 06 WHY IT EXISTS -->
+  <section class="sec reveal">
+    <p class="eyebrow">// 06 · why anyone bothers</p>
+    <h2>Why FP exists</h2>
+    <div class="reasons">
+      <div class="reason"><h3>Predictability</h3><p>Pure functions can't surprise you — no hidden state, no "what changed this?" Easy to reason about, trivial to test.</p></div>
+      <div class="reason"><h3>Managing complexity</h3><p>Small composable pieces + effects quarantined at the edges keep big systems from becoming a tangle of who-mutated-what.</p></div>
+      <div class="reason"><h3>Safe concurrency</h3><p>Nothing shared and mutable means nothing to race over. Parallel code stops being a minefield.</p></div>
+    </div>
+  </section>
+
+  <!-- 07 PRODUCTION -->
+  <section class="sec reveal">
+    <p class="eyebrow">// 07 · is it used in production?</p>
+    <h2>Where it actually lives</h2>
+    <p>Yes — heavily, though rarely as "100% pure FP." It shows up two ways: whole languages in specific industries, and functional <em>style</em> inside mainstream stacks.</p>
+    <h3 style="margin:20px 0 8px;font-family:var(--disp);color:var(--pure)">As whole languages</h3>
+    <p>The pattern is telling: <strong>finance, telecom, data pipelines, concurrency-heavy backends</strong> — anywhere "predictable, no hidden state, safe to parallelize" is worth real money. Haskell (Meta's spam filter, Standard Chartered), Scala (Spark, streaming/data eng), Erlang &amp; Elixir (WhatsApp, Discord's real-time backend), Clojure (Nubank's fintech core), OCaml (Jane Street trading), F# (quant/.NET shops).</p>
+    <h3 style="margin:24px 0 8px;font-family:var(--disp);color:var(--accent)">As style, inside normal stacks — where you already live</h3>
+    <p>React's whole modern paradigm is FP applied to UI. Redux reducers are literally pure functions over immutable state. RxJS is functional composition over event streams. <code>map</code>/<code>filter</code>/<code>reduce</code> pipelines run every data job. And <code>fp-ts</code> / <code>Effect</code> are gaining ground in backend TypeScript.</p>
+  </section>
+
+  <!-- 08 LANGUAGES -->
+  <section class="sec reveal">
+    <p class="eyebrow">// 08 · the languages · verdict for your path</p>
+    <h2>Which language, and should you?</h2>
+    <div class="lang">
+      <div class="name">Elm<span>frontend · pure</span></div>
+      <div class="desc">Friendliest on-ramp, clicks with your React brain. A pure language won't let you cheat, so the concepts finally stick. <b>Build one small app, then come back to TS.</b></div>
+      <div class="badge b-learn">learn · once</div>
+    </div>
+    <div class="lang">
+      <div class="name">F# / OCaml<span>pragmatic · .NET</span></div>
+      <div class="desc">Functional but close to real work, less dogmatic. OCaml runs Jane Street; F# suits finance and .NET shops.</div>
+      <div class="badge b-maybe">optional</div>
+    </div>
+    <div class="lang">
+      <div class="name">Clojure<span>lisp · JVM</span></div>
+      <div class="desc">Immutability by default with a Lisp flavor. Nubank, Walmart, CircleCI run it. Worth it only if the parentheses spark joy.</div>
+      <div class="badge b-maybe">optional</div>
+    </div>
+    <div class="lang">
+      <div class="name">Elixir / Scala<span>backend · scale</span></div>
+      <div class="desc">Elixir for high-concurrency real-time systems; Scala for data engineering. Great to know <b>if the job calls for it</b> — not as a learning vehicle.</div>
+      <div class="badge b-maybe">job-driven</div>
+    </div>
+    <div class="lang">
+      <div class="name">Haskell<span>the deep end</span></div>
+      <div class="desc">Learn it and everything else feels shallow — but the ramp is steep and the direct job ROI for full-stack work is near zero. <b>A hobby, not a career move.</b></div>
+      <div class="badge b-skip">skip · unless fun</div>
+    </div>
+  </section>
+
+  <!-- 09 ROADMAP -->
+  <section class="sec reveal">
+    <p class="eyebrow">// 09 · the roadmap · get better, don't rabbit-hole</p>
+    <h2>How to actually learn it</h2>
+    <div class="road">
+      <div class="step p1">
+        <div class="lbl">Phase 1 · ~2–3 wks · in TS/Python</div>
+        <h3>Rewire your defaults</h3>
+        <p>Write pure functions by habit. Stop mutating. Small composable functions. Push side effects to the edges. Win condition: refactor one Django view so the business logic is pure and testable with zero Django imports.</p>
+      </div>
+      <div class="step p2">
+        <div class="lbl">Phase 2 · ~2–4 wks · still TS</div>
+        <h3>The sharpening concepts</h3>
+        <p>Composition &amp; pipelines, currying/partial application, closures as a design tool, and <code>Option</code>/<code>Result</code> for null-safety. Understand functors/monads only to "Promise already does this" — then stop.</p>
+      </div>
+      <div class="step p3">
+        <div class="lbl">Phase 3 · ~3–4 wks · optional, once</div>
+        <h3>Feel it in a pure language</h3>
+        <p>Build one small Elm app. Purpose is learning, not career. A pure language forces the concepts to stick, then you return to TS a better engineer.</p>
+      </div>
+      <div class="step stop">
+        <div class="lbl">Hard stop · career dead-ends</div>
+        <h3>Where to quit</h3>
+        <p>Monad transformers, free monads, tagless-final, category theory as study, going all-in on <code>fp-ts</code> in a team codebase. Intellectually fun, professionally irrelevant for full-stack. Everything past here is a hobby.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 TAKEAWAY -->
+  <section class="sec reveal">
+    <div class="takeaway">
+      <p class="eyebrow" style="margin-bottom:12px">// the honest takeaway</p>
+      <h2>You won't get hired to write Haskell.</h2>
+      <p>But functional <em>style</em> is now table stakes in frontend and increasingly in backend TS. The real ROI isn't mastering a paradigm — it's that Phases 1–2 make you visibly better at the React / Redux / TS / Django work you're already paid for: cleaner, more testable, fewer "why did this break" bugs. Learn the ideas liberally. Use the heavy machinery sparingly. Ship.</p>
+    </div>
+  </section>
+
+  <div class="foot">// end of notes · pure in the middle, effects at the edges</div>
+
+</div>
+
+<script>
+  // interactive pure/impure toggle
+  (function(){
+    const buttons = document.querySelectorAll('.toggle button');
+    const impure = document.getElementById('demoImpure');
+    const pure = document.getElementById('demoPure');
+    const verdict = document.getElementById('verdict');
+    const copy = {
+      impure: 'Called twice with the same item, this returns <b>different numbers</b> and quietly writes to the database. Good luck testing it.',
+      pure: 'Same list in → <b>same total out</b>, every single time. Zero mocking to test it. The db.save() moved to the edge where it belongs.'
+    };
+    buttons.forEach(b=>b.addEventListener('click',()=>{
+      const k = b.dataset.k;
+      buttons.forEach(x=>x.setAttribute('aria-pressed', x.dataset.k===k));
+      const showPure = k==='pure';
+      pure.hidden = !showPure;
+      impure.hidden = showPure;
+      verdict.innerHTML = copy[k];
+    }));
+  })();
+
+  // scroll reveal (respects reduced motion)
+  (function(){
+    const els = document.querySelectorAll('.reveal');
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)){
+      els.forEach(e=>e.classList.add('in')); return;
+    }
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+    },{threshold:.12});
+    els.forEach(e=>io.observe(e));
+  })();
+</script>
+
+</body>
+</html>

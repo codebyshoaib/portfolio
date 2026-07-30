@@ -1,4 +1,5 @@
 import { defineField, defineType } from "sanity";
+import { longFormBody } from "./portableText";
 
 export default defineType({
   name: "decision",
@@ -155,86 +156,7 @@ export default defineType({
       type: "array",
       description:
         "Long-form narrative. Portable Text supports headings, lists, code blocks, links.",
-      of: [
-        {
-          type: "block",
-          styles: [
-            { title: "Normal", value: "normal" },
-            { title: "H2", value: "h2" },
-            { title: "H3", value: "h3" },
-            { title: "Quote", value: "blockquote" },
-          ],
-          marks: {
-            decorators: [
-              { title: "Strong", value: "strong" },
-              { title: "Emphasis", value: "em" },
-              { title: "Code", value: "code" },
-            ],
-            annotations: [
-              {
-                name: "link",
-                title: "Link",
-                type: "object",
-                fields: [
-                  defineField({
-                    name: "href",
-                    type: "url",
-                    validation: (Rule) =>
-                      Rule.uri({ scheme: ["http", "https", "mailto"] }),
-                  }),
-                ],
-              },
-            ],
-          },
-        },
-        {
-          type: "object",
-          name: "codeBlock",
-          title: "Code block",
-          fields: [
-            defineField({
-              name: "language",
-              title: "Language",
-              type: "string",
-              options: {
-                list: [
-                  "ts",
-                  "tsx",
-                  "js",
-                  "jsx",
-                  "go",
-                  "rust",
-                  "py",
-                  "sh",
-                  "sql",
-                  "json",
-                  "yaml",
-                  "java",
-                  "kotlin",
-                  "swift",
-                  "text",
-                ],
-              },
-              initialValue: "ts",
-            }),
-            defineField({
-              name: "code",
-              title: "Code",
-              type: "text",
-              rows: 12,
-              validation: (Rule) => Rule.required(),
-            }),
-            defineField({
-              name: "caption",
-              title: "Caption",
-              type: "string",
-            }),
-          ],
-          preview: {
-            select: { title: "language", subtitle: "caption" },
-          },
-        },
-      ],
+      of: longFormBody,
     }),
     defineField({
       name: "relatedProjects",

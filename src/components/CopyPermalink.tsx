@@ -21,7 +21,14 @@ type State = "idle" | "copied" | "failed";
  *    should be. The name is fixed on the button; the status lives in its own
  *    polite live region.
  */
-export function CopyPermalink({ url }: { readonly url: string }) {
+export function CopyPermalink({
+  url,
+  subject = "page",
+}: {
+  readonly url: string;
+  /** Names the thing being linked in the button's accessible name. */
+  readonly subject?: string;
+}) {
   const [state, setState] = useState<State>("idle");
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fallbackRef = useRef<HTMLInputElement | null>(null);
@@ -59,7 +66,7 @@ export function CopyPermalink({ url }: { readonly url: string }) {
         type="button"
         className="permalink"
         onClick={copy}
-        aria-label="Copy link to this decision"
+        aria-label={`Copy link to this ${subject}`}
       >
         {state === "copied" ? "Copied" : "Copy link"}
       </button>
@@ -76,7 +83,7 @@ export function CopyPermalink({ url }: { readonly url: string }) {
           className="permalink-fallback"
           readOnly
           value={url}
-          aria-label="Decision link, copy manually"
+          aria-label={`${subject} link, copy manually`}
           onFocus={(e) => e.currentTarget.select()}
         />
       ) : null}
