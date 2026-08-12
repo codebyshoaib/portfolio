@@ -136,176 +136,183 @@ export default function WorldMap({
   }
 
   return (
-    <div
-      ref={containerRef}
-      className="w-full aspect-[2/1] dark:bg-black bg-white rounded-lg relative font-sans"
-    >
-      {svgMap && (
-        <Image
-          src={`data:image/svg+xml;utf8,${encodeURIComponent(svgMap)}`}
-          className="h-full w-full [mask-image:linear-gradient(to_bottom,transparent,white_10%,white_90%,transparent)] pointer-events-none select-none"
-          alt="World map showing global connections"
-          height={495}
-          width={1056}
-          draggable={false}
-          unoptimized
-          suppressHydrationWarning
-        />
-      )}
-      <svg
-        ref={svgRef}
-        viewBox="0 0 800 400"
-        className="w-full h-full absolute inset-0 pointer-events-none select-none"
-        aria-label="World map with connection paths"
-      >
-        <title>World map showing global connections and paths</title>
-        {projectedDots.map((projected, i) => {
-          const uniqueKey = `path-${projected.original.start.lat}-${projected.original.start.lng}-${projected.original.end.lat}-${projected.original.end.lng}-${i}`;
-          return (
-            <g key={uniqueKey}>
-              <motion.path
-                d={createCurvedPath(projected.start, projected.end)}
-                fill="none"
-                stroke="url(#path-gradient)"
-                strokeWidth="1"
-                initial={{
-                  pathLength: reducedMotion ? 1 : 0,
-                }}
-                animate={{
-                  pathLength: 1,
-                }}
-                transition={
-                  reducedMotion
-                    ? { duration: 0 }
-                    : {
-                        duration: 1,
-                        delay: 0.5 * i,
-                        ease: "easeOut",
-                      }
-                }
-              />
-            </g>
-          );
-        })}
-
-        <defs>
-          <linearGradient id="path-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="white" stopOpacity="0" />
-            <stop offset="5%" stopColor={lineColor} stopOpacity="1" />
-            <stop offset="95%" stopColor={lineColor} stopOpacity="1" />
-            <stop offset="100%" stopColor="white" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-
-        {projectedDots.map((projected, i) => {
-          const uniqueKey = `points-${projected.original.start.lat}-${projected.original.start.lng}-${projected.original.end.lat}-${projected.original.end.lng}-${i}`;
-          return (
-            <g key={uniqueKey}>
-              <g key={`${uniqueKey}-start`}>
-                <circle
-                  cx={projected.start.x}
-                  cy={projected.start.y}
-                  r="2"
-                  fill={lineColor}
+    <div ref={containerRef} className="relative w-full font-sans">
+      <div className="relative w-full aspect-[2/1] dark:bg-black bg-white rounded-lg">
+        {svgMap && (
+          <Image
+            src={`data:image/svg+xml;utf8,${encodeURIComponent(svgMap)}`}
+            className="h-full w-full [mask-image:linear-gradient(to_bottom,transparent,white_10%,white_90%,transparent)] pointer-events-none select-none"
+            alt="World map showing global connections"
+            height={495}
+            width={1056}
+            draggable={false}
+            unoptimized
+            suppressHydrationWarning
+          />
+        )}
+        <svg
+          ref={svgRef}
+          viewBox="0 0 800 400"
+          className="w-full h-full absolute inset-0 pointer-events-none select-none"
+          aria-label="World map with connection paths"
+        >
+          <title>World map showing global connections and paths</title>
+          {projectedDots.map((projected, i) => {
+            const uniqueKey = `path-${projected.original.start.lat}-${projected.original.start.lng}-${projected.original.end.lat}-${projected.original.end.lng}-${i}`;
+            return (
+              <g key={uniqueKey}>
+                <motion.path
+                  d={createCurvedPath(projected.start, projected.end)}
+                  fill="none"
+                  stroke="url(#path-gradient)"
+                  strokeWidth="1"
+                  initial={{
+                    pathLength: reducedMotion ? 1 : 0,
+                  }}
+                  animate={{
+                    pathLength: 1,
+                  }}
+                  transition={
+                    reducedMotion
+                      ? { duration: 0 }
+                      : {
+                          duration: 1,
+                          delay: 0.5 * i,
+                          ease: "easeOut",
+                        }
+                  }
                 />
-                {!reducedMotion && (
+              </g>
+            );
+          })}
+
+          <defs>
+            <linearGradient
+              id="path-gradient"
+              x1="0%"
+              y1="0%"
+              x2="100%"
+              y2="0%"
+            >
+              <stop offset="0%" stopColor="white" stopOpacity="0" />
+              <stop offset="5%" stopColor={lineColor} stopOpacity="1" />
+              <stop offset="95%" stopColor={lineColor} stopOpacity="1" />
+              <stop offset="100%" stopColor="white" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+
+          {projectedDots.map((projected, i) => {
+            const uniqueKey = `points-${projected.original.start.lat}-${projected.original.start.lng}-${projected.original.end.lat}-${projected.original.end.lng}-${i}`;
+            return (
+              <g key={uniqueKey}>
+                <g key={`${uniqueKey}-start`}>
                   <circle
                     cx={projected.start.x}
                     cy={projected.start.y}
                     r="2"
                     fill={lineColor}
-                    opacity="0.5"
-                  >
-                    <animate
-                      attributeName="r"
-                      from="2"
-                      to="8"
-                      dur="1.5s"
-                      begin="0s"
-                      repeatCount="indefinite"
-                    />
-                    <animate
-                      attributeName="opacity"
-                      from="0.5"
-                      to="0"
-                      dur="1.5s"
-                      begin="0s"
-                      repeatCount="indefinite"
-                    />
-                  </circle>
-                )}
-              </g>
-              <g key={`${uniqueKey}-end`}>
-                <circle
-                  cx={projected.end.x}
-                  cy={projected.end.y}
-                  r="2"
-                  fill={lineColor}
-                />
-                {!reducedMotion && (
+                  />
+                  {!reducedMotion && (
+                    <circle
+                      cx={projected.start.x}
+                      cy={projected.start.y}
+                      r="2"
+                      fill={lineColor}
+                      opacity="0.5"
+                    >
+                      <animate
+                        attributeName="r"
+                        from="2"
+                        to="8"
+                        dur="1.5s"
+                        begin="0s"
+                        repeatCount="indefinite"
+                      />
+                      <animate
+                        attributeName="opacity"
+                        from="0.5"
+                        to="0"
+                        dur="1.5s"
+                        begin="0s"
+                        repeatCount="indefinite"
+                      />
+                    </circle>
+                  )}
+                </g>
+                <g key={`${uniqueKey}-end`}>
                   <circle
                     cx={projected.end.x}
                     cy={projected.end.y}
                     r="2"
                     fill={lineColor}
-                    opacity="0.5"
-                  >
-                    <animate
-                      attributeName="r"
-                      from="2"
-                      to="8"
-                      dur="1.5s"
-                      begin="0s"
-                      repeatCount="indefinite"
-                    />
-                    <animate
-                      attributeName="opacity"
-                      from="0.5"
-                      to="0"
-                      dur="1.5s"
-                      begin="0s"
-                      repeatCount="indefinite"
-                    />
-                  </circle>
-                )}
+                  />
+                  {!reducedMotion && (
+                    <circle
+                      cx={projected.end.x}
+                      cy={projected.end.y}
+                      r="2"
+                      fill={lineColor}
+                      opacity="0.5"
+                    >
+                      <animate
+                        attributeName="r"
+                        from="2"
+                        to="8"
+                        dur="1.5s"
+                        begin="0s"
+                        repeatCount="indefinite"
+                      />
+                      <animate
+                        attributeName="opacity"
+                        from="0.5"
+                        to="0"
+                        dur="1.5s"
+                        begin="0s"
+                        repeatCount="indefinite"
+                      />
+                    </circle>
+                  )}
+                </g>
               </g>
-            </g>
-          );
-        })}
-      </svg>
+            );
+          })}
+        </svg>
 
-      {origin && avatarUrl && (
-        <div
-          className="absolute z-10 -translate-x-1/2 -translate-y-1/2"
-          style={{
-            left: `${(projectPoint(origin.lat, origin.lng).x / 800) * 100}%`,
-            top: `${(projectPoint(origin.lat, origin.lng).y / 400) * 100}%`,
-          }}
-        >
-          <span
-            aria-hidden
-            className="absolute inset-0 rounded-full"
-            style={{ boxShadow: `0 0 0 2px ${lineColor}` }}
-          />
-          {!reducedMotion && (
+        {origin && avatarUrl && (
+          <div
+            className="absolute z-10 -translate-x-1/2 -translate-y-1/2"
+            style={{
+              left: `${(projectPoint(origin.lat, origin.lng).x / 800) * 100}%`,
+              top: `${(projectPoint(origin.lat, origin.lng).y / 400) * 100}%`,
+            }}
+          >
             <span
               aria-hidden
-              className="absolute inset-0 animate-ping rounded-full"
+              className="absolute inset-0 rounded-full"
               style={{ boxShadow: `0 0 0 2px ${lineColor}` }}
             />
-          )}
-          <Image
-            src={avatarUrl}
-            alt={avatarAlt}
-            width={112}
-            height={112}
-            className="h-14 w-14 rounded-full border-2 border-white/80 object-cover shadow-lg md:h-20 md:w-20"
-          />
-        </div>
-      )}
+            {!reducedMotion && (
+              <span
+                aria-hidden
+                className="absolute inset-0 animate-ping rounded-full"
+                style={{ boxShadow: `0 0 0 2px ${lineColor}` }}
+              />
+            )}
+            <Image
+              src={avatarUrl}
+              alt={avatarAlt}
+              width={112}
+              height={112}
+              className="h-14 w-14 rounded-full border-2 border-white/80 object-cover shadow-lg md:h-20 md:w-20"
+            />
+          </div>
+        )}
+      </div>
 
       {quote && (
-        <figure className="absolute bottom-4 left-4 z-10 max-w-[min(22rem,72%)] rounded-lg border border-border border-l-2 border-l-brand bg-background/80 p-4 shadow-lg backdrop-blur-md md:bottom-8 md:left-8 md:p-5">
+        // Overlaid from md up; below the map on phones, where a 2:1 box is too
+        // short to hold the card without it spilling past both edges.
+        <figure className="mt-4 rounded-lg border border-border border-l-2 border-l-brand bg-background/80 p-4 shadow-lg backdrop-blur-md md:absolute md:bottom-8 md:left-8 md:z-10 md:mt-0 md:max-w-[min(22rem,72%)] md:p-5">
           {eyebrow && (
             <figcaption className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-brand md:text-[11px]">
               {eyebrow}

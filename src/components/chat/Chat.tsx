@@ -156,10 +156,10 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
       const { firstName, lastName } = profileRef.current;
       const greeting = firstName
         ? `Hi! I'm ${[firstName, lastName]
-          .filter(Boolean)
-          .join(
-            " ",
-          )}. Ask me anything about my work, experience, or projects.`
+            .filter(Boolean)
+            .join(
+              " ",
+            )}. Ask me anything about my work, experience, or projects.`
         : "Hi there! Ask me anything about my work, experience, or projects.";
 
       setMessages([
@@ -562,10 +562,10 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
                 {messages.find((m) => m.id === "greeting")?.content ||
                   (profile?.firstName
                     ? `Hi! I'm ${[profile.firstName, profile.lastName]
-                      .filter(Boolean)
-                      .join(
-                        " ",
-                      )}. Ask me anything about my work, experience, or projects.`
+                        .filter(Boolean)
+                        .join(
+                          " ",
+                        )}. Ask me anything about my work, experience, or projects.`
                     : "Hi there! Ask me anything about my work, experience, or projects.")}
               </p>
             </div>
@@ -595,14 +595,16 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
               .map((message) => (
                 <div
                   key={message.id}
-                  className={`flex ${message.role === "user" ? "justify-end" : "justify-start"
-                    }`}
+                  className={`flex ${
+                    message.role === "user" ? "justify-end" : "justify-start"
+                  }`}
                 >
                   <div
-                    className={`max-w-[80%] rounded-lg p-3 ${message.role === "user"
-                      ? "bg-brand text-brand-foreground"
-                      : "bg-card border border-border text-foreground"
-                      }`}
+                    className={`max-w-[80%] rounded-lg p-3 ${
+                      message.role === "user"
+                        ? "bg-brand text-brand-foreground"
+                        : "bg-card border border-border text-foreground"
+                    }`}
                   >
                     {message.role === "assistant" ? (
                       <MarkdownRenderer content={message.content} />
@@ -628,10 +630,7 @@ export function Chat({ profile: chatData }: { profile: ChatData | null }) {
       </div>
 
       {/* Input Area */}
-      <form
-        onSubmit={handleSubmit}
-        className="p-4 border-t border-border"
-      >
+      <form onSubmit={handleSubmit} className="p-4 border-t border-border">
         <div className="flex gap-2">
           <input
             ref={inputRef}

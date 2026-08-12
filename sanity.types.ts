@@ -215,30 +215,48 @@ export type Note = {
   slug?: Slug;
   date?: string;
   summary?: string;
-  body?: Array<{
-    children?: Array<{
-      marks?: Array<string>;
-      text?: string;
-      _type: "span";
-      _key: string;
-    }>;
-    style?: "normal" | "h2" | "h3" | "blockquote";
-    listItem?: "bullet" | "number";
-    markDefs?: Array<{
-      href?: string;
-      _type: "link";
-      _key: string;
-    }>;
-    level?: number;
-    _type: "block";
-    _key: string;
-  } | {
-    language?: "ts" | "tsx" | "js" | "jsx" | "go" | "rust" | "py" | "sh" | "sql" | "json" | "yaml" | "java" | "kotlin" | "swift" | "text";
-    code?: string;
-    caption?: string;
-    _type: "codeBlock";
-    _key: string;
-  }>;
+  body?: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?: "normal" | "h2" | "h3" | "blockquote";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }
+    | {
+        language?:
+          | "ts"
+          | "tsx"
+          | "js"
+          | "jsx"
+          | "go"
+          | "rust"
+          | "py"
+          | "sh"
+          | "sql"
+          | "json"
+          | "yaml"
+          | "java"
+          | "kotlin"
+          | "swift"
+          | "text";
+        code?: string;
+        caption?: string;
+        _type: "codeBlock";
+        _key: string;
+      }
+  >;
   tags?: Array<string>;
   published?: boolean;
 };
@@ -279,30 +297,48 @@ export type Decision = {
   tradeoffs?: string;
   revisitTrigger?: string;
   takeaways?: Array<string>;
-  body?: Array<{
-    children?: Array<{
-      marks?: Array<string>;
-      text?: string;
-      _type: "span";
-      _key: string;
-    }>;
-    style?: "normal" | "h2" | "h3" | "blockquote";
-    listItem?: "bullet" | "number";
-    markDefs?: Array<{
-      href?: string;
-      _type: "link";
-      _key: string;
-    }>;
-    level?: number;
-    _type: "block";
-    _key: string;
-  } | {
-    language?: "ts" | "tsx" | "js" | "jsx" | "go" | "rust" | "py" | "sh" | "sql" | "json" | "yaml" | "java" | "kotlin" | "swift" | "text";
-    code?: string;
-    caption?: string;
-    _type: "codeBlock";
-    _key: string;
-  }>;
+  body?: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?: "normal" | "h2" | "h3" | "blockquote";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }
+    | {
+        language?:
+          | "ts"
+          | "tsx"
+          | "js"
+          | "jsx"
+          | "go"
+          | "rust"
+          | "py"
+          | "sh"
+          | "sql"
+          | "json"
+          | "yaml"
+          | "java"
+          | "kotlin"
+          | "swift"
+          | "text";
+        code?: string;
+        caption?: string;
+        _type: "codeBlock";
+        _key: string;
+      }
+  >;
   relatedProjects?: Array<{
     _ref: string;
     _type: "reference";
@@ -394,7 +430,15 @@ export type Achievement = {
   _updatedAt: string;
   _rev: string;
   title?: string;
-  type?: "award" | "hackathon" | "publication" | "speaking" | "open-source" | "milestone" | "recognition" | "other";
+  type?:
+    | "award"
+    | "hackathon"
+    | "publication"
+    | "speaking"
+    | "open-source"
+    | "milestone"
+    | "recognition"
+    | "other";
   issuer?: string;
   date?: string;
   description?: string;
@@ -531,7 +575,12 @@ export type Experience = {
   _rev: string;
   company?: string;
   position?: string;
-  employmentType?: "full-time" | "part-time" | "contract" | "freelance" | "internship";
+  employmentType?:
+    | "full-time"
+    | "part-time"
+    | "contract"
+    | "freelance"
+    | "internship";
   location?: string;
   startDate?: string;
   endDate?: string;
@@ -588,7 +637,19 @@ export type Skill = {
   _updatedAt: string;
   _rev: string;
   name?: string;
-  category?: "frontend" | "backend" | "ai-ml" | "devops" | "database" | "mobile" | "cloud" | "testing" | "design" | "tools" | "soft-skills" | "other";
+  category?:
+    | "frontend"
+    | "backend"
+    | "ai-ml"
+    | "devops"
+    | "database"
+    | "mobile"
+    | "cloud"
+    | "testing"
+    | "design"
+    | "tools"
+    | "soft-skills"
+    | "other";
   proficiency?: "beginner" | "intermediate" | "advanced" | "expert";
   yearsOfExperience?: number;
   color?: string;
@@ -694,7 +755,18 @@ export type Project = {
     _key: string;
     [internalGroqTypeReferenceTo]?: "skill";
   }>;
-  category?: "web-app" | "mobile-app" | "ai-ml" | "api-backend" | "devops" | "open-source" | "cli-tool" | "desktop-app" | "browser-extension" | "game" | "other";
+  category?:
+    | "web-app"
+    | "mobile-app"
+    | "ai-ml"
+    | "api-backend"
+    | "devops"
+    | "open-source"
+    | "cli-tool"
+    | "desktop-app"
+    | "browser-extension"
+    | "game"
+    | "other";
   liveUrl?: string;
   githubUrl?: string;
   featured?: boolean;
@@ -797,7 +869,35 @@ export type Geopoint = {
   alt?: number;
 };
 
-export type AllSanitySchemaTypes = Resume | SanityImageCrop | SanityImageHotspot | Navigation | SiteSettings | Uses | Now | Note | Slug | Decision | Contact | Service | Achievement | Certification | Testimonial | Education | Experience | Skill | Profile | Project | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset | Geopoint;
+export type AllSanitySchemaTypes =
+  | Resume
+  | SanityImageCrop
+  | SanityImageHotspot
+  | Navigation
+  | SiteSettings
+  | Uses
+  | Now
+  | Note
+  | Slug
+  | Decision
+  | Contact
+  | Service
+  | Achievement
+  | Certification
+  | Testimonial
+  | Education
+  | Experience
+  | Skill
+  | Profile
+  | Project
+  | SanityImagePaletteSwatch
+  | SanityImagePalette
+  | SanityImageDimensions
+  | SanityImageMetadata
+  | SanityFileAsset
+  | SanityAssetSourceData
+  | SanityImageAsset
+  | Geopoint;
 export declare const internalGroqTypeReferenceTo: unique symbol;
 // Source: ./src/app/(portfolio)/decisions/[slug]/opengraph-image.tsx
 // Variable: OG_QUERY
@@ -829,30 +929,48 @@ export type DECISION_QUERYResult = {
   tradeoffs: string | null;
   revisitTrigger: string | null;
   takeaways: Array<string> | null;
-  body: Array<{
-    children?: Array<{
-      marks?: Array<string>;
-      text?: string;
-      _type: "span";
-      _key: string;
-    }>;
-    style?: "blockquote" | "h2" | "h3" | "normal";
-    listItem?: "bullet" | "number";
-    markDefs?: Array<{
-      href?: string;
-      _type: "link";
-      _key: string;
-    }>;
-    level?: number;
-    _type: "block";
-    _key: string;
-  } | {
-    language?: "go" | "java" | "js" | "json" | "jsx" | "kotlin" | "py" | "rust" | "sh" | "sql" | "swift" | "text" | "ts" | "tsx" | "yaml";
-    code?: string;
-    caption?: string;
-    _type: "codeBlock";
-    _key: string;
-  }> | null;
+  body: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?: "blockquote" | "h2" | "h3" | "normal";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }
+    | {
+        language?:
+          | "go"
+          | "java"
+          | "js"
+          | "json"
+          | "jsx"
+          | "kotlin"
+          | "py"
+          | "rust"
+          | "sh"
+          | "sql"
+          | "swift"
+          | "text"
+          | "ts"
+          | "tsx"
+          | "yaml";
+        code?: string;
+        caption?: string;
+        _type: "codeBlock";
+        _key: string;
+      }
+  > | null;
   tags: Array<string> | null;
   supersededBy: {
     slug: string | null;
@@ -926,30 +1044,48 @@ export type NOTE_QUERYResult = {
   title: string | null;
   date: string | null;
   summary: string | null;
-  body: Array<{
-    children?: Array<{
-      marks?: Array<string>;
-      text?: string;
-      _type: "span";
-      _key: string;
-    }>;
-    style?: "blockquote" | "h2" | "h3" | "normal";
-    listItem?: "bullet" | "number";
-    markDefs?: Array<{
-      href?: string;
-      _type: "link";
-      _key: string;
-    }>;
-    level?: number;
-    _type: "block";
-    _key: string;
-  } | {
-    language?: "go" | "java" | "js" | "json" | "jsx" | "kotlin" | "py" | "rust" | "sh" | "sql" | "swift" | "text" | "ts" | "tsx" | "yaml";
-    code?: string;
-    caption?: string;
-    _type: "codeBlock";
-    _key: string;
-  }> | null;
+  body: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?: "blockquote" | "h2" | "h3" | "normal";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }
+    | {
+        language?:
+          | "go"
+          | "java"
+          | "js"
+          | "json"
+          | "jsx"
+          | "kotlin"
+          | "py"
+          | "rust"
+          | "sh"
+          | "sql"
+          | "swift"
+          | "text"
+          | "ts"
+          | "tsx"
+          | "yaml";
+        code?: string;
+        caption?: string;
+        _type: "codeBlock";
+        _key: string;
+      }
+  > | null;
   tags: Array<string> | null;
   newer: {
     slug: string | null;
@@ -1012,66 +1148,72 @@ export type SITEMAP_QUERYResult = {
 // Source: ./src/app/v2/page.tsx
 // Variable: V2_PROFILE_QUERY
 // Query: *[_id == "singleton-profile"][0] {  firstName,  lastName,  headline,  shortBio,  location,  yearsOfExperience,  email,  availability,  socialLinks,}
-export type V2_PROFILE_QUERYResult = {
-  firstName: null;
-  lastName: null;
-  headline: null;
-  shortBio: null;
-  location: null;
-  yearsOfExperience: null;
-  email: null;
-  availability: null;
-  socialLinks: null;
-} | {
-  firstName: null;
-  lastName: null;
-  headline: null;
-  shortBio: null;
-  location: null;
-  yearsOfExperience: number | null;
-  email: null;
-  availability: null;
-  socialLinks: null;
-} | {
-  firstName: null;
-  lastName: null;
-  headline: null;
-  shortBio: null;
-  location: string | null;
-  yearsOfExperience: null;
-  email: null;
-  availability: null;
-  socialLinks: null;
-} | {
-  firstName: null;
-  lastName: null;
-  headline: null;
-  shortBio: null;
-  location: null;
-  yearsOfExperience: null;
-  email: string | null;
-  availability: null;
-  socialLinks: null;
-} | {
-  firstName: string | null;
-  lastName: string | null;
-  headline: string | null;
-  shortBio: string | null;
-  location: string | null;
-  yearsOfExperience: number | null;
-  email: string | null;
-  availability: "available" | "open" | "unavailable" | null;
-  socialLinks: {
-    github?: string;
-    linkedin?: string;
-    twitter?: string;
-    website?: string;
-    medium?: string;
-    devto?: string;
-    youtube?: string;
-    stackoverflow?: string;
-  } | null;
-} | null;
+export type V2_PROFILE_QUERYResult =
+  | {
+      firstName: null;
+      lastName: null;
+      headline: null;
+      shortBio: null;
+      location: null;
+      yearsOfExperience: null;
+      email: null;
+      availability: null;
+      socialLinks: null;
+    }
+  | {
+      firstName: null;
+      lastName: null;
+      headline: null;
+      shortBio: null;
+      location: null;
+      yearsOfExperience: number | null;
+      email: null;
+      availability: null;
+      socialLinks: null;
+    }
+  | {
+      firstName: null;
+      lastName: null;
+      headline: null;
+      shortBio: null;
+      location: string | null;
+      yearsOfExperience: null;
+      email: null;
+      availability: null;
+      socialLinks: null;
+    }
+  | {
+      firstName: null;
+      lastName: null;
+      headline: null;
+      shortBio: null;
+      location: null;
+      yearsOfExperience: null;
+      email: string | null;
+      availability: null;
+      socialLinks: null;
+    }
+  | {
+      firstName: string | null;
+      lastName: string | null;
+      headline: string | null;
+      shortBio: string | null;
+      location: string | null;
+      yearsOfExperience: number | null;
+      email: string | null;
+      availability: "available" | "open" | "unavailable" | null;
+      socialLinks: {
+        github?: string;
+        linkedin?: string;
+        twitter?: string;
+        website?: string;
+        medium?: string;
+        devto?: string;
+        youtube?: string;
+        stackoverflow?: string;
+      } | null;
+    }
+  | null;
 // Variable: V2_PROJECTS_QUERY
 // Query: *[_type == "project"] | order(featured desc, _createdAt desc)[0...8] {  title,  tagline,  metrics,  liveUrl,  githubUrl,  "stack": technologies[]->name}
 export type V2_PROJECTS_QUERYResult = Array<{
@@ -1103,38 +1245,47 @@ export type V2_DECISIONS_QUERYResult = Array<{
 }>;
 // Variable: NOW_QUERY
 // Query: *[_id == "singleton-now"][0] {  month,  items,  reading}
-export type NOW_QUERYResult = {
-  month: null;
-  items: null;
-  reading: null;
-} | {
-  month: string | null;
-  items: Array<string> | null;
-  reading: string | null;
-} | null;
+export type NOW_QUERYResult =
+  | {
+      month: null;
+      items: null;
+      reading: null;
+    }
+  | {
+      month: string | null;
+      items: Array<string> | null;
+      reading: string | null;
+    }
+  | null;
 // Variable: USES_QUERY
 // Query: *[_id == "singleton-uses"][0] {  categories}
-export type USES_QUERYResult = {
-  categories: null;
-} | {
-  categories: Array<{
-    label?: string;
-    value?: string;
-    _type: "category";
-    _key: string;
-  }> | null;
-} | null;
+export type USES_QUERYResult =
+  | {
+      categories: null;
+    }
+  | {
+      categories: Array<{
+        label?: string;
+        value?: string;
+        _type: "category";
+        _key: string;
+      }> | null;
+    }
+  | null;
 // Variable: SITE_SETTINGS_QUERY
 // Query: *[_id == "singleton-siteSettings"][0] {  trustLogos[] {    name,    url,    "logoAlt": logo.alt  }}
-export type SITE_SETTINGS_QUERYResult = {
-  trustLogos: null;
-} | {
-  trustLogos: Array<{
-    name: string | null;
-    url: string | null;
-    logoAlt: string | null;
-  }> | null;
-} | null;
+export type SITE_SETTINGS_QUERYResult =
+  | {
+      trustLogos: null;
+    }
+  | {
+      trustLogos: Array<{
+        name: string | null;
+        url: string | null;
+        logoAlt: string | null;
+      }> | null;
+    }
+  | null;
 
 // Source: ./src/components/FloatingDock.tsx
 // Variable: DOCK_DATA_QUERY
@@ -1153,102 +1304,116 @@ export type DOCK_DATA_QUERYResult = {
 // Variable: CHAT_PROFILE_QUERY
 // Query: {    "profile": *[_id == "singleton-profile"][0]{      firstName,      lastName,      headline,      shortBio,      fullBio,      email,      phone,      location,      availability,      socialLinks,      yearsOfExperience,      stats    },    "experience": *[_type == "experience"] | order(startDate desc){      _id,      jobTitle,      company,      location,      startDate,      endDate,      current,      description,      achievements[],      technologies[]->{name, category}    },    "projects": *[_type == "project"] | order(order asc){      _id,      title,      tagline,      category,      liveUrl,      githubUrl,      technologies[]->{name, category}    },    "skills": *[_type == "skill"] | order(name asc){      _id,      name,      category,      level,      yearsOfExperience,      percentage    },    "education": *[_type == "education"] | order(endDate desc){      _id,      degree,      field,      institution,      location,      startDate,      endDate,      description,      gpa    },    "decisions": *[_type == "decision" && published == true] | order(date desc){      _id,      title,      summary,      context,      "options": optionsConsidered[]{label, summary},      decision,      tradeoffs,      revisitTrigger,      takeaways    }  }
 export type CHAT_PROFILE_QUERYResult = {
-  profile: {
-    firstName: null;
-    lastName: null;
-    headline: null;
-    shortBio: null;
-    fullBio: null;
-    email: null;
-    phone: null;
-    location: null;
-    availability: null;
-    socialLinks: null;
-    yearsOfExperience: null;
-    stats: null;
-  } | {
-    firstName: null;
-    lastName: null;
-    headline: null;
-    shortBio: null;
-    fullBio: null;
-    email: null;
-    phone: null;
-    location: null;
-    availability: null;
-    socialLinks: null;
-    yearsOfExperience: number | null;
-    stats: null;
-  } | {
-    firstName: null;
-    lastName: null;
-    headline: null;
-    shortBio: null;
-    fullBio: null;
-    email: null;
-    phone: null;
-    location: string | null;
-    availability: null;
-    socialLinks: null;
-    yearsOfExperience: null;
-    stats: null;
-  } | {
-    firstName: null;
-    lastName: null;
-    headline: null;
-    shortBio: null;
-    fullBio: null;
-    email: string | null;
-    phone: null;
-    location: null;
-    availability: null;
-    socialLinks: null;
-    yearsOfExperience: null;
-    stats: null;
-  } | {
-    firstName: string | null;
-    lastName: string | null;
-    headline: string | null;
-    shortBio: string | null;
-    fullBio: Array<{
-      children?: Array<{
-        marks?: Array<string>;
-        text?: string;
-        _type: "span";
-        _key: string;
-      }>;
-      style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
-      listItem?: "bullet" | "number";
-      markDefs?: Array<{
-        href?: string;
-        _type: "link";
-        _key: string;
-      }>;
-      level?: number;
-      _type: "block";
-      _key: string;
-    }> | null;
-    email: string | null;
-    phone: string | null;
-    location: string | null;
-    availability: "available" | "open" | "unavailable" | null;
-    socialLinks: {
-      github?: string;
-      linkedin?: string;
-      twitter?: string;
-      website?: string;
-      medium?: string;
-      devto?: string;
-      youtube?: string;
-      stackoverflow?: string;
-    } | null;
-    yearsOfExperience: number | null;
-    stats: Array<{
-      label?: string;
-      value?: string;
-      _key: string;
-    }> | null;
-  } | null;
+  profile:
+    | {
+        firstName: null;
+        lastName: null;
+        headline: null;
+        shortBio: null;
+        fullBio: null;
+        email: null;
+        phone: null;
+        location: null;
+        availability: null;
+        socialLinks: null;
+        yearsOfExperience: null;
+        stats: null;
+      }
+    | {
+        firstName: null;
+        lastName: null;
+        headline: null;
+        shortBio: null;
+        fullBio: null;
+        email: null;
+        phone: null;
+        location: null;
+        availability: null;
+        socialLinks: null;
+        yearsOfExperience: number | null;
+        stats: null;
+      }
+    | {
+        firstName: null;
+        lastName: null;
+        headline: null;
+        shortBio: null;
+        fullBio: null;
+        email: null;
+        phone: null;
+        location: string | null;
+        availability: null;
+        socialLinks: null;
+        yearsOfExperience: null;
+        stats: null;
+      }
+    | {
+        firstName: null;
+        lastName: null;
+        headline: null;
+        shortBio: null;
+        fullBio: null;
+        email: string | null;
+        phone: null;
+        location: null;
+        availability: null;
+        socialLinks: null;
+        yearsOfExperience: null;
+        stats: null;
+      }
+    | {
+        firstName: string | null;
+        lastName: string | null;
+        headline: string | null;
+        shortBio: string | null;
+        fullBio: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?:
+            | "blockquote"
+            | "h1"
+            | "h2"
+            | "h3"
+            | "h4"
+            | "h5"
+            | "h6"
+            | "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }> | null;
+        email: string | null;
+        phone: string | null;
+        location: string | null;
+        availability: "available" | "open" | "unavailable" | null;
+        socialLinks: {
+          github?: string;
+          linkedin?: string;
+          twitter?: string;
+          website?: string;
+          medium?: string;
+          devto?: string;
+          youtube?: string;
+          stackoverflow?: string;
+        } | null;
+        yearsOfExperience: number | null;
+        stats: Array<{
+          label?: string;
+          value?: string;
+          _key: string;
+        }> | null;
+      }
+    | null;
   experience: Array<{
     _id: string;
     jobTitle: null;
@@ -1278,25 +1443,76 @@ export type CHAT_PROFILE_QUERYResult = {
     achievements: Array<string> | null;
     technologies: Array<{
       name: string | null;
-      category: "ai-ml" | "backend" | "cloud" | "database" | "design" | "devops" | "frontend" | "mobile" | "other" | "soft-skills" | "testing" | "tools" | null;
+      category:
+        | "ai-ml"
+        | "backend"
+        | "cloud"
+        | "database"
+        | "design"
+        | "devops"
+        | "frontend"
+        | "mobile"
+        | "other"
+        | "soft-skills"
+        | "testing"
+        | "tools"
+        | null;
     }> | null;
   }>;
   projects: Array<{
     _id: string;
     title: string | null;
     tagline: string | null;
-    category: "ai-ml" | "api-backend" | "browser-extension" | "cli-tool" | "desktop-app" | "devops" | "game" | "mobile-app" | "open-source" | "other" | "web-app" | null;
+    category:
+      | "ai-ml"
+      | "api-backend"
+      | "browser-extension"
+      | "cli-tool"
+      | "desktop-app"
+      | "devops"
+      | "game"
+      | "mobile-app"
+      | "open-source"
+      | "other"
+      | "web-app"
+      | null;
     liveUrl: string | null;
     githubUrl: string | null;
     technologies: Array<{
       name: string | null;
-      category: "ai-ml" | "backend" | "cloud" | "database" | "design" | "devops" | "frontend" | "mobile" | "other" | "soft-skills" | "testing" | "tools" | null;
+      category:
+        | "ai-ml"
+        | "backend"
+        | "cloud"
+        | "database"
+        | "design"
+        | "devops"
+        | "frontend"
+        | "mobile"
+        | "other"
+        | "soft-skills"
+        | "testing"
+        | "tools"
+        | null;
     }> | null;
   }>;
   skills: Array<{
     _id: string;
     name: string | null;
-    category: "ai-ml" | "backend" | "cloud" | "database" | "design" | "devops" | "frontend" | "mobile" | "other" | "soft-skills" | "testing" | "tools" | null;
+    category:
+      | "ai-ml"
+      | "backend"
+      | "cloud"
+      | "database"
+      | "design"
+      | "devops"
+      | "frontend"
+      | "mobile"
+      | "other"
+      | "soft-skills"
+      | "testing"
+      | "tools"
+      | null;
     level: null;
     yearsOfExperience: number | null;
     percentage: null;
@@ -1331,90 +1547,113 @@ export type CHAT_PROFILE_QUERYResult = {
 // Source: ./src/components/sections/AboutSection.tsx
 // Variable: ABOUT_QUERY
 // Query: *[_id == "singleton-profile"][0]{  firstName,  lastName,  fullBio,  quote,  quoteContext,  yearsOfExperience,  stats,  email,  phone,  location}
-export type ABOUT_QUERYResult = {
-  firstName: null;
-  lastName: null;
-  fullBio: null;
-  quote: null;
-  quoteContext: null;
-  yearsOfExperience: null;
-  stats: null;
-  email: null;
-  phone: null;
-  location: null;
-} | {
-  firstName: null;
-  lastName: null;
-  fullBio: null;
-  quote: null;
-  quoteContext: null;
-  yearsOfExperience: number | null;
-  stats: null;
-  email: null;
-  phone: null;
-  location: null;
-} | {
-  firstName: null;
-  lastName: null;
-  fullBio: null;
-  quote: null;
-  quoteContext: null;
-  yearsOfExperience: null;
-  stats: null;
-  email: null;
-  phone: null;
-  location: string | null;
-} | {
-  firstName: null;
-  lastName: null;
-  fullBio: null;
-  quote: null;
-  quoteContext: null;
-  yearsOfExperience: null;
-  stats: null;
-  email: string | null;
-  phone: null;
-  location: null;
-} | {
-  firstName: string | null;
-  lastName: string | null;
-  fullBio: Array<{
-    children?: Array<{
-      marks?: Array<string>;
-      text?: string;
-      _type: "span";
-      _key: string;
-    }>;
-    style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
-    listItem?: "bullet" | "number";
-    markDefs?: Array<{
-      href?: string;
-      _type: "link";
-      _key: string;
-    }>;
-    level?: number;
-    _type: "block";
-    _key: string;
-  }> | null;
-  quote: string | null;
-  quoteContext: string | null;
-  yearsOfExperience: number | null;
-  stats: Array<{
-    label?: string;
-    value?: string;
-    _key: string;
-  }> | null;
-  email: string | null;
-  phone: string | null;
-  location: string | null;
-} | null;
+export type ABOUT_QUERYResult =
+  | {
+      firstName: null;
+      lastName: null;
+      fullBio: null;
+      quote: null;
+      quoteContext: null;
+      yearsOfExperience: null;
+      stats: null;
+      email: null;
+      phone: null;
+      location: null;
+    }
+  | {
+      firstName: null;
+      lastName: null;
+      fullBio: null;
+      quote: null;
+      quoteContext: null;
+      yearsOfExperience: number | null;
+      stats: null;
+      email: null;
+      phone: null;
+      location: null;
+    }
+  | {
+      firstName: null;
+      lastName: null;
+      fullBio: null;
+      quote: null;
+      quoteContext: null;
+      yearsOfExperience: null;
+      stats: null;
+      email: null;
+      phone: null;
+      location: string | null;
+    }
+  | {
+      firstName: null;
+      lastName: null;
+      fullBio: null;
+      quote: null;
+      quoteContext: null;
+      yearsOfExperience: null;
+      stats: null;
+      email: string | null;
+      phone: null;
+      location: null;
+    }
+  | {
+      firstName: string | null;
+      lastName: string | null;
+      fullBio: Array<{
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?:
+          | "blockquote"
+          | "h1"
+          | "h2"
+          | "h3"
+          | "h4"
+          | "h5"
+          | "h6"
+          | "normal";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }> | null;
+      quote: string | null;
+      quoteContext: string | null;
+      yearsOfExperience: number | null;
+      stats: Array<{
+        label?: string;
+        value?: string;
+        _key: string;
+      }> | null;
+      email: string | null;
+      phone: string | null;
+      location: string | null;
+    }
+  | null;
 
 // Source: ./src/components/sections/AchievementsSection.tsx
 // Variable: ACHIEVEMENTS_QUERY
 // Query: *[_type == "achievement"] | order(date desc){  title,  type,  issuer,  date,  description,  image,  url,  featured,  order}
 export type ACHIEVEMENTS_QUERYResult = Array<{
   title: string | null;
-  type: "award" | "hackathon" | "milestone" | "open-source" | "other" | "publication" | "recognition" | "speaking" | null;
+  type:
+    | "award"
+    | "hackathon"
+    | "milestone"
+    | "open-source"
+    | "other"
+    | "publication"
+    | "recognition"
+    | "speaking"
+    | null;
   issuer: string | null;
   date: string | null;
   description: string | null;
@@ -1460,7 +1699,20 @@ export type CERTIFICATIONS_QUERYResult = Array<{
   description: string | null;
   skills: Array<{
     name: string | null;
-    category: "ai-ml" | "backend" | "cloud" | "database" | "design" | "devops" | "frontend" | "mobile" | "other" | "soft-skills" | "testing" | "tools" | null;
+    category:
+      | "ai-ml"
+      | "backend"
+      | "cloud"
+      | "database"
+      | "design"
+      | "devops"
+      | "frontend"
+      | "mobile"
+      | "other"
+      | "soft-skills"
+      | "testing"
+      | "tools"
+      | null;
   }> | null;
   order: number | null;
 }>;
@@ -1468,61 +1720,66 @@ export type CERTIFICATIONS_QUERYResult = Array<{
 // Source: ./src/components/sections/ContactSection.tsx
 // Variable: PROFILE_QUERY
 // Query: *[_id == "singleton-profile"][0]{  email,  phone,  location,  socialLinks,  calLink,  profileImage,  profileImages}
-export type PROFILE_QUERYResult = {
-  email: null;
-  phone: null;
-  location: null;
-  socialLinks: null;
-  calLink: null;
-  profileImage: null;
-  profileImages: null;
-} | {
-  email: null;
-  phone: null;
-  location: string | null;
-  socialLinks: null;
-  calLink: null;
-  profileImage: null;
-  profileImages: null;
-} | {
-  email: string | null;
-  phone: null;
-  location: null;
-  socialLinks: null;
-  calLink: null;
-  profileImage: null;
-  profileImages: null;
-} | {
-  email: string | null;
-  phone: string | null;
-  location: string | null;
-  socialLinks: {
-    github?: string;
-    linkedin?: string;
-    twitter?: string;
-    website?: string;
-    medium?: string;
-    devto?: string;
-    youtube?: string;
-    stackoverflow?: string;
-  } | null;
-  calLink: string | null;
-  profileImage: null;
-  profileImages: Array<{
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: "image";
-    _key: string;
-  }> | null;
-} | null;
+export type PROFILE_QUERYResult =
+  | {
+      email: null;
+      phone: null;
+      location: null;
+      socialLinks: null;
+      calLink: null;
+      profileImage: null;
+      profileImages: null;
+    }
+  | {
+      email: null;
+      phone: null;
+      location: string | null;
+      socialLinks: null;
+      calLink: null;
+      profileImage: null;
+      profileImages: null;
+    }
+  | {
+      email: string | null;
+      phone: null;
+      location: null;
+      socialLinks: null;
+      calLink: null;
+      profileImage: null;
+      profileImages: null;
+    }
+  | {
+      email: string | null;
+      phone: string | null;
+      location: string | null;
+      socialLinks: {
+        github?: string;
+        linkedin?: string;
+        twitter?: string;
+        website?: string;
+        medium?: string;
+        devto?: string;
+        youtube?: string;
+        stackoverflow?: string;
+      } | null;
+      calLink: string | null;
+      profileImage: null;
+      profileImages: Array<{
+        asset?: {
+          _ref: string;
+          _type: "reference";
+          _weak?: boolean;
+          [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+        };
+        media?: unknown;
+        hotspot?: SanityImageHotspot;
+        crop?: SanityImageCrop;
+        alt?: string;
+        _type: "image";
+        _key: string;
+      }> | null;
+    }
+  | null;
 
 // Source: ./src/components/sections/DecisionsSection.tsx
 // Variable: DECISIONS_HOME_QUERY
@@ -1572,7 +1829,13 @@ export type EDUCATION_QUERYResult = Array<{
 export type EXPERIENCE_QUERYResult = Array<{
   company: string | null;
   position: string | null;
-  employmentType: "contract" | "freelance" | "full-time" | "internship" | "part-time" | null;
+  employmentType:
+    | "contract"
+    | "freelance"
+    | "full-time"
+    | "internship"
+    | "part-time"
+    | null;
   location: string | null;
   startDate: string | null;
   endDate: string | null;
@@ -1599,7 +1862,20 @@ export type EXPERIENCE_QUERYResult = Array<{
   achievements: Array<string> | null;
   technologies: Array<{
     name: string | null;
-    category: "ai-ml" | "backend" | "cloud" | "database" | "design" | "devops" | "frontend" | "mobile" | "other" | "soft-skills" | "testing" | "tools" | null;
+    category:
+      | "ai-ml"
+      | "backend"
+      | "cloud"
+      | "database"
+      | "design"
+      | "devops"
+      | "frontend"
+      | "mobile"
+      | "other"
+      | "soft-skills"
+      | "testing"
+      | "tools"
+      | null;
   }> | null;
   companyLogo: {
     asset?: {
@@ -1621,136 +1897,150 @@ export type EXPERIENCE_QUERYResult = Array<{
 // Source: ./src/components/sections/HeroSection.tsx
 // Variable: HERO_QUERY
 // Query: *[_id== "singleton-profile"][0] {  firstName,  lastName,  headline,  headlineStaticText,  headlineAnimatedWords,  headlineAnimationDuration,  shortBio,  fullBio,  email,  phone,  location,  availability,  socialLinks,  calLink,  yearsOfExperience,  profileImage,  profileImages,}
-export type HERO_QUERYResult = {
-  firstName: null;
-  lastName: null;
-  headline: null;
-  headlineStaticText: null;
-  headlineAnimatedWords: null;
-  headlineAnimationDuration: null;
-  shortBio: null;
-  fullBio: null;
-  email: null;
-  phone: null;
-  location: null;
-  availability: null;
-  socialLinks: null;
-  calLink: null;
-  yearsOfExperience: null;
-  profileImage: null;
-  profileImages: null;
-} | {
-  firstName: null;
-  lastName: null;
-  headline: null;
-  headlineStaticText: null;
-  headlineAnimatedWords: null;
-  headlineAnimationDuration: null;
-  shortBio: null;
-  fullBio: null;
-  email: null;
-  phone: null;
-  location: null;
-  availability: null;
-  socialLinks: null;
-  calLink: null;
-  yearsOfExperience: number | null;
-  profileImage: null;
-  profileImages: null;
-} | {
-  firstName: null;
-  lastName: null;
-  headline: null;
-  headlineStaticText: null;
-  headlineAnimatedWords: null;
-  headlineAnimationDuration: null;
-  shortBio: null;
-  fullBio: null;
-  email: null;
-  phone: null;
-  location: string | null;
-  availability: null;
-  socialLinks: null;
-  calLink: null;
-  yearsOfExperience: null;
-  profileImage: null;
-  profileImages: null;
-} | {
-  firstName: null;
-  lastName: null;
-  headline: null;
-  headlineStaticText: null;
-  headlineAnimatedWords: null;
-  headlineAnimationDuration: null;
-  shortBio: null;
-  fullBio: null;
-  email: string | null;
-  phone: null;
-  location: null;
-  availability: null;
-  socialLinks: null;
-  calLink: null;
-  yearsOfExperience: null;
-  profileImage: null;
-  profileImages: null;
-} | {
-  firstName: string | null;
-  lastName: string | null;
-  headline: string | null;
-  headlineStaticText: string | null;
-  headlineAnimatedWords: Array<string> | null;
-  headlineAnimationDuration: number | null;
-  shortBio: string | null;
-  fullBio: Array<{
-    children?: Array<{
-      marks?: Array<string>;
-      text?: string;
-      _type: "span";
-      _key: string;
-    }>;
-    style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
-    listItem?: "bullet" | "number";
-    markDefs?: Array<{
-      href?: string;
-      _type: "link";
-      _key: string;
-    }>;
-    level?: number;
-    _type: "block";
-    _key: string;
-  }> | null;
-  email: string | null;
-  phone: string | null;
-  location: string | null;
-  availability: "available" | "open" | "unavailable" | null;
-  socialLinks: {
-    github?: string;
-    linkedin?: string;
-    twitter?: string;
-    website?: string;
-    medium?: string;
-    devto?: string;
-    youtube?: string;
-    stackoverflow?: string;
-  } | null;
-  calLink: string | null;
-  yearsOfExperience: number | null;
-  profileImage: null;
-  profileImages: Array<{
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: "image";
-    _key: string;
-  }> | null;
-} | null;
+export type HERO_QUERYResult =
+  | {
+      firstName: null;
+      lastName: null;
+      headline: null;
+      headlineStaticText: null;
+      headlineAnimatedWords: null;
+      headlineAnimationDuration: null;
+      shortBio: null;
+      fullBio: null;
+      email: null;
+      phone: null;
+      location: null;
+      availability: null;
+      socialLinks: null;
+      calLink: null;
+      yearsOfExperience: null;
+      profileImage: null;
+      profileImages: null;
+    }
+  | {
+      firstName: null;
+      lastName: null;
+      headline: null;
+      headlineStaticText: null;
+      headlineAnimatedWords: null;
+      headlineAnimationDuration: null;
+      shortBio: null;
+      fullBio: null;
+      email: null;
+      phone: null;
+      location: null;
+      availability: null;
+      socialLinks: null;
+      calLink: null;
+      yearsOfExperience: number | null;
+      profileImage: null;
+      profileImages: null;
+    }
+  | {
+      firstName: null;
+      lastName: null;
+      headline: null;
+      headlineStaticText: null;
+      headlineAnimatedWords: null;
+      headlineAnimationDuration: null;
+      shortBio: null;
+      fullBio: null;
+      email: null;
+      phone: null;
+      location: string | null;
+      availability: null;
+      socialLinks: null;
+      calLink: null;
+      yearsOfExperience: null;
+      profileImage: null;
+      profileImages: null;
+    }
+  | {
+      firstName: null;
+      lastName: null;
+      headline: null;
+      headlineStaticText: null;
+      headlineAnimatedWords: null;
+      headlineAnimationDuration: null;
+      shortBio: null;
+      fullBio: null;
+      email: string | null;
+      phone: null;
+      location: null;
+      availability: null;
+      socialLinks: null;
+      calLink: null;
+      yearsOfExperience: null;
+      profileImage: null;
+      profileImages: null;
+    }
+  | {
+      firstName: string | null;
+      lastName: string | null;
+      headline: string | null;
+      headlineStaticText: string | null;
+      headlineAnimatedWords: Array<string> | null;
+      headlineAnimationDuration: number | null;
+      shortBio: string | null;
+      fullBio: Array<{
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?:
+          | "blockquote"
+          | "h1"
+          | "h2"
+          | "h3"
+          | "h4"
+          | "h5"
+          | "h6"
+          | "normal";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }> | null;
+      email: string | null;
+      phone: string | null;
+      location: string | null;
+      availability: "available" | "open" | "unavailable" | null;
+      socialLinks: {
+        github?: string;
+        linkedin?: string;
+        twitter?: string;
+        website?: string;
+        medium?: string;
+        devto?: string;
+        youtube?: string;
+        stackoverflow?: string;
+      } | null;
+      calLink: string | null;
+      yearsOfExperience: number | null;
+      profileImage: null;
+      profileImages: Array<{
+        asset?: {
+          _ref: string;
+          _type: "reference";
+          _weak?: boolean;
+          [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+        };
+        media?: unknown;
+        hotspot?: SanityImageHotspot;
+        crop?: SanityImageCrop;
+        alt?: string;
+        _type: "image";
+        _key: string;
+      }> | null;
+    }
+  | null;
 // Variable: LATEST_RESUME_QUERY
 // Query: *[_type == "resume"] | order(isActive desc, uploadDate desc)[0] {  _id,  title,  resumeFile,  version,  isActive,  uploadDate}
 export type LATEST_RESUME_QUERYResult = {
@@ -1778,7 +2068,19 @@ export type PROJECTS_QUERYResult = Array<{
   title: string | null;
   slug: Slug | null;
   tagline: string | null;
-  category: "ai-ml" | "api-backend" | "browser-extension" | "cli-tool" | "desktop-app" | "devops" | "game" | "mobile-app" | "open-source" | "other" | "web-app" | null;
+  category:
+    | "ai-ml"
+    | "api-backend"
+    | "browser-extension"
+    | "cli-tool"
+    | "desktop-app"
+    | "devops"
+    | "game"
+    | "mobile-app"
+    | "open-source"
+    | "other"
+    | "web-app"
+    | null;
   liveUrl: string | null;
   githubUrl: string | null;
   coverImage: {
@@ -1796,7 +2098,20 @@ export type PROJECTS_QUERYResult = Array<{
   } | null;
   technologies: Array<{
     name: string | null;
-    category: "ai-ml" | "backend" | "cloud" | "database" | "design" | "devops" | "frontend" | "mobile" | "other" | "soft-skills" | "testing" | "tools" | null;
+    category:
+      | "ai-ml"
+      | "backend"
+      | "cloud"
+      | "database"
+      | "design"
+      | "devops"
+      | "frontend"
+      | "mobile"
+      | "other"
+      | "soft-skills"
+      | "testing"
+      | "tools"
+      | null;
     color: string | null;
   }> | null;
 }>;
@@ -1841,7 +2156,20 @@ export type SERVICES_QUERYResult = Array<{
   features: Array<string> | null;
   technologies: Array<{
     name: string | null;
-    category: "ai-ml" | "backend" | "cloud" | "database" | "design" | "devops" | "frontend" | "mobile" | "other" | "soft-skills" | "testing" | "tools" | null;
+    category:
+      | "ai-ml"
+      | "backend"
+      | "cloud"
+      | "database"
+      | "design"
+      | "devops"
+      | "frontend"
+      | "mobile"
+      | "other"
+      | "soft-skills"
+      | "testing"
+      | "tools"
+      | null;
   }> | null;
   deliverables: Array<string> | null;
   pricing: {
@@ -1859,7 +2187,20 @@ export type SERVICES_QUERYResult = Array<{
 // Query: *[_type == "skill"] | order(category asc, order asc){  name,  category,  proficiency,  color}
 export type SKILLS_QUERYResult = Array<{
   name: string | null;
-  category: "ai-ml" | "backend" | "cloud" | "database" | "design" | "devops" | "frontend" | "mobile" | "other" | "soft-skills" | "testing" | "tools" | null;
+  category:
+    | "ai-ml"
+    | "backend"
+    | "cloud"
+    | "database"
+    | "design"
+    | "devops"
+    | "frontend"
+    | "mobile"
+    | "other"
+    | "soft-skills"
+    | "testing"
+    | "tools"
+    | null;
   proficiency: "advanced" | "beginner" | "expert" | "intermediate" | null;
   color: string | null;
 }>;
@@ -1906,38 +2247,38 @@ export type TESTIMONIALS_QUERYResult = Array<{
 import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
-    "\n  *[_type == \"decision\" && slug.current == $slug && published == true][0] {\n    title,\n    date,\n    status,\n    \"adrNumber\": count(*[_type == \"decision\" && published == true && (date < ^.date || (date == ^.date && _id <= ^._id))])\n  }\n": OG_QUERYResult;
-    "\n  *[_type == \"decision\" && slug.current == $slug && published == true][0] {\n    \"slug\": slug.current,\n    title,\n    date,\n    status,\n    impact,\n    domain,\n    summary,\n    context,\n    optionsConsidered[] {\n      label,\n      summary\n    },\n    decision,\n    tradeoffs,\n    revisitTrigger,\n    takeaways,\n    body,\n    tags,\n    \"supersededBy\": supersededBy->{\n      \"slug\": slug.current,\n      title\n    },\n    \"relatedProjects\": relatedProjects[]->{\n      \"slug\": slug.current,\n      title,\n      tagline\n    },\n    \"adrNumber\": count(*[_type == \"decision\" && published == true && (date < ^.date || (date == ^.date && _id <= ^._id))]),\n    \"prev\": *[_type == \"decision\" && published == true && (date < ^.date || (date == ^.date && _id < ^._id))] | order(date desc, _id desc)[0] {\n      \"slug\": slug.current,\n      title\n    },\n    \"next\": *[_type == \"decision\" && published == true && (date > ^.date || (date == ^.date && _id > ^._id))] | order(date asc, _id asc)[0] {\n      \"slug\": slug.current,\n      title\n    }\n  }\n": DECISION_QUERYResult;
-    "\n  *[_type == \"decision\" && published == true] | order(date desc)[0...50] {\n    \"slug\": slug.current,\n    title,\n    date,\n    summary,\n    status,\n    impact,\n    domain,\n    tags\n  }\n": FEED_JSON_QUERYResult;
-    "\n  *[_type == \"decision\" && published == true] | order(date desc)[0...30] {\n    \"slug\": slug.current,\n    title,\n    date,\n    summary,\n    status\n  }\n": FEED_QUERYResult;
-    "count(*[_type == \"decision\" && published == true])": COUNT_QUERYResult;
-    "\n  *[_type == \"decision\" && published == true] | order(date asc, _id asc) {\n    \"slug\": slug.current,\n    title,\n    date,\n    summary,\n    status,\n    impact,\n    domain,\n    tags\n  }\n": DECISIONS_QUERYResult;
-    "\n  *[_type == \"note\" && slug.current == $slug && published == true][0] {\n    \"slug\": slug.current,\n    title,\n    date,\n    summary,\n    body,\n    tags,\n    \"newer\": *[\n      _type == \"note\" && published == true &&\n      (date > ^.date || (date == ^.date && _id < ^._id))\n    ] | order(date asc, _id desc)[0] { \"slug\": slug.current, title },\n    \"older\": *[\n      _type == \"note\" && published == true &&\n      (date < ^.date || (date == ^.date && _id > ^._id))\n    ] | order(date desc, _id asc)[0] { \"slug\": slug.current, title }\n  }\n": NOTE_QUERYResult;
-    "\n  *[_type == \"note\" && published == true] | order(date desc)[0...50] {\n    \"slug\": slug.current,\n    title,\n    date,\n    summary,\n    tags\n  }\n": NOTES_FEED_JSON_QUERYResult;
-    "\n  *[_type == \"note\" && published == true] | order(date desc)[0...30] {\n    \"slug\": slug.current,\n    title,\n    date,\n    summary\n  }\n": NOTES_FEED_QUERYResult;
-    "\n  *[_type == \"note\" && published == true] | order(date desc, _id asc) {\n    \"slug\": slug.current,\n    title,\n    date,\n    summary,\n    tags\n  }\n": NOTES_QUERYResult;
-    "\n  {\n    \"decisions\": *[_type == \"decision\" && published == true] | order(date desc) {\n      \"slug\": slug.current,\n      date,\n      _updatedAt\n    },\n    \"notes\": *[_type == \"note\" && published == true] | order(date desc) {\n      \"slug\": slug.current,\n      date,\n      _updatedAt\n    }\n  }\n": SITEMAP_QUERYResult;
-    "*[_id == \"singleton-profile\"][0] {\n  firstName,\n  lastName,\n  headline,\n  shortBio,\n  location,\n  yearsOfExperience,\n  email,\n  availability,\n  socialLinks,\n}": V2_PROFILE_QUERYResult;
-    "*[_type == \"project\"] | order(featured desc, _createdAt desc)[0...8] {\n  title,\n  tagline,\n  metrics,\n  liveUrl,\n  githubUrl,\n  \"stack\": technologies[]->name\n}": V2_PROJECTS_QUERYResult;
-    "*[_type == \"experience\"] | order(startDate desc)[0...5] {\n  jobTitle,\n  company,\n  startDate,\n  endDate,\n  current,\n  achievements\n}": V2_EXPERIENCE_QUERYResult;
-    "*[_type == \"decision\" && published == true] | order(date desc)[0...12] {\n  \"slug\": slug.current,\n  title,\n  date,\n  summary,\n  status\n}": V2_DECISIONS_QUERYResult;
-    "*[_id == \"singleton-now\"][0] {\n  month,\n  items,\n  reading\n}": NOW_QUERYResult;
-    "*[_id == \"singleton-uses\"][0] {\n  categories\n}": USES_QUERYResult;
-    "*[_id == \"singleton-siteSettings\"][0] {\n  trustLogos[] {\n    name,\n    url,\n    \"logoAlt\": logo.alt\n  }\n}": SITE_SETTINGS_QUERYResult;
-    "{\n  \"navItems\": *[_type == \"navigation\"] | order(order asc){\n    title,\n    href,\n    icon,\n    isExternal\n  },\n  \"calLink\": *[_id == \"singleton-profile\"][0].calLink\n}": DOCK_DATA_QUERYResult;
-    "{\n    \"profile\": *[_id == \"singleton-profile\"][0]{\n      firstName,\n      lastName,\n      headline,\n      shortBio,\n      fullBio,\n      email,\n      phone,\n      location,\n      availability,\n      socialLinks,\n      yearsOfExperience,\n      stats\n    },\n    \"experience\": *[_type == \"experience\"] | order(startDate desc){\n      _id,\n      jobTitle,\n      company,\n      location,\n      startDate,\n      endDate,\n      current,\n      description,\n      achievements[],\n      technologies[]->{name, category}\n    },\n    \"projects\": *[_type == \"project\"] | order(order asc){\n      _id,\n      title,\n      tagline,\n      category,\n      liveUrl,\n      githubUrl,\n      technologies[]->{name, category}\n    },\n    \"skills\": *[_type == \"skill\"] | order(name asc){\n      _id,\n      name,\n      category,\n      level,\n      yearsOfExperience,\n      percentage\n    },\n    \"education\": *[_type == \"education\"] | order(endDate desc){\n      _id,\n      degree,\n      field,\n      institution,\n      location,\n      startDate,\n      endDate,\n      description,\n      gpa\n    },\n    \"decisions\": *[_type == \"decision\" && published == true] | order(date desc){\n      _id,\n      title,\n      summary,\n      context,\n      \"options\": optionsConsidered[]{label, summary},\n      decision,\n      tradeoffs,\n      revisitTrigger,\n      takeaways\n    }\n  }": CHAT_PROFILE_QUERYResult;
-    "*[_id == \"singleton-profile\"][0]{\n  firstName,\n  lastName,\n  fullBio,\n  quote,\n  quoteContext,\n  yearsOfExperience,\n  stats,\n  email,\n  phone,\n  location\n}": ABOUT_QUERYResult;
-    "*[_type == \"achievement\"] | order(date desc){\n  title,\n  type,\n  issuer,\n  date,\n  description,\n  image,\n  url,\n  featured,\n  order\n}": ACHIEVEMENTS_QUERYResult;
-    "*[_type == \"certification\"] | order(issueDate desc){\n  name,\n  issuer,\n  issueDate,\n  expiryDate,\n  credentialId,\n  credentialUrl,\n  logo,\n  description,\n  skills[]->{name, category},\n  order\n}": CERTIFICATIONS_QUERYResult;
-    "*[_id == \"singleton-profile\"][0]{\n  email,\n  phone,\n  location,\n  socialLinks,\n  calLink,\n  profileImage,\n  profileImages\n}": PROFILE_QUERYResult;
-    "\n  *[_type == \"decision\" && published == true] | order(date desc)[0...3]{\n    \"slug\": slug.current,\n    title,\n    summary,\n    status,\n    impact,\n    domain,\n    tags\n  }\n": DECISIONS_HOME_QUERYResult;
-    "*[_type == \"education\"] | order(endDate desc, startDate desc){\n  institution,\n  degree,\n  fieldOfStudy,\n  startDate,\n  endDate,\n  current,\n  gpa,\n  description,\n  achievements,\n  logo,\n  website,\n  order\n}": EDUCATION_QUERYResult;
-    "*[_type == \"experience\"] | order(startDate desc){\n  company,\n  position,\n  employmentType,\n  location,\n  startDate,\n  endDate,\n  current,\n  description,\n  responsibilities,\n  achievements,\n  technologies[]->{name, category},\n  companyLogo,\n  companyWebsite,\n  companyDescription\n}": EXPERIENCE_QUERYResult;
-    "*[_id== \"singleton-profile\"][0] {\n  firstName,\n  lastName,\n  headline,\n  headlineStaticText,\n  headlineAnimatedWords,\n  headlineAnimationDuration,\n  shortBio,\n  fullBio,\n  email,\n  phone,\n  location,\n  availability,\n  socialLinks,\n  calLink,\n  yearsOfExperience,\n  profileImage,\n  profileImages,\n}": HERO_QUERYResult;
-    "*[_type == \"resume\"] | order(isActive desc, uploadDate desc)[0] {\n  _id,\n  title,\n  resumeFile,\n  version,\n  isActive,\n  uploadDate\n}": LATEST_RESUME_QUERYResult;
-    "*[_type == \"project\" && featured == true] | order(order asc)[0...6]{\n  title,\n  slug,\n  tagline,\n  category,\n  liveUrl,\n  githubUrl,\n  coverImage,\n  technologies[]->{name, category, color}\n}": PROJECTS_QUERYResult;
-    "*[_type == \"service\"] | order(order asc, _createdAt desc){\n  title,\n  slug,\n  icon,\n  shortDescription,\n  fullDescription,\n  features,\n  technologies[]->{name, category},\n  deliverables,\n  pricing,\n  timeline,\n  featured,\n  order\n}": SERVICES_QUERYResult;
-    "*[_type == \"skill\"] | order(category asc, order asc){\n  name,\n  category,\n  proficiency,\n  color\n}": SKILLS_QUERYResult;
-    "*[_type == \"testimonial\" && featured == true] | order(order asc){\n  name,\n  position,\n  company,\n  testimonial,\n  rating,\n  date,\n  avatar,\n  companyLogo,\n  linkedinUrl\n}": TESTIMONIALS_QUERYResult;
+    '\n  *[_type == "decision" && slug.current == $slug && published == true][0] {\n    title,\n    date,\n    status,\n    "adrNumber": count(*[_type == "decision" && published == true && (date < ^.date || (date == ^.date && _id <= ^._id))])\n  }\n': OG_QUERYResult;
+    '\n  *[_type == "decision" && slug.current == $slug && published == true][0] {\n    "slug": slug.current,\n    title,\n    date,\n    status,\n    impact,\n    domain,\n    summary,\n    context,\n    optionsConsidered[] {\n      label,\n      summary\n    },\n    decision,\n    tradeoffs,\n    revisitTrigger,\n    takeaways,\n    body,\n    tags,\n    "supersededBy": supersededBy->{\n      "slug": slug.current,\n      title\n    },\n    "relatedProjects": relatedProjects[]->{\n      "slug": slug.current,\n      title,\n      tagline\n    },\n    "adrNumber": count(*[_type == "decision" && published == true && (date < ^.date || (date == ^.date && _id <= ^._id))]),\n    "prev": *[_type == "decision" && published == true && (date < ^.date || (date == ^.date && _id < ^._id))] | order(date desc, _id desc)[0] {\n      "slug": slug.current,\n      title\n    },\n    "next": *[_type == "decision" && published == true && (date > ^.date || (date == ^.date && _id > ^._id))] | order(date asc, _id asc)[0] {\n      "slug": slug.current,\n      title\n    }\n  }\n': DECISION_QUERYResult;
+    '\n  *[_type == "decision" && published == true] | order(date desc)[0...50] {\n    "slug": slug.current,\n    title,\n    date,\n    summary,\n    status,\n    impact,\n    domain,\n    tags\n  }\n': FEED_JSON_QUERYResult;
+    '\n  *[_type == "decision" && published == true] | order(date desc)[0...30] {\n    "slug": slug.current,\n    title,\n    date,\n    summary,\n    status\n  }\n': FEED_QUERYResult;
+    'count(*[_type == "decision" && published == true])': COUNT_QUERYResult;
+    '\n  *[_type == "decision" && published == true] | order(date asc, _id asc) {\n    "slug": slug.current,\n    title,\n    date,\n    summary,\n    status,\n    impact,\n    domain,\n    tags\n  }\n': DECISIONS_QUERYResult;
+    '\n  *[_type == "note" && slug.current == $slug && published == true][0] {\n    "slug": slug.current,\n    title,\n    date,\n    summary,\n    body,\n    tags,\n    "newer": *[\n      _type == "note" && published == true &&\n      (date > ^.date || (date == ^.date && _id < ^._id))\n    ] | order(date asc, _id desc)[0] { "slug": slug.current, title },\n    "older": *[\n      _type == "note" && published == true &&\n      (date < ^.date || (date == ^.date && _id > ^._id))\n    ] | order(date desc, _id asc)[0] { "slug": slug.current, title }\n  }\n': NOTE_QUERYResult;
+    '\n  *[_type == "note" && published == true] | order(date desc)[0...50] {\n    "slug": slug.current,\n    title,\n    date,\n    summary,\n    tags\n  }\n': NOTES_FEED_JSON_QUERYResult;
+    '\n  *[_type == "note" && published == true] | order(date desc)[0...30] {\n    "slug": slug.current,\n    title,\n    date,\n    summary\n  }\n': NOTES_FEED_QUERYResult;
+    '\n  *[_type == "note" && published == true] | order(date desc, _id asc) {\n    "slug": slug.current,\n    title,\n    date,\n    summary,\n    tags\n  }\n': NOTES_QUERYResult;
+    '\n  {\n    "decisions": *[_type == "decision" && published == true] | order(date desc) {\n      "slug": slug.current,\n      date,\n      _updatedAt\n    },\n    "notes": *[_type == "note" && published == true] | order(date desc) {\n      "slug": slug.current,\n      date,\n      _updatedAt\n    }\n  }\n': SITEMAP_QUERYResult;
+    '*[_id == "singleton-profile"][0] {\n  firstName,\n  lastName,\n  headline,\n  shortBio,\n  location,\n  yearsOfExperience,\n  email,\n  availability,\n  socialLinks,\n}': V2_PROFILE_QUERYResult;
+    '*[_type == "project"] | order(featured desc, _createdAt desc)[0...8] {\n  title,\n  tagline,\n  metrics,\n  liveUrl,\n  githubUrl,\n  "stack": technologies[]->name\n}': V2_PROJECTS_QUERYResult;
+    '*[_type == "experience"] | order(startDate desc)[0...5] {\n  jobTitle,\n  company,\n  startDate,\n  endDate,\n  current,\n  achievements\n}': V2_EXPERIENCE_QUERYResult;
+    '*[_type == "decision" && published == true] | order(date desc)[0...12] {\n  "slug": slug.current,\n  title,\n  date,\n  summary,\n  status\n}': V2_DECISIONS_QUERYResult;
+    '*[_id == "singleton-now"][0] {\n  month,\n  items,\n  reading\n}': NOW_QUERYResult;
+    '*[_id == "singleton-uses"][0] {\n  categories\n}': USES_QUERYResult;
+    '*[_id == "singleton-siteSettings"][0] {\n  trustLogos[] {\n    name,\n    url,\n    "logoAlt": logo.alt\n  }\n}': SITE_SETTINGS_QUERYResult;
+    '{\n  "navItems": *[_type == "navigation"] | order(order asc){\n    title,\n    href,\n    icon,\n    isExternal\n  },\n  "calLink": *[_id == "singleton-profile"][0].calLink\n}': DOCK_DATA_QUERYResult;
+    '{\n    "profile": *[_id == "singleton-profile"][0]{\n      firstName,\n      lastName,\n      headline,\n      shortBio,\n      fullBio,\n      email,\n      phone,\n      location,\n      availability,\n      socialLinks,\n      yearsOfExperience,\n      stats\n    },\n    "experience": *[_type == "experience"] | order(startDate desc){\n      _id,\n      jobTitle,\n      company,\n      location,\n      startDate,\n      endDate,\n      current,\n      description,\n      achievements[],\n      technologies[]->{name, category}\n    },\n    "projects": *[_type == "project"] | order(order asc){\n      _id,\n      title,\n      tagline,\n      category,\n      liveUrl,\n      githubUrl,\n      technologies[]->{name, category}\n    },\n    "skills": *[_type == "skill"] | order(name asc){\n      _id,\n      name,\n      category,\n      level,\n      yearsOfExperience,\n      percentage\n    },\n    "education": *[_type == "education"] | order(endDate desc){\n      _id,\n      degree,\n      field,\n      institution,\n      location,\n      startDate,\n      endDate,\n      description,\n      gpa\n    },\n    "decisions": *[_type == "decision" && published == true] | order(date desc){\n      _id,\n      title,\n      summary,\n      context,\n      "options": optionsConsidered[]{label, summary},\n      decision,\n      tradeoffs,\n      revisitTrigger,\n      takeaways\n    }\n  }': CHAT_PROFILE_QUERYResult;
+    '*[_id == "singleton-profile"][0]{\n  firstName,\n  lastName,\n  fullBio,\n  quote,\n  quoteContext,\n  yearsOfExperience,\n  stats,\n  email,\n  phone,\n  location\n}': ABOUT_QUERYResult;
+    '*[_type == "achievement"] | order(date desc){\n  title,\n  type,\n  issuer,\n  date,\n  description,\n  image,\n  url,\n  featured,\n  order\n}': ACHIEVEMENTS_QUERYResult;
+    '*[_type == "certification"] | order(issueDate desc){\n  name,\n  issuer,\n  issueDate,\n  expiryDate,\n  credentialId,\n  credentialUrl,\n  logo,\n  description,\n  skills[]->{name, category},\n  order\n}': CERTIFICATIONS_QUERYResult;
+    '*[_id == "singleton-profile"][0]{\n  email,\n  phone,\n  location,\n  socialLinks,\n  calLink,\n  profileImage,\n  profileImages\n}': PROFILE_QUERYResult;
+    '\n  *[_type == "decision" && published == true] | order(date desc)[0...3]{\n    "slug": slug.current,\n    title,\n    summary,\n    status,\n    impact,\n    domain,\n    tags\n  }\n': DECISIONS_HOME_QUERYResult;
+    '*[_type == "education"] | order(endDate desc, startDate desc){\n  institution,\n  degree,\n  fieldOfStudy,\n  startDate,\n  endDate,\n  current,\n  gpa,\n  description,\n  achievements,\n  logo,\n  website,\n  order\n}': EDUCATION_QUERYResult;
+    '*[_type == "experience"] | order(startDate desc){\n  company,\n  position,\n  employmentType,\n  location,\n  startDate,\n  endDate,\n  current,\n  description,\n  responsibilities,\n  achievements,\n  technologies[]->{name, category},\n  companyLogo,\n  companyWebsite,\n  companyDescription\n}': EXPERIENCE_QUERYResult;
+    '*[_id== "singleton-profile"][0] {\n  firstName,\n  lastName,\n  headline,\n  headlineStaticText,\n  headlineAnimatedWords,\n  headlineAnimationDuration,\n  shortBio,\n  fullBio,\n  email,\n  phone,\n  location,\n  availability,\n  socialLinks,\n  calLink,\n  yearsOfExperience,\n  profileImage,\n  profileImages,\n}': HERO_QUERYResult;
+    '*[_type == "resume"] | order(isActive desc, uploadDate desc)[0] {\n  _id,\n  title,\n  resumeFile,\n  version,\n  isActive,\n  uploadDate\n}': LATEST_RESUME_QUERYResult;
+    '*[_type == "project" && featured == true] | order(order asc)[0...6]{\n  title,\n  slug,\n  tagline,\n  category,\n  liveUrl,\n  githubUrl,\n  coverImage,\n  technologies[]->{name, category, color}\n}': PROJECTS_QUERYResult;
+    '*[_type == "service"] | order(order asc, _createdAt desc){\n  title,\n  slug,\n  icon,\n  shortDescription,\n  fullDescription,\n  features,\n  technologies[]->{name, category},\n  deliverables,\n  pricing,\n  timeline,\n  featured,\n  order\n}': SERVICES_QUERYResult;
+    '*[_type == "skill"] | order(category asc, order asc){\n  name,\n  category,\n  proficiency,\n  color\n}': SKILLS_QUERYResult;
+    '*[_type == "testimonial" && featured == true] | order(order asc){\n  name,\n  position,\n  company,\n  testimonial,\n  rating,\n  date,\n  avatar,\n  companyLogo,\n  linkedinUrl\n}': TESTIMONIALS_QUERYResult;
   }
 }
