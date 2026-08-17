@@ -443,7 +443,9 @@ export const commands: Record<string, Command> = {
           value: [
             dim("Initializing download..."),
             "",
-            `${accent("→")} ${internalLink("/api/resume", "resume.pdf")} ${dim("· also available as ")} ${internalLink("/api/resume?format=md", "markdown")} ${dim("·")} ${internalLink("/api/resume?format=json", "json-resume")}`,
+            // No markdown or json-resume export exists — the links that
+            // advertised them 404'd. Add them back only if they get built.
+            `${accent("→")} ${internalLink("/api/resume", "resume.pdf")}`,
             "",
             dim("ATS-friendly. One-page and two-page variants available."),
           ].join("\n"),
