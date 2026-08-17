@@ -1,4 +1,5 @@
 import type { TerminalProfile } from "@/components/terminal/commands";
+import { calBookingUrl } from "@/lib/cal";
 
 interface Props {
   readonly profile: TerminalProfile;
@@ -242,14 +243,16 @@ export function RecruiterView({ profile }: Props) {
           <a className="term-link-btn" href="/api/resume">
             resume.pdf
           </a>
-          <a
-            className="term-link-btn"
-            href="https://cal.com/shoaibuddin/intro"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            book a 15-min call
-          </a>
+          {profile.calLink && (
+            <a
+              className="term-link-btn"
+              href={calBookingUrl(profile.calLink)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              book a 30-min call
+            </a>
+          )}
         </div>
       </Section>
     </main>

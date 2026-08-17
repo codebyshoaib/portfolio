@@ -23,6 +23,7 @@ const V2_PROFILE_QUERY = defineQuery(`*[_id == "singleton-profile"][0] {
   yearsOfExperience,
   email,
   availability,
+  calLink,
   socialLinks,
 }`);
 
@@ -123,6 +124,7 @@ export default async function V2Page({ searchParams }: PageProps) {
     readonly yearsOfExperience?: number | null;
     readonly email?: string | null;
     readonly availability?: string | null;
+    readonly calLink?: string | null;
     readonly socialLinks?: {
       readonly github?: string | null;
       readonly linkedin?: string | null;
@@ -257,6 +259,7 @@ export default async function V2Page({ searchParams }: PageProps) {
     yearsOfExperience: sanityProfile?.yearsOfExperience ?? undefined,
     email: sanityProfile?.email ?? undefined,
     availability: sanityProfile?.availability ?? undefined,
+    calLink: sanityProfile?.calLink ?? undefined,
     socialLinks: sanityProfile?.socialLinks
       ? {
           github: sanityProfile.socialLinks.github ?? undefined,

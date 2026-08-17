@@ -1,3 +1,5 @@
+import { calBookingUrl } from "@/lib/cal";
+
 export interface CommandContext {
   readonly profile: TerminalProfile;
   readonly history: readonly string[];
@@ -14,6 +16,8 @@ export interface TerminalProfile {
   readonly yearsOfExperience?: number;
   readonly email?: string;
   readonly availability?: string;
+  /** Cal.com link in path form, e.g. "shoaib-uddin-wszyfy/30min". */
+  readonly calLink?: string;
   readonly socialLinks?: {
     readonly github?: string;
     readonly linkedin?: string;
@@ -411,7 +415,11 @@ export const commands: Record<string, Command> = {
   book: {
     name: "book",
     description: "schedule a call",
-    run: () => ({
+    // The link comes from the Sanity profile's calLink. It used to be hardcoded
+    // here and in the recruiter view, and the two drifted: the recruiter view
+    // was left on cal.com/shoaibuddin/intro, an event type that does not exist
+    // (Cal's public event API returns null for it).
+    run: (_args, { profile }) => ({
       kind: "html",
       value: [
         serif("Schedule a 30-minute call"),
@@ -420,13 +428,9 @@ export const commands: Record<string, Command> = {
           "Best for: senior+ roles, technical co-founder conversations, infra/AI work.",
         ),
         "",
-        // Must match the calLink on the Sanity profile. The old
-        // cal.com/shoaibuddin/intro link was dead — that event type does not
-        // exist (Cal's public event API returns null for it).
-        link(
-          "https://cal.com/shoaib-uddin-wszyfy/30min",
-          "→ cal.com/shoaib-uddin-wszyfy/30min",
-        ),
+        profile.calLink
+          ? link(calBookingUrl(profile.calLink), `→ cal.com/${profile.calLink}`)
+          : `${dim("Booking is closed right now — email instead:")} ${accent("contact")}`,
         "",
         dim("Reply SLA: 24h on weekdays."),
       ].join("\n"),
