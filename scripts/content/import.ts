@@ -11,8 +11,12 @@
  * Run:
  *   pnpm decisions:import                       # every .md in content/decisions
  *   pnpm notes:import                           # every .md in content/notes
- *   pnpm notes:import path/to/file.md           # a single file
- *   pnpm notes:import --dry-run                 # parses + validates, no Sanity write
+ *   tsx --env-file=.env.local scripts/content/import.ts --type=note path/to/file.md
+ *                                               # a single file (then `pnpm rag:index`)
+ *   tsx --env-file=.env.local scripts/content/import.ts --type=note --dry-run
+ *                                               # parses + validates, no Sanity write.
+ *                                               # Not via `pnpm notes:import --dry-run`: pnpm
+ *                                               # appends args after the chained `rag:index`.
  *
  * Required env: SANITY_API_WRITE_TOKEN (a Sanity API token with "Editor" or "Maintainer" role).
  */
