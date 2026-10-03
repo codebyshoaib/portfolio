@@ -346,15 +346,18 @@ export async function POST(req: Request) {
           Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
         },
         body: JSON.stringify({
-          // 70b over 8b-instant: the 8b ignored the length rules and wrote essays,
-          // and its free-tier budget is 6000 TPM vs 12000 here — better answers
-          // and twice the headroom, which is what was 429ing the second question.
-          model: "llama-3.3-70b-versatile",
+          // Groq retired llama-3.3-70b-versatile (404 model_not_found, Oct 2026);
+          // gpt-oss-120b is the largest general model left. It reasons before
+          // answering: keep that low and out of the stream.
+          model: "openai/gpt-oss-120b",
+          reasoning_effort: "low",
+          include_reasoning: false,
           messages: messagesWithSystem,
           temperature: 0.6,
           // Brevity is the prompt's job. This is only a runaway guard, set high
           // enough that a well-behaved 3-sentence answer never gets cut mid-word.
-          max_tokens: 320,
+          // Reasoning tokens count against it too, hence more than 320.
+          max_tokens: 512,
           stream: true,
         }),
       },

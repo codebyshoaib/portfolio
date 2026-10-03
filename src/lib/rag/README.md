@@ -161,7 +161,7 @@ Watch the server logs for `RAG fell back to the static prompt: <reason>` —
 
 Shipped alongside, same root cause or found on the way:
 
-- Model is `llama-3.3-70b-versatile`, not `llama-3.1-8b-instant`: 12000 TPM
+- Model is `openai/gpt-oss-120b` since Groq retired `llama-3.3-70b-versatile` (Oct 2026). Earlier note: 70b over `llama-3.1-8b-instant`: 12000 TPM
   instead of 6000, and it actually obeys the length rules the 8b ignored.
   **The ADR at `/decisions/groq-8b-over-70b-for-ai-twin` now contradicts the
   code and needs revisiting.**

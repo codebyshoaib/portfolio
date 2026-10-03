@@ -210,9 +210,9 @@ export function chunkProfile(sources: ProfileSources): Chunk[] {
       .filter(Boolean)
       .join(" at ");
     if (!role) return;
-    const when = exp.current
-      ? `${clean(exp.startDate)}-present`
-      : [clean(exp.startDate), clean(exp.endDate)].filter(Boolean).join("-");
+    const when = [clean(exp.startDate), clean(exp.endDate)]
+      .filter(Boolean)
+      .join("-");
     const wins = (exp.achievements || []).map(clean).filter(Boolean).join("; ");
     const tech = techList(exp.technologies);
     chunks.push({
@@ -221,7 +221,11 @@ export function chunkProfile(sources: ProfileSources): Chunk[] {
       title: role,
       section: "role",
       text: [
-        `Job: ${role}${when ? ` (${when})` : ""}.`,
+        // "present" alone scores below MIN_SCORE for "what's your current job?";
+        // the plain words are what that question embeds near.
+        exp.current
+          ? `Current job, my role today: ${role} (since ${clean(exp.startDate)}).`
+          : `Past job: ${role}${when ? ` (${when})` : ""}.`,
         clean(exp.location) && `Location: ${clean(exp.location)}.`,
         clean(exp.description),
         wins && `Achievements: ${wins}.`,

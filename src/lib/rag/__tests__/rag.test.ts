@@ -136,7 +136,7 @@ describe("chunkProfile", () => {
     expect(chunk.text).toContain("Django");
   });
 
-  it("marks a current role as present rather than leaving the range open", () => {
+  it("names a current role as the current job, in words a question uses", () => {
     const [chunk] = chunkProfile({
       experience: [
         {
@@ -147,7 +147,8 @@ describe("chunkProfile", () => {
         },
       ],
     });
-    expect(chunk.text).toContain("2025-11-present");
+    expect(chunk.text).toContain("Current job");
+    expect(chunk.text).toContain("since 2025-11");
   });
 
   it("groups skills by category, since that is the unit people ask about", () => {
