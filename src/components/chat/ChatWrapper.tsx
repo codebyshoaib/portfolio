@@ -21,7 +21,7 @@ const CHAT_PROFILE_QUERY = defineQuery(`{
     },
     "experience": *[_type == "experience"] | order(startDate desc){
       _id,
-      jobTitle,
+      "jobTitle": position,
       company,
       location,
       startDate,

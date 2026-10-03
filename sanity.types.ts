@@ -1088,9 +1088,9 @@ export type V2_PROJECTS_QUERYResult = Array<{
   stack: Array<string | null> | null;
 }>;
 // Variable: V2_EXPERIENCE_QUERY
-// Query: *[_type == "experience"] | order(startDate desc)[0...5] {  jobTitle,  company,  startDate,  endDate,  current,  achievements}
+// Query: *[_type == "experience"] | order(startDate desc)[0...5] {  "jobTitle": position,  company,  startDate,  endDate,  current,  achievements}
 export type V2_EXPERIENCE_QUERYResult = Array<{
-  jobTitle: null;
+  jobTitle: string | null;
   company: string | null;
   startDate: string | null;
   endDate: string | null;
@@ -1156,7 +1156,7 @@ export type DOCK_DATA_QUERYResult = {
 
 // Source: ./src/components/chat/ChatWrapper.tsx
 // Variable: CHAT_PROFILE_QUERY
-// Query: {    "profile": *[_id == "singleton-profile"][0]{      firstName,      lastName,      headline,      shortBio,      fullBio,      email,      phone,      location,      availability,      socialLinks,      yearsOfExperience,      stats    },    "experience": *[_type == "experience"] | order(startDate desc){      _id,      jobTitle,      company,      location,      startDate,      endDate,      current,      description,      achievements[],      technologies[]->{name, category}    },    "projects": *[_type == "project"] | order(order asc){      _id,      title,      tagline,      category,      liveUrl,      githubUrl,      technologies[]->{name, category}    },    "skills": *[_type == "skill"] | order(name asc){      _id,      name,      category,      level,      yearsOfExperience,      percentage    },    "education": *[_type == "education"] | order(endDate desc){      _id,      degree,      field,      institution,      location,      startDate,      endDate,      description,      gpa    },    "decisions": *[_type == "decision" && published == true] | order(date desc){      _id,      title,      summary,      context,      "options": optionsConsidered[]{label, summary},      decision,      tradeoffs,      revisitTrigger,      takeaways    }  }
+// Query: {    "profile": *[_id == "singleton-profile"][0]{      firstName,      lastName,      headline,      shortBio,      fullBio,      email,      phone,      location,      availability,      socialLinks,      yearsOfExperience,      stats    },    "experience": *[_type == "experience"] | order(startDate desc){      _id,      "jobTitle": position,      company,      location,      startDate,      endDate,      current,      description,      achievements[],      technologies[]->{name, category}    },    "projects": *[_type == "project"] | order(order asc){      _id,      title,      tagline,      category,      liveUrl,      githubUrl,      technologies[]->{name, category}    },    "skills": *[_type == "skill"] | order(name asc){      _id,      name,      category,      level,      yearsOfExperience,      percentage    },    "education": *[_type == "education"] | order(endDate desc){      _id,      degree,      field,      institution,      location,      startDate,      endDate,      description,      gpa    },    "decisions": *[_type == "decision" && published == true] | order(date desc){      _id,      title,      summary,      context,      "options": optionsConsidered[]{label, summary},      decision,      tradeoffs,      revisitTrigger,      takeaways    }  }
 export type CHAT_PROFILE_QUERYResult = {
   profile: {
     firstName: null;
@@ -1256,7 +1256,7 @@ export type CHAT_PROFILE_QUERYResult = {
   } | null;
   experience: Array<{
     _id: string;
-    jobTitle: null;
+    jobTitle: string | null;
     company: string | null;
     location: string | null;
     startDate: string | null;
@@ -1923,13 +1923,13 @@ declare module "@sanity/client" {
     "\n  {\n    \"decisions\": *[_type == \"decision\" && published == true] | order(date desc) {\n      \"slug\": slug.current,\n      date,\n      _updatedAt\n    },\n    \"notes\": *[_type == \"note\" && published == true] | order(date desc) {\n      \"slug\": slug.current,\n      date,\n      _updatedAt\n    }\n  }\n": SITEMAP_QUERYResult;
     "*[_id == \"singleton-profile\"][0] {\n  firstName,\n  lastName,\n  headline,\n  shortBio,\n  location,\n  yearsOfExperience,\n  email,\n  availability,\n  calLink,\n  socialLinks,\n}": V2_PROFILE_QUERYResult;
     "*[_type == \"project\"] | order(featured desc, _createdAt desc)[0...8] {\n  title,\n  tagline,\n  metrics,\n  liveUrl,\n  githubUrl,\n  \"stack\": technologies[]->name\n}": V2_PROJECTS_QUERYResult;
-    "*[_type == \"experience\"] | order(startDate desc)[0...5] {\n  jobTitle,\n  company,\n  startDate,\n  endDate,\n  current,\n  achievements\n}": V2_EXPERIENCE_QUERYResult;
+    "*[_type == \"experience\"] | order(startDate desc)[0...5] {\n  \"jobTitle\": position,\n  company,\n  startDate,\n  endDate,\n  current,\n  achievements\n}": V2_EXPERIENCE_QUERYResult;
     "*[_type == \"decision\" && published == true] | order(date desc)[0...12] {\n  \"slug\": slug.current,\n  title,\n  date,\n  summary,\n  status\n}": V2_DECISIONS_QUERYResult;
     "*[_id == \"singleton-now\"][0] {\n  month,\n  items,\n  reading\n}": NOW_QUERYResult;
     "*[_id == \"singleton-uses\"][0] {\n  categories\n}": USES_QUERYResult;
     "*[_id == \"singleton-siteSettings\"][0] {\n  trustLogos[] {\n    name,\n    url,\n    \"logoAlt\": logo.alt\n  }\n}": SITE_SETTINGS_QUERYResult;
     "{\n  \"navItems\": *[_type == \"navigation\"] | order(order asc){\n    title,\n    href,\n    icon,\n    isExternal\n  },\n  \"calLink\": *[_id == \"singleton-profile\"][0].calLink\n}": DOCK_DATA_QUERYResult;
-    "{\n    \"profile\": *[_id == \"singleton-profile\"][0]{\n      firstName,\n      lastName,\n      headline,\n      shortBio,\n      fullBio,\n      email,\n      phone,\n      location,\n      availability,\n      socialLinks,\n      yearsOfExperience,\n      stats\n    },\n    \"experience\": *[_type == \"experience\"] | order(startDate desc){\n      _id,\n      jobTitle,\n      company,\n      location,\n      startDate,\n      endDate,\n      current,\n      description,\n      achievements[],\n      technologies[]->{name, category}\n    },\n    \"projects\": *[_type == \"project\"] | order(order asc){\n      _id,\n      title,\n      tagline,\n      category,\n      liveUrl,\n      githubUrl,\n      technologies[]->{name, category}\n    },\n    \"skills\": *[_type == \"skill\"] | order(name asc){\n      _id,\n      name,\n      category,\n      level,\n      yearsOfExperience,\n      percentage\n    },\n    \"education\": *[_type == \"education\"] | order(endDate desc){\n      _id,\n      degree,\n      field,\n      institution,\n      location,\n      startDate,\n      endDate,\n      description,\n      gpa\n    },\n    \"decisions\": *[_type == \"decision\" && published == true] | order(date desc){\n      _id,\n      title,\n      summary,\n      context,\n      \"options\": optionsConsidered[]{label, summary},\n      decision,\n      tradeoffs,\n      revisitTrigger,\n      takeaways\n    }\n  }": CHAT_PROFILE_QUERYResult;
+    "{\n    \"profile\": *[_id == \"singleton-profile\"][0]{\n      firstName,\n      lastName,\n      headline,\n      shortBio,\n      fullBio,\n      email,\n      phone,\n      location,\n      availability,\n      socialLinks,\n      yearsOfExperience,\n      stats\n    },\n    \"experience\": *[_type == \"experience\"] | order(startDate desc){\n      _id,\n      \"jobTitle\": position,\n      company,\n      location,\n      startDate,\n      endDate,\n      current,\n      description,\n      achievements[],\n      technologies[]->{name, category}\n    },\n    \"projects\": *[_type == \"project\"] | order(order asc){\n      _id,\n      title,\n      tagline,\n      category,\n      liveUrl,\n      githubUrl,\n      technologies[]->{name, category}\n    },\n    \"skills\": *[_type == \"skill\"] | order(name asc){\n      _id,\n      name,\n      category,\n      level,\n      yearsOfExperience,\n      percentage\n    },\n    \"education\": *[_type == \"education\"] | order(endDate desc){\n      _id,\n      degree,\n      field,\n      institution,\n      location,\n      startDate,\n      endDate,\n      description,\n      gpa\n    },\n    \"decisions\": *[_type == \"decision\" && published == true] | order(date desc){\n      _id,\n      title,\n      summary,\n      context,\n      \"options\": optionsConsidered[]{label, summary},\n      decision,\n      tradeoffs,\n      revisitTrigger,\n      takeaways\n    }\n  }": CHAT_PROFILE_QUERYResult;
     "*[_id == \"singleton-profile\"][0]{\n  firstName,\n  lastName,\n  fullBio,\n  quote,\n  quoteContext,\n  yearsOfExperience,\n  stats,\n  email,\n  phone,\n  location\n}": ABOUT_QUERYResult;
     "*[_type == \"achievement\"] | order(date desc){\n  title,\n  type,\n  issuer,\n  date,\n  description,\n  image,\n  url,\n  featured,\n  order\n}": ACHIEVEMENTS_QUERYResult;
     "*[_type == \"certification\"] | order(issueDate desc){\n  name,\n  issuer,\n  issueDate,\n  expiryDate,\n  credentialId,\n  credentialUrl,\n  logo,\n  description,\n  skills[]->{name, category},\n  order\n}": CERTIFICATIONS_QUERYResult;

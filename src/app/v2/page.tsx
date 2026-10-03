@@ -39,7 +39,7 @@ const V2_PROJECTS_QUERY =
 
 const V2_EXPERIENCE_QUERY =
   defineQuery(`*[_type == "experience"] | order(startDate desc)[0...5] {
-  jobTitle,
+  "jobTitle": position,
   company,
   startDate,
   endDate,

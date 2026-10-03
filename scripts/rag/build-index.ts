@@ -97,7 +97,7 @@ async function readContentChunks(): Promise<Chunk[]> {
 
 const PROFILE_QUERY = `{
   "experience": *[_type == "experience"] | order(startDate desc){
-    jobTitle, company, location, startDate, endDate, current, description,
+    "jobTitle": position, company, location, startDate, endDate, current, description,
     achievements[], "technologies": technologies[]->{name}
   },
   "projects": *[_type == "project"] | order(order asc){
