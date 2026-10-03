@@ -105,7 +105,7 @@ export async function AboutSection() {
 
         {/* Marginal pull-quote — fills the gutter, echoes the /decisions marginalia */}
         <aside className="self-start border-t border-border pt-8 lg:sticky lg:top-24 lg:border-t-0 lg:pt-1">
-          <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
             {profile.quoteContext || "In practice"}
           </p>
           <span

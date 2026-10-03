@@ -42,10 +42,9 @@ so every new token needs both blocks.
 together; nothing enforces it (see the comment in `globals.css`). Alpha ramps on
 `/decisions` read the HSL triplet because `hsl()` cannot take an oklch value.
 
-Status colours (success, warning, error, info) exist only as `--accent-status-*` in
-`editorial.css`, measured to 4.5:1 on both grounds but scoped to `.editorial-root`. To use
-them on the home page, move them into `globals.css`. Don't reach for raw Tailwind palette
-colours instead.
+Status colours are `--accent-status-*` in `globals.css`, measured to 4.5:1 on both grounds,
+exposed to Tailwind as `status-success`, `status-warning`, `status-error` and `status-info`
+(`text-status-error`, `bg-status-success/10`). Never use raw palette colours like `green-500`.
 
 ## Type
 
@@ -59,7 +58,7 @@ colours instead.
 Rules:
 
 - **One tracking for the uppercase mono meta role: `0.18em`.** `editorial.css` defines it as
-  `--meta-track`. Tags (`.hashtags`) use `0.12em`, and that's the only exception.
+  `--meta-track`. Tags are the exception (see Tag tracking below).
 - Meta text is 11px. Below 13px, text needs at least 0.62 foreground alpha to hold 4.5:1
   (budget in the header of `editorial.css`).
 - Prose measure caps at `70ch` (`--measure`), applied to the text and never to a container.
@@ -100,26 +99,24 @@ Reuse these before writing new markup.
 
 ## Accessibility
 
-- Visible focus on every interactive element: `2px solid var(--brand)`, `2px` offset.
-  `.editorial-root` enforces it for links, buttons and `[tabindex]`; anywhere else needs
-  `focus-visible:ring-2 focus-visible:ring-brand`.
+- Visible focus on every interactive element: `2px solid var(--brand)`, `2px` offset, set once
+  on `:focus-visible` in `globals.css`. `/v2` recolours it to `--term-accent`. A component
+  that draws its own ring (`focus-visible:outline-none` + `ring-*`) overrides it.
 - One `h1` per page. Section titles are `h2`.
 - Colour is never the only signal. Status badges carry text.
 - Decorative images and glyphs get `alt=""` or `aria-hidden`.
 
-## Known drift
+## Tag tracking
 
-Places that break the rules above. Fix them when you touch the file, or as one sweep.
+Bordered chips (skills, stack tags, services, certification tags) use `tracking-[0.14em]`.
+That's the tag role, the same idea as `.hashtags` sitting tighter on `/decisions`.
+Eyebrows, labels and meta lines use `0.18em`.
 
-| Where | Drift | Rule |
-| --- | --- | --- |
-| `sections/Section.tsx` `SectionHeader` eyebrow | `tracking-[0.2em]` | `0.18em` |
-| `sections/ContactForm.tsx`, `SkillsSection.tsx`, `ProjectsSection.tsx` | `tracking-[0.14em]` on mono meta | `0.18em` |
-| `sections/ContactForm.tsx` status | raw `green-*` / `red-*` | `--accent-status-*`, once moved into `globals.css` |
-| `DynamicIcon.tsx` default | `text-neutral-500 dark:text-neutral-300` | `text-muted-foreground` |
-| `ProfileImage.tsx` online dot | `bg-green-500` with pulse + ping | status token; a single pulse is plenty |
-| Home sections | Only `ContactForm` sets a `focus-visible` style | Brand focus ring on every link |
-| `package.json` | `styled-components` installed, imported nowhere | Remove it, and fix the CLAUDE.md line that lists it |
+## Styling tools
+
+Tailwind plus the tokens above. `styled-components` is installed only because Sanity
+Studio requires it as a peer dependency. Don't use it in site components, and don't
+remove it.
 
 `global-error.tsx` uses `text-gray-600` on purpose: it renders without the root layout,
 so the tokens may not exist there.

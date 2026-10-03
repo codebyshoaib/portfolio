@@ -42,7 +42,7 @@ export async function DecisionsSection() {
         action={
           <Link
             href="/decisions"
-            className="font-mono text-[11px] uppercase tracking-[0.14em] text-brand hover:opacity-80 whitespace-nowrap"
+            className="font-mono text-[11px] uppercase tracking-[0.18em] text-brand hover:opacity-80 whitespace-nowrap"
           >
             View all →
           </Link>
@@ -61,7 +61,7 @@ export async function DecisionsSection() {
               href={`/decisions/${d.slug}`}
               className="group block rounded-[10px] border border-border bg-card p-6 transition-colors hover:border-foreground/25"
             >
-              <div className="flex flex-wrap items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
                 <span className="border border-border rounded px-2 py-0.5">
                   {(d.status ?? "accepted").toUpperCase()}
                 </span>
@@ -83,7 +83,7 @@ export async function DecisionsSection() {
                 </p>
               )}
 
-              <span className="mt-4 inline-block font-mono text-[11px] uppercase tracking-[0.14em] text-brand">
+              <span className="mt-4 inline-block font-mono text-[11px] uppercase tracking-[0.18em] text-brand">
                 Read →
               </span>
             </Link>

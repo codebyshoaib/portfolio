@@ -57,7 +57,7 @@ export function SectionHeader({
             {index}
           </span>
         )}
-        <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
           {eyebrow}
         </span>
         <span aria-hidden className="h-px flex-1 bg-border" />

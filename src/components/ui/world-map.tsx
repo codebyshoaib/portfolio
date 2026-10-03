@@ -314,7 +314,7 @@ export default function WorldMap({
         // short to hold the card without it spilling past both edges.
         <figure className="mt-4 rounded-lg border border-border border-l-2 border-l-brand bg-background/80 p-4 shadow-lg backdrop-blur-md md:absolute md:bottom-8 md:left-8 md:z-10 md:mt-0 md:max-w-[min(22rem,72%)] md:p-5">
           {eyebrow && (
-            <figcaption className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-brand md:text-[11px]">
+            <figcaption className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-brand md:text-[11px]">
               {eyebrow}
             </figcaption>
           )}

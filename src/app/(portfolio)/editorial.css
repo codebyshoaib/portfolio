@@ -24,19 +24,6 @@
 
   --accent-warm: var(--brand); /* site brand — italic accent + decision rule + links */
 
-  /* Status hues are BADGE TEXT, not decoration, so they owe 4.5:1 against the
-   * ground they sit on — and a single mid-lightness ramp cannot do that on both
-   * grounds. Light theme therefore runs its own darkened set; .dark restores the
-   * luminous one below. Measured ratios (WCAG 2.1, sRGB), light ground
-   * oklch(0.995 0.002 185):
-   *   green 5.04:1 · amber 5.17:1 · red 5.12:1 · blue 5.25:1
-   * DO NOT "brighten these up" — the pre-fix values were 2.17 / 1.95 / 3.37 /
-   * 2.89, i.e. a hard AA failure. Re-measure if you touch them. */
-  --accent-status-green: 152 58% 31%;
-  --accent-status-amber: 38 88% 31%;
-  --accent-status-red: 8 70% 46%;
-  --accent-status-blue: 218 65% 49%;
-
   /* Long-form measure. Capped on the text, never on the container — the
    * marginalia grid needs its column geometry intact. */
   --measure: 70ch;
@@ -47,17 +34,6 @@
    * rest of the site. .hashtags keeps 0.12em as a single deliberate exception —
    * tags are meant to sit tighter. */
   --meta-track: 0.18em;
-}
-
-/* next-themes puts .dark on <html>, so .editorial-root is always a descendant.
- * Measured on the dark ground oklch(0.165 0.008 200):
- *   green 8.75:1 · amber 9.75:1 · red 5.64:1 · blue 6.57:1 — all already pass,
- * so these are the original values, unchanged. */
-.dark .editorial-root {
-  --accent-status-green: 152 55% 50%;
-  --accent-status-amber: 38 85% 58%;
-  --accent-status-red: 8 65% 60%;
-  --accent-status-blue: 218 60% 65%;
 }
 
 .editorial-root .body-serif {

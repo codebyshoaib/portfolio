@@ -9,6 +9,10 @@
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
   --color-brand-muted: var(--brand-muted);
+  --color-status-success: hsl(var(--accent-status-green));
+  --color-status-warning: hsl(var(--accent-status-amber));
+  --color-status-error: hsl(var(--accent-status-red));
+  --color-status-info: hsl(var(--accent-status-blue));
   --font-sans: var(--font-inter);
   --font-heading: var(--font-serif);
   --font-serif: var(--font-serif);
@@ -117,6 +121,18 @@
   --sidebar-accent-foreground: oklch(0.21 0.01 200);
   --sidebar-border: oklch(0.918 0.006 185);
   --sidebar-ring: oklch(0.48 0.078 182);
+  /* Status hues are BADGE TEXT, not decoration, so they owe 4.5:1 against the
+   * ground they sit on — and a single mid-lightness ramp cannot do that on both
+   * grounds. Light theme therefore runs its own darkened set; .dark restores the
+   * luminous one below. Measured ratios (WCAG 2.1, sRGB), light ground
+   * oklch(0.995 0.002 185):
+   *   green 5.04:1 · amber 5.17:1 · red 5.12:1 · blue 5.25:1
+   * DO NOT "brighten these up" — the pre-fix values were 2.17 / 1.95 / 3.37 /
+   * 2.89, i.e. a hard AA failure. Re-measure if you touch them. */
+  --accent-status-green: 152 58% 31%;
+  --accent-status-amber: 38 88% 31%;
+  --accent-status-red: 8 70% 46%;
+  --accent-status-blue: 218 65% 49%;
 }
 
 .dark {
@@ -160,6 +176,13 @@
   --sidebar-accent-foreground: oklch(0.925 0.006 185);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.77 0.085 184);
+  /* Measured on the dark ground oklch(0.165 0.008 200):
+   *   green 8.75:1 · amber 9.75:1 · red 5.64:1 · blue 6.57:1 — all already pass,
+   * so these are the original values, unchanged. */
+  --accent-status-green: 152 55% 50%;
+  --accent-status-amber: 38 85% 58%;
+  --accent-status-red: 8 65% 60%;
+  --accent-status-blue: 218 60% 65%;
 }
 
 @layer base {
@@ -185,6 +208,13 @@
       var(--font-serif), Georgia, "Iowan Old Style", "Times New Roman", serif;
     font-weight: 600;
     letter-spacing: -0.015em;
+  }
+
+  /* One visible focus ring site-wide. Components that draw their own ring
+     (focus-visible:outline-none + ring-*) override this from the utilities layer. */
+  :focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
   }
 
   main {

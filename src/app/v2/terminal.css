@@ -154,6 +154,11 @@
   border: 0;
 }
 
+/* The site-wide ring in globals.css, in the terminal's own accent. */
+.terminal-body :focus-visible {
+  outline-color: var(--term-accent);
+}
+
 /* Visible focus ring for keyboard users */
 .term-chip:focus-visible,
 .term-link-btn:focus-visible {

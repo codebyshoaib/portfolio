@@ -39,7 +39,7 @@ export function ContactForm() {
   };
 
   const labelClass =
-    "mb-2 block font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground";
+    "mb-2 block font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground";
   const fieldClass =
     "w-full rounded-md border border-border bg-transparent px-3 py-2 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand transition disabled:opacity-60";
 
@@ -53,8 +53,8 @@ export function ContactForm() {
         <div
           className={`mb-4 rounded-md p-3 text-sm ${
             status.type === "success"
-              ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-              : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
+              ? "bg-status-success/10 text-status-success"
+              : "bg-status-error/10 text-status-error"
           }`}
         >
           {status.message}

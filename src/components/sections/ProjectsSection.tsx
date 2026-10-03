@@ -51,7 +51,7 @@ export async function ProjectsSection() {
 
             <div className="p-6">
               {project.category && (
-                <div className="mb-3 font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+                <div className="mb-3 font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
                   {project.category}
                 </div>
               )}
@@ -91,7 +91,7 @@ export async function ProjectsSection() {
               )}
 
               {(project.liveUrl || project.githubUrl) && (
-                <div className="mt-5 flex items-center gap-4 font-mono text-[11px] uppercase tracking-[0.14em]">
+                <div className="mt-5 flex items-center gap-4 font-mono text-[11px] uppercase tracking-[0.18em]">
                   {project.liveUrl && (
                     <Link
                       href={project.liveUrl}

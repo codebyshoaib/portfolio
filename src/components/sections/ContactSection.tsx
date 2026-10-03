@@ -94,7 +94,7 @@ export async function ContactSection() {
 
           {profile.socialLinks && (
             <div className="mt-8">
-              <h4 className="mb-3 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+              <h4 className="mb-3 font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
                 Follow me
               </h4>
               <div className="flex flex-wrap gap-2">
