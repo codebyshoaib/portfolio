@@ -25,16 +25,12 @@ export async function OpenSourceSection() {
   const groups = await getOpenSource();
   if (!groups || groups.length === 0) return null;
 
-  const merged = groups
-    .flatMap((g) => g.items)
-    .filter((i) => i.status === "merged").length;
-
   return (
     <Section id="open-source">
       <SectionHeader
         eyebrow="Open source"
         title="Open source"
-        description={`Pull requests and issues on other people's projects. ${merged} merged so far.`}
+        description="I like to contribute in my free time."
       />
 
       <div className="space-y-10">
