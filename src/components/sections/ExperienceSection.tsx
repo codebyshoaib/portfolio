@@ -2,6 +2,7 @@ import { PortableText } from "@portabletext/react";
 import Image from "next/image";
 import Link from "next/link";
 import { defineQuery } from "next-sanity";
+import { CareerRuler, roleAnchor } from "@/components/sections/CareerRuler";
 import { Section, SectionHeader } from "@/components/sections/Section";
 import { urlFor } from "@/sanity/lib/image";
 import { sanityFetch } from "@/sanity/lib/live";
@@ -46,11 +47,25 @@ export async function ExperienceSection() {
         description="A record of the roles, teams, and problems I've worked on."
       />
 
+      <CareerRuler
+        roles={experiences.map((exp) => ({
+          key: `${exp.company}-${exp.position}-${exp.startDate}`,
+          company: exp.company ?? "",
+          start: exp.startDate ?? "",
+          end: exp.endDate,
+          current: exp.current,
+          logo: exp.companyLogo
+            ? urlFor(exp.companyLogo).width(32).height(32).fit("max").url()
+            : null,
+        }))}
+      />
+
       <div>
         {experiences.map((exp) => (
           <article
             key={`${exp.company}-${exp.position}-${exp.startDate}`}
-            className="grid gap-3 border-t border-border py-8 md:grid-cols-[140px_1fr_13rem] md:gap-8"
+            id={roleAnchor(`${exp.company}-${exp.position}-${exp.startDate}`)}
+            className="scroll-mt-24 grid gap-3 border-t border-border py-8 md:grid-cols-[140px_1fr_13rem] md:gap-8"
           >
             {/* Date range + logo — left gutter */}
             <div className="font-mono text-[13px] tabular-nums text-muted-foreground">
