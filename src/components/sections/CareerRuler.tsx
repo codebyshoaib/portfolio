@@ -115,7 +115,7 @@ export function CareerRuler({
 
   return (
     <nav aria-label="Career timeline" className="mb-10">
-      <ol className="relative h-[30px]">
+      <ol className="relative h-9">
         {gaps.map((gap) => (
           <li
             key={gap.left}
@@ -126,8 +126,8 @@ export function CareerRuler({
               width: `calc(${gap.width}% - 2px)`,
             }}
           >
-            {/* 16px logo slot holds the label; the line sits on the bars' centre (22px + 2px). */}
-            <span className="block h-4 truncate text-center text-[11px] leading-4 text-muted-foreground">
+            {/* The 22px logo slot holds the label; the line sits on the bars' centre (22px + 8px). */}
+            <span className="block h-[22px] truncate text-center text-[11px] leading-[22px] text-muted-foreground">
               {gap.width >= GAP_LABEL_MIN_WIDTH ? gap.label : null}
             </span>
             <span className="mt-2 block border-t border-dashed border-foreground/25" />
@@ -156,12 +156,12 @@ export function CareerRuler({
                   <Image
                     src={role.logo}
                     alt=""
-                    width={16}
-                    height={16}
-                    className="size-4 rounded-[4px] bg-white object-contain"
+                    width={22}
+                    height={22}
+                    className="size-[22px] rounded-[5px] bg-white object-contain"
                   />
                 ) : (
-                  <span aria-hidden className="block size-4" />
+                  <span aria-hidden className="block size-[22px]" />
                 )}
                 <span
                   aria-hidden

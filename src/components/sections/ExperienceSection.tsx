@@ -72,7 +72,7 @@ export async function ExperienceSection() {
           end: exp.endDate,
           current: exp.current,
           logo: exp.companyLogo
-            ? urlFor(exp.companyLogo).width(32).fit("max").url()
+            ? urlFor(exp.companyLogo).width(48).fit("max").url()
             : null,
         }))}
       />
@@ -170,15 +170,14 @@ export async function ExperienceSection() {
                   details.length > 0 ||
                   stack.length > 0) && (
                   <div className="mt-3.5 max-w-[68ch] text-sm leading-relaxed text-muted-foreground sm:col-span-2">
-                    {exp.description && (
+                    {/* Bullets carry the role; the summary only shows when there are none. */}
+                    {exp.description && details.length === 0 && (
                       <div className="[&_p+p]:mt-2">
                         <PortableText value={exp.description} />
                       </div>
                     )}
                     {details.length > 0 && (
-                      <ul
-                        className={`space-y-1.5 ${exp.description ? "mt-3" : ""}`}
-                      >
+                      <ul className="space-y-1.5">
                         {details.map((item) => (
                           <li
                             key={item}
