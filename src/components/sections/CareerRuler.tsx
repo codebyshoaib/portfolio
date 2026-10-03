@@ -17,6 +17,13 @@ export type RulerBar = {
   current: boolean;
 };
 
+export type RulerGap = { left: number; width: number; label: string };
+
+/** An empty stretch this long between bars gets marked on the strip. */
+const MIN_GAP_MONTHS = 6;
+// ponytail: one fixed label; derive per-gap labels from Sanity education entries if gaps ever mean different things.
+const GAP_LABEL = "Study gap";
+
 const monthIndex = (d: Date) => d.getUTCFullYear() * 12 + d.getUTCMonth();
 
 /** DOM id of a role's row, so a bar can link to it. */
@@ -49,15 +56,25 @@ export function layoutRuler(roles: RulerRole[], now: Date) {
     })
     .sort((a, b) => a.start - b.start || a.end - b.end);
 
-  if (spans.length === 0) return { bars: [], years: [] };
+  if (spans.length === 0) return { bars: [], gaps: [], years: [] };
 
   const from = Math.floor(spans[0].start / 12) * 12;
   const at = (m: number) => ((m - from) / (nowEnd - from)) * 100;
 
   const bars: RulerBar[] = [];
+  const gaps: RulerGap[] = [];
+  let prevEnd: number | null = null;
   spans.forEach((s, i) => {
     const drawnEnd = Math.min(s.end, spans[i + 1]?.start ?? s.end);
     if (drawnEnd <= s.start) return;
+    if (prevEnd !== null && s.start - prevEnd >= MIN_GAP_MONTHS) {
+      gaps.push({
+        left: at(prevEnd),
+        width: at(s.start) - at(prevEnd),
+        label: GAP_LABEL,
+      });
+    }
+    prevEnd = drawnEnd;
     bars.push({
       key: s.key,
       left: at(s.start),
@@ -71,7 +88,7 @@ export function layoutRuler(roles: RulerRole[], now: Date) {
     years.push({ year: y, left: at(y * 12) });
   }
 
-  return { bars, years };
+  return { bars, gaps, years };
 }
 
 const fmt = (date: string) =>
@@ -82,6 +99,8 @@ const fmt = (date: string) =>
 
 /** Year labels past this point would collide with "Now". */
 const LABEL_EDGE = 88;
+/** Below this width (percent) "Study gap" would overflow its stretch. */
+const GAP_LABEL_MIN_WIDTH = 8;
 
 export function CareerRuler({
   roles,
@@ -90,13 +109,30 @@ export function CareerRuler({
   roles: RulerRole[];
   now?: Date;
 }) {
-  const { bars, years } = layoutRuler(roles, now);
+  const { bars, gaps, years } = layoutRuler(roles, now);
   if (bars.length < 2) return null;
   const byKey = new Map(roles.map((r) => [r.key, r]));
 
   return (
     <nav aria-label="Career timeline" className="mb-10">
       <ol className="relative h-[30px]">
+        {gaps.map((gap) => (
+          <li
+            key={gap.left}
+            aria-hidden
+            className="absolute top-0"
+            style={{
+              left: `calc(${gap.left}% + 1px)`,
+              width: `calc(${gap.width}% - 2px)`,
+            }}
+          >
+            {/* 16px logo slot holds the label; the line sits on the bars' centre (22px + 2px). */}
+            <span className="block h-4 truncate text-center text-[11px] leading-4 text-muted-foreground">
+              {gap.width >= GAP_LABEL_MIN_WIDTH ? gap.label : null}
+            </span>
+            <span className="mt-2 block border-t border-dashed border-foreground/25" />
+          </li>
+        ))}
         {bars.map((bar) => {
           const role = byKey.get(bar.key);
           if (!role) return null;

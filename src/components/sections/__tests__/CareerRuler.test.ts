@@ -43,6 +43,32 @@ describe("layoutRuler", () => {
     expect(bars.map((b) => b.key)).toEqual(["first", "long"]);
   });
 
+  it("marks a gap of six months or more between bars", () => {
+    const { bars, gaps } = layoutRuler(
+      [
+        { key: "a", company: "A", start: "2022-01-01", end: "2023-02-01" },
+        { key: "b", company: "B", start: "2024-05-01", current: true },
+      ],
+      now,
+    );
+    const [a, b] = bars;
+    expect(gaps).toHaveLength(1);
+    expect(gaps[0].left).toBeCloseTo(a.left + a.width);
+    expect(gaps[0].left + gaps[0].width).toBeCloseTo(b.left);
+    expect(gaps[0].label).toBe("Study gap");
+  });
+
+  it("does not mark a gap shorter than six months", () => {
+    const { gaps } = layoutRuler(
+      [
+        { key: "a", company: "A", start: "2022-01-01", end: "2023-02-01" },
+        { key: "b", company: "B", start: "2023-07-01", current: true },
+      ],
+      now,
+    );
+    expect(gaps).toEqual([]);
+  });
+
   it("ignores roles without a start date", () => {
     expect(
       layoutRuler([{ key: "x", company: "X", start: "" }], now).bars,
