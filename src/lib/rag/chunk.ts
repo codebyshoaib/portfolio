@@ -204,6 +204,7 @@ const techList = (tech?: ReadonlyArray<{ name?: string }>) =>
  */
 export function chunkProfile(sources: ProfileSources): Chunk[] {
   const chunks: Chunk[] = [];
+  const history: string[] = [];
 
   (sources.experience || []).forEach((exp, i) => {
     const role = [clean(exp.jobTitle), clean(exp.company)]
@@ -215,6 +216,11 @@ export function chunkProfile(sources: ProfileSources): Chunk[] {
       .join("-");
     const wins = (exp.achievements || []).map(clean).filter(Boolean).join("; ");
     const tech = techList(exp.technologies);
+    history.push(
+      exp.current
+        ? `${role} (current, since ${clean(exp.startDate)})`
+        : `${role}${when ? ` (${when})` : ""}`,
+    );
     chunks.push({
       id: `experience:${i}`,
       source: "experience",
@@ -235,6 +241,21 @@ export function chunkProfile(sources: ProfileSources): Chunk[] {
         .join(" "),
     });
   });
+
+  // "Tell me about your experience" matches no single job well enough to clear
+  // MIN_SCORE, so the twin answered from whichever old role scraped past it.
+  // One overview chunk, in the order the query returns (newest first).
+  if (history.length) {
+    chunks.push({
+      id: "experience:history",
+      source: "experience",
+      title: "Work history",
+      section: "overview",
+      // Phrased as the questions it answers: overview questions are short
+      // and generic, and only embed near text that reads like them.
+      text: `About my experience, background and career: what I have worked on, where, and as what. My roles, most recent first: ${history.join("; ")}.`,
+    });
+  }
 
   (sources.projects || []).forEach((proj, i) => {
     const title = clean(proj.title);

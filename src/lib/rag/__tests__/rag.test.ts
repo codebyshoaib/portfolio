@@ -5,7 +5,14 @@ import {
   chunkProfile,
   splitMarkdownSections,
 } from "../chunk";
-import { diversify, type IndexedChunk, score, topK } from "../retrieve";
+import {
+  diversify,
+  type IndexedChunk,
+  PINNED_ID,
+  pinOverview,
+  score,
+  topK,
+} from "../retrieve";
 
 const DECISION = {
   title: "Run the AI twin on 8b, not 70b",
@@ -151,6 +158,24 @@ describe("chunkProfile", () => {
     expect(chunk.text).toContain("since 2025-11");
   });
 
+  it("adds one work-history chunk listing every role, newest first", () => {
+    const chunks = chunkProfile({
+      experience: [
+        { jobTitle: "Lead", company: "B", startDate: "2026-01", current: true },
+        {
+          jobTitle: "Dev",
+          company: "A",
+          startDate: "2024-01",
+          endDate: "2025-12",
+        },
+      ],
+    });
+    const history = chunks.find((c) => c.id === "experience:history");
+    expect(history?.text).toContain(
+      "Lead at B (current, since 2026-01); Dev at A (2024-01-2025-12)",
+    );
+  });
+
   it("groups skills by category, since that is the unit people ask about", () => {
     const chunks = chunkProfile({
       skills: [
@@ -238,5 +263,40 @@ describe("diversify", () => {
       { id: "y", title: "B", score: 0.7 },
     ].map((r) => ({ ...r, source: "note" as const, section: "s", text: r.id }));
     expect(diversify(results, 5).map((k) => k.score)).toEqual([0.9, 0.7]);
+  });
+});
+
+describe("pinOverview", () => {
+  const history: IndexedChunk = {
+    id: PINNED_ID,
+    source: "experience",
+    title: "Work history",
+    section: "overview",
+    text: "roles",
+    vector: [1],
+  };
+  const hit = {
+    id: "experience:3",
+    source: "experience" as const,
+    title: "Old job",
+    section: "role",
+    text: "old",
+    score: 0.31,
+  };
+
+  it("puts the work history first when anything was retrieved", () => {
+    expect(pinOverview([hit], [history]).map((c) => c.id)).toEqual([
+      PINNED_ID,
+      "experience:3",
+    ]);
+  });
+
+  it("adds nothing to an empty result, so the static fallback still runs", () => {
+    expect(pinOverview([], [history])).toEqual([]);
+  });
+
+  it("does not duplicate it when retrieval already found it", () => {
+    const found = { ...hit, id: PINNED_ID };
+    expect(pinOverview([found], [history])).toHaveLength(1);
   });
 });

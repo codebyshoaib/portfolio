@@ -102,6 +102,27 @@ export function diversify(
   return kept;
 }
 
+/**
+ * Overview questions ("tell me about your experience") are short and generic,
+ * so they embed near nothing in particular and the work-history chunk rarely
+ * clears MIN_SCORE on its own. It is a few lines, so it rides along with every
+ * answer that retrieved anything; with no hits the static prompt covers it.
+ */
+export const PINNED_ID = "experience:history";
+
+export function pinOverview(
+  hits: readonly Retrieved[],
+  all: readonly IndexedChunk[],
+): Retrieved[] {
+  if (hits.length === 0 || hits.some((h) => h.id === PINNED_ID)) {
+    return [...hits];
+  }
+  const pinned = all.find((c) => c.id === PINNED_ID);
+  if (!pinned) return [...hits];
+  const { vector: _vector, ...chunk } = pinned;
+  return [{ ...chunk, score: 1 }, ...hits];
+}
+
 let cached: RagIndex | null = null;
 
 /**
@@ -157,7 +178,7 @@ export async function retrieve(
     if (!queryVector) return { chunks: [], reason: "error" };
 
     const hits = diversify(topK(queryVector, index.chunks, k * 2), maxPerTitle);
-    const chunks = hits.slice(0, k);
+    const chunks = pinOverview(hits.slice(0, k), index.chunks);
     return chunks.length > 0 ? { chunks } : { chunks: [], reason: "no-match" };
   } catch (error) {
     if (error instanceof MissingEmbeddingKeyError) {
